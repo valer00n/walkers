@@ -36,6 +36,8 @@ protected:
         void paintGL();
         void jump();
         void freefall();
+        void Begin2D();
+        void End2D();
 
     /*LEVEL CONTROL*/
         void finn();
@@ -65,10 +67,15 @@ protected:
         void drawaxes();
         void drawSKY();
         void fogg(bool start);
+        void drawinfo();
 
     /*LOADING LEVEL*/
         void loadlevel();
         void levelclear();
+
+    /*HELP*/
+        GLfloat getx(GLfloat x);
+        GLfloat gety(GLfloat y);
 
 private:
 
@@ -80,6 +87,7 @@ private:
         GLint jumpiterations;
         GLfloat sx, sy, vx, vy;
         GLint timetorestart;
+        GLint restime;
 
     /*LEVEL INFO*/
         QVector <QVector <char> > map;
@@ -90,6 +98,7 @@ private:
 
     /*WINDOW INFO*/
         bool fullscreen;
+        GLint minw, minh;
 
     /*SYSTEM*/
         GLint TIME;
@@ -102,7 +111,7 @@ private:
         bool mousedetected;
 
     /*TEXTURES*/
-        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose;
+        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose ,PIXmenu;
 
 
 

@@ -5,6 +5,28 @@
 #include <QDir>
 #include <fstream>
 
+void MainWindow::Begin2D ()
+{
+  glDisable ( GL_DEPTH_TEST );
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+//  gluOrtho2D(0, Width, 0, Height);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+}
+
+void MainWindow::End2D ()
+{
+     glPopMatrix();
+     glMatrixMode(GL_PROJECTION);
+     glPopMatrix();
+     glMatrixMode(GL_MODELVIEW);
+     glEnable ( GL_DEPTH_TEST );
+}
+
+
 bool MainWindow::inside_key(int key) {
     return (this->keys_pressed.find(key) != this->keys_pressed.end());
 }
@@ -84,7 +106,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->levelnomber = 0;
     this->TIME = 0;
     this->fullscreen = false;
-//    this->timetorestart = 3000;
+    this->minw = 0;
+    this->minh = 0;
+    this->restime = 3000;
     this->loadparam();
     finn();
 }
@@ -99,17 +123,23 @@ void MainWindow::initializeGL() {
     glEnable( GL_DEPTH_TEST );
     glDepthFunc( GL_LEQUAL );
     glShadeModel( GL_SMOOTH );
-    glFogi(GL_FOG_MODE, GL_EXP);
-    GLfloat fogColor[4]= {1.0f, .0f, .0f, 1.0f};
-    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogi(GL_FOG_MODE, GL_LINEAR);
     glFogf(GL_FOG_DENSITY, 0.4f);
-    glHint(GL_FOG_HINT, GL_DONT_CARE);
-    glFogf(GL_FOG_START, 1.0f);
-    glFogf(GL_FOG_END, 5.0f);
+    glHint(GL_FOG_HINT, GL_NICEST);
+    glFogf(GL_FOG_START, 0.0f);
+
     this->switchmode();
 }
 
 void MainWindow::resizeGL(int w, int h) {
+    if (w < this->minw) {
+        this->resize(this->minw, h);
+        return;
+    }
+    if (h < this->minh) {
+        this->resize(w, this->minh);
+        return;
+    }
     glViewport( 0, 0, w, h );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
@@ -119,6 +149,9 @@ void MainWindow::resizeGL(int w, int h) {
 }
 
 void MainWindow::paintGL() {
+    this->fogg(false);
+//    qDebug() << "L" << this->life << this->levelnomber << this->maxlevels;
+//    qDebug() << this->TIME << this->x << this->z << this->y;
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth( 1.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -131,6 +164,7 @@ void MainWindow::paintGL() {
     if (this->levelnomber <= this->maxlevels) {
         this->drawSKY();
         this->drawmap();
+        this->drawinfo();
     }
     else
         if (this->life > 0)
@@ -253,8 +287,6 @@ bool getstate(int TIME, hidden panel) {
         return panel.visible;
 }
 
-
-
 void MainWindow::drawmap() {
     for (int i = 0; i < this->Hpanel.size(); i++)
         if (getstate(this->TIME, this->Hpanel[i]))
@@ -359,7 +391,8 @@ void MainWindow::searchkeys() {
         this->throw_key('Z');
         this->throw_key(1071);
     }
-
+    if (this->dead)
+        return;
     if (this->levelnomber > this->maxlevels)
         return;
 
@@ -467,24 +500,24 @@ void MainWindow::searchkeys() {
 
 void MainWindow::die() {
     this->dead = true;
-    this->life--;
-    qDebug() << "Life:" << this->life;
-    if (this->life == 0) {
-        this->levelnomber = this->maxlevels + 1;
-        this->restart();
-    }
 }
+
 
 void MainWindow::timeout() {
     this->TIME += this->updatetime;
     if (this->levelnomber > this->maxlevels)
         this->freefall();
     if (this->dead) {
-        this->rx = 0;
-        this->timetorestart -= this->updatetime;
-        if (this->timetorestart <= 0)
-            this->restart();
-    }
+                this->rx = 0;
+                this->timetorestart -= this->updatetime;
+                if (this->timetorestart <= 0) {
+                    this->life--;
+                    qDebug() << "Life:" << this->life;
+                    if (this->life == 0)
+                        this->levelnomber = this->maxlevels + 1;
+                    this->restart();
+                }
+        }
     else
         if ((!this->jumping) && (!this->isfloor(this->x, this->y))) {
             this->z = -.4f;
@@ -494,7 +527,6 @@ void MainWindow::timeout() {
     this->searchkeys();
     if (this->jumping)
         this->jump();
-
     this->update();
 //    if (this->z < -25.0f)
 //        if (this->levelnomber <= this->maxlevels) {
@@ -536,7 +568,7 @@ void MainWindow::drawSKY() {
 
 
 void MainWindow::restart() {
-    this->timetorestart = 2000;
+    this->timetorestart = this->restime;
     this->jumpiterations = 0;
     this->jumping = false;
     this->z = 0;
@@ -729,14 +761,46 @@ void MainWindow::loadlevel() {
 
     this->PIXwin = QPixmap("../Textures/win.jpg");
     this->PIXlose = QPixmap("../Textures/lose.jpg");
+    this->PIXmenu = QPixmap("../Textures/menu.jpg");
 
     fclose(inp);
 }
 
 
 void MainWindow::fogg(bool start) {
+//    qDebug() << 1.0f - (GLfloat) this->timetorestart / this->restime;
+    GLfloat fogColor[4] = {(GLfloat) this->timetorestart / this->restime, .0f, .0f, 1.0f};
+    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogf(GL_FOG_END, (GLfloat) this->timetorestart / this->restime);
     if (start)
         glEnable(GL_FOG);
     else
         glDisable(GL_FOG);
+}
+
+void MainWindow::drawinfo() {
+//    this->Begin2D();
+//    qDebug() << this->getx(150) << this->gety(120);
+//    glColor4f(1.0f, 1.0f, 1.0f, .0f);
+//    GLuint tex = bindTexture(this->PIXmenu, GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D, tex);
+//      glBegin (GL_QUADS);
+//        glTexCoord2f(0, 0);
+//        glVertex2f (-1, 1);
+//        glTexCoord2f(0, 1);
+//        glVertex2f (-1, 1 - this->gety(120));
+//        glTexCoord2f(1, 1);
+//        glVertex2f (-1+2 * this->getx(150), 1 - this->gety(120));
+//        glTexCoord2f(1, 0);
+//        glVertex2f (-1+2 * this->getx(150), 1);
+//      glEnd();
+//    this->End2D();
+}
+
+GLfloat MainWindow::getx(GLfloat x) {
+    return (2 * x) / this->width();
+}
+
+GLfloat MainWindow::gety(GLfloat y) {
+    return (2 * y) / this->height();
 }
