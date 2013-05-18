@@ -21,6 +21,16 @@ HEADERS  += \
     mainwindow.h
 
 OTHER_FILES += \
-    TODO.txt
+    TODO.txt \
+    ../Levels/8 \
+    ../Levels/7 \
+    ../Levels/6 \
+    ../Levels/5 \
+    ../Levels/4 \
+    ../Levels/3 \
+    ../Levels/2 \
+    ../Levels/1 \
+    ../Levels/9 \
+    ../param.walk
 
 FORMS +=

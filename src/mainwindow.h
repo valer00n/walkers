@@ -75,6 +75,7 @@ private:
         GLfloat x, y, z, ry, rx;
         bool jumping;
         GLint jumpiterations;
+        GLfloat sx, sy, vx, vy;
 
     /*LEVEL INFO*/
         QVector <QVector <char> > map;

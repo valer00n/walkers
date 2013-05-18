@@ -77,17 +77,15 @@ MainWindow::MainWindow(QWidget *parent)
     this->TIM = new QTimer; 
     QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
     this->TIM->start();
-    this->jumping = false;
+//    this->jumping = false;
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 0;
+    this->levelnomber = 8;
     this->TIME = 0;
     this->fullscreen = false;
 
     this->loadparam();
-
-
     finn();
 }
 
@@ -371,6 +369,7 @@ void MainWindow::searchkeys() {
 
     if ((!this->jumping) && (this->keys_pressed.find(Qt::Key_Space) != this->keys_pressed.end())) {
         this->jumping = true;
+        this->jumpiterations = 0;
         this->keys_pressed.erase(this->keys_pressed.find(Qt::Key_Space));
     }
 
@@ -382,6 +381,9 @@ void MainWindow::searchkeys() {
         else
             this->z = 0;
     }
+    if (this->jumping)
+        return;
+
     if (this->inside_key('W') || this->inside_key(1062))
         dy -= .05f;
     if (this->inside_key('S') || this->inside_key(1067))
@@ -391,18 +393,25 @@ void MainWindow::searchkeys() {
     if (this->inside_key('D') || this->inside_key(1042))
         dx += .05f;
 
+    this->vx = this->vy = 0;
 
-    if (this->canGO((this->x + dy * sin(ry / 360 * 2 * 3.14159265)), -(this->y )))
+    if (this->canGO((this->x + dy * sin(ry / 360 * 2 * 3.14159265)), -(this->y ))) {
         this->x += dy * sin(ry / 360 * 2 * 3.14159265);
-    if (this->canGO(this->x , -(this->y + dy * cos(ry / 360 * 2 * 3.14159265))))
+        this->vx += dy * sin(ry / 360 * 2 * 3.14159265);
+    }
+    if (this->canGO(this->x , -(this->y + dy * cos(ry / 360 * 2 * 3.14159265)))) {
         this->y += dy * cos(ry / 360 * 2 * 3.14159265);
+        this->vy += dy * cos(ry / 360 * 2 * 3.14159265);
+    }
 
-
-    if (this->canGO((this->x + dx * cos(ry / 360 * 2 * 3.14159265)),(-this->y)))
+    if (this->canGO((this->x + dx * cos(ry / 360 * 2 * 3.14159265)),(-this->y))) {
         this->x += dx * cos(ry / 360 * 2 * 3.14159265);
-    if (this->canGO((this->x),(-this->y + dx * sin(ry / 360 * 2 * 3.14159265))))
+        this->vx += dx * cos(ry / 360 * 2 * 3.14159265);
+    }
+    if (this->canGO((this->x),(-this->y + dx * sin(ry / 360 * 2 * 3.14159265)))) {
         this->y -= dx * sin(ry / 360 * 2 * 3.14159265);
-
+        this->vy -= dx * sin(ry / 360 * 2 * 3.14159265);
+    }
     dx = 0;
     dy = 0;
     if (!this->jumping)
@@ -417,16 +426,23 @@ void MainWindow::searchkeys() {
         }
     }
 
-    if (this->canGO((this->x + dy * sin(0 / 360 * 2 * 3.14159265)), -(this->y )))
+    if (this->canGO((this->x + dy * sin(0 / 360 * 2 * 3.14159265)), -(this->y ))) {
         this->x += dy * sin(0 / 360 * 2 * 3.14159265);
-    if (this->canGO(this->x , -(this->y + dy * cos(0 / 360 * 2 * 3.14159265))))
+        this->vx += dy * sin(0 / 360 * 2 * 3.14159265);
+    }
+    if (this->canGO(this->x , -(this->y + dy * cos(0 / 360 * 2 * 3.14159265)))) {
         this->y += dy * cos(0 / 360 * 2 * 3.14159265);
-
-
-    if (this->canGO((this->x + dx * cos(0 / 360 * 2 * 3.14159265)),(-this->y)))
+        this->vy += dy * cos(0 / 360 * 2 * 3.14159265);
+    }
+    if (this->canGO((this->x + dx * cos(0 / 360 * 2 * 3.14159265)),(-this->y))) {
         this->x += dx * cos(0 / 360 * 2 * 3.14159265);
-    if (this->canGO((this->x),(-this->y + dx * sin(0 / 360 * 2 * 3.14159265))))
+        this->vx += dx * cos(0 / 360 * 2 * 3.14159265);
+    }
+    if (this->canGO((this->x),(-this->y + dx * sin(0 / 360 * 2 * 3.14159265)))) {
         this->y -= dx * sin(0 / 360 * 2 * 3.14159265);
+        this->vy -= dx * sin(0 / 360 * 2 * 3.14159265);
+    }
+//    qDebug() << this->vx << this->vy;
 
 }
 
@@ -486,11 +502,15 @@ void MainWindow::drawSKY() {
 
 
 void MainWindow::restart() {
+    this->jumpiterations = 0;
+    this->jumping = false;
+    this->z = 0;
     this->TIM->stop();
     this->TIME = 0;
     this->dead = false;
-    this->x = .5f;
-    this->y = -.5f;
+    this->x = this->sx + .5f;
+    this->y = -this->sy - .5f;
+    this->vx = this->vy = 0;
     this->ry = 0;
     if (this->levelnomber > this->maxlevels)
         this->rx = -90;
@@ -500,18 +520,23 @@ void MainWindow::restart() {
 
 void MainWindow::jump() {
     const GLfloat v = 3.0f, g = 9.8f;
-    if (this->z == 0) {
-        this->jumpiterations = 0;
-    }
+    if (canGO(this->x + this->vx, -this->y))
+        this->x += this->vx;
+    if (canGO(this->x, -this->y - this->vy))
+        this->y += this->vy;
+//    if (this->z == 0) {
+//        this->jumpiterations = 0;
+//    }
     this->jumpiterations++;
     GLfloat t = (GLfloat) (this->jumpiterations * this->updatetime) / 1000;
     this->z = v * t - g * t * t / 2;
     if (this->z <= 0) {
         this->z = 0;
-        this->jumpiterations = 0;
         this->jumping = false;
         if (! isfloor(this->x, this->y))
             freefall();
+        else
+            this->jumpiterations = 0;
     }
 
 }
@@ -541,12 +566,14 @@ bool MainWindow::isfloor(GLfloat x, GLfloat y) {
 void MainWindow::freefall() {
     const GLfloat g = 9.8f;
     this->dead = true;
-    if (this->z == 0)
-        this->jumpiterations = 0;
+//    if (this->z == 0)
+//        this->jumpiterations = 0;
     this->jumpiterations++;
     GLfloat t = (GLfloat) this->jumpiterations * this->updatetime / 1000;
 //    qDebug() << t << this->z << "->" << -g * t * t / 2;
     this->z = -g * t * t / 2;
+    this->x += this->vx;
+    this->y += this->vy;
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
@@ -591,7 +618,7 @@ void MainWindow::switchmode() {
 }
 
 void MainWindow::loadlevel() {
-
+    this->sx = this->sy = 0;
     this->Hpanel.clear();
     this->Mpanel.clear();
     FILE *inp;
@@ -607,6 +634,11 @@ void MainWindow::loadlevel() {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             fscanf(inp, "%c", &this->map[i][j]);
+            if (this->map[i][j] == 'P') {
+                this->map[i][j] = '.';
+                this->sx = i;
+                this->sy = j;
+            }
         }
         fscanf(inp, "\n");
     }
