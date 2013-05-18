@@ -1,4 +1,0 @@
-walkers
-=======
-
-game of walkers
