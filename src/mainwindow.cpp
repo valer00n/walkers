@@ -67,24 +67,24 @@ QPair <GLfloat, GLfloat> getdir(GLint TIME, moving panel) {
 void MainWindow::loadparam() {
     std::ifstream in;
     in.open("../param.walk");
-    in >>  this->maxlevels >> this->updatetime >>  this->lat;
+    in >>  this->maxlevels >> this->updatetime >>  this->lat >> this->life;
     in.close();
 }
 
 MainWindow::MainWindow(QWidget *parent)
     : QGLWidget(parent)
 {
-    this->TIM = new QTimer; 
+    this->TIM = new QTimer;
     QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
     this->TIM->start();
 //    this->jumping = false;
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 8;
+    this->levelnomber = 0;
     this->TIME = 0;
     this->fullscreen = false;
-
+//    this->timetorestart = 3000;
     this->loadparam();
     finn();
 }
@@ -102,7 +102,7 @@ void MainWindow::initializeGL() {
     glFogi(GL_FOG_MODE, GL_EXP);
     GLfloat fogColor[4]= {1.0f, .0f, .0f, 1.0f};
     glFogfv(GL_FOG_COLOR, fogColor);
-    glFogf(GL_FOG_DENSITY, 0.02f);
+    glFogf(GL_FOG_DENSITY, 0.4f);
     glHint(GL_FOG_HINT, GL_DONT_CARE);
     glFogf(GL_FOG_START, 1.0f);
     glFogf(GL_FOG_END, 5.0f);
@@ -127,8 +127,16 @@ void MainWindow::paintGL() {
     glRotatef(-this->rx, 1.0f, .0f, .0f);
     glRotatef(-this->ry, .0f, 1.0f, .0f);
     glTranslatef(-this->x, -.5f - this->z, -this->y);
-    this->drawSKY();
-    this->drawmap();
+    GLfloat p = 100;
+    if (this->levelnomber <= this->maxlevels) {
+        this->drawSKY();
+        this->drawmap();
+    }
+    else
+        if (this->life > 0)
+            this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXwin);
+        else
+            this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXlose);
 //    this->drawQUBE(0, .0f, -10, 1, 1, 1, TEXwall);
 }
 
@@ -277,7 +285,7 @@ void MainWindow::drawmap() {
            }
     for (int i = 0; i < this->Mpanel.size(); i++) {
         QPair <GLfloat, GLfloat> res = getpos(this->TIME, this->Mpanel[i]);
-       this->drawNOTHING(res.first, .0f, -res.second - 1, 1, 1, 1, this->PIXmoving);
+       this->drawNOTHING(res.first + .01f, .0f, -res.second - 1 - .01f , .98f, 1, .98f, this->PIXmoving);
     }
 }
 
@@ -323,15 +331,17 @@ bool MainWindow::canGO2(GLfloat x, GLfloat y) {
     return (x >= 0) && (x < n) && (y >= 0) && (y < m) && (this->map[(GLint)floor(x)][(GLint)floor(y)] != '*');
 }
 
-void MainWindow::finn () {
+void MainWindow::finn() {
     this->TIM->stop();
     this->levelnomber++;
 //    qDebug() << this->levelnomber << this->maxlevels;
-    if (this->levelnomber > this->maxlevels) {
+    if (this->levelnomber > this->maxlevels + 1) {
         this->close();
         return;
     }
-    this->loadlevel();
+    this->levelclear();
+    if (this->levelnomber <= this->maxlevels)
+        this->loadlevel();
     this->restart();
     this->TIM->start();
 }
@@ -342,7 +352,7 @@ void MainWindow::searchkeys() {
 //        this->keys_pressed.erase(this->keys_pressed.find('Q'));
 //        this->restart();
 //    }
-    if (this->keys_pressed.find(Qt::Key_Escape) != this->keys_pressed.end())
+    if (this->inside_key(Qt::Key_Escape))
         this->close();
     if (this->inside_key('Z') || this->inside_key(1071)){
         this->switchmode();
@@ -350,13 +360,16 @@ void MainWindow::searchkeys() {
         this->throw_key(1071);
     }
 
-    if (this->keys_pressed.find(Qt::Key_Left) != this->keys_pressed.end())
+    if (this->levelnomber > this->maxlevels)
+        return;
+
+    if (this->inside_key(Qt::Key_Left))
         this->ry += 2.0f;
-    if (this->keys_pressed.find(Qt::Key_Right) != this->keys_pressed.end())
+    if (this->inside_key(Qt::Key_Right))
         this->ry -= 2.0f;
-    if (this->keys_pressed.find(Qt::Key_Up) != this->keys_pressed.end())
+    if (this->inside_key(Qt::Key_Up))
         this->rx += 2.0f;
-    if (this->keys_pressed.find(Qt::Key_Down) != this->keys_pressed.end())
+    if (this->inside_key(Qt::Key_Down))
         this->rx -= 2.0f;
     if (this->rx > 90)
         this->rx = 90;
@@ -367,22 +380,23 @@ void MainWindow::searchkeys() {
         return;
     //WHILE ALIVE
 
-    if ((!this->jumping) && (this->keys_pressed.find(Qt::Key_Space) != this->keys_pressed.end())) {
+    if ((!this->jumping) && (this->inside_key(Qt::Key_Space))) {
         this->jumping = true;
         this->jumpiterations = 0;
-        this->keys_pressed.erase(this->keys_pressed.find(Qt::Key_Space));
+        this->throw_key(Qt::Key_Space);
     }
 
     GLfloat dy = 0, dx = 0;
 
     if (!this->jumping) {
-        if (this->keys_pressed.find(Qt::Key_Control) != this->keys_pressed.end())
-            this->z = -.3;
+        if (this->inside_key(Qt::Key_Control))
+            this->z = -.3f;
         else
             this->z = 0;
     }
-    if (this->jumping)
-        return;
+
+//    if (this->jumping)
+//        return;
 
     if (this->inside_key('W') || this->inside_key(1062))
         dy -= .05f;
@@ -393,28 +407,33 @@ void MainWindow::searchkeys() {
     if (this->inside_key('D') || this->inside_key(1042))
         dx += .05f;
 
-    this->vx = this->vy = 0;
+    if (!this->jumping)
+        this->vx = this->vy = 0;
 
     if (this->canGO((this->x + dy * sin(ry / 360 * 2 * 3.14159265)), -(this->y ))) {
         this->x += dy * sin(ry / 360 * 2 * 3.14159265);
-        this->vx += dy * sin(ry / 360 * 2 * 3.14159265);
+//        this->vx += dy * sin(ry / 360 * 2 * 3.14159265);
     }
     if (this->canGO(this->x , -(this->y + dy * cos(ry / 360 * 2 * 3.14159265)))) {
         this->y += dy * cos(ry / 360 * 2 * 3.14159265);
-        this->vy += dy * cos(ry / 360 * 2 * 3.14159265);
+//        this->vy += dy * cos(ry / 360 * 2 * 3.14159265);
     }
 
     if (this->canGO((this->x + dx * cos(ry / 360 * 2 * 3.14159265)),(-this->y))) {
         this->x += dx * cos(ry / 360 * 2 * 3.14159265);
-        this->vx += dx * cos(ry / 360 * 2 * 3.14159265);
+//        this->vx += dx * cos(ry / 360 * 2 * 3.14159265);
     }
     if (this->canGO((this->x),(-this->y + dx * sin(ry / 360 * 2 * 3.14159265)))) {
         this->y -= dx * sin(ry / 360 * 2 * 3.14159265);
-        this->vy -= dx * sin(ry / 360 * 2 * 3.14159265);
+//        this->vy -= dx * sin(ry / 360 * 2 * 3.14159265);
     }
+
+    if (this->jumping)
+        return;
+
     dx = 0;
     dy = 0;
-    if (!this->jumping)
+
     for (int i = 0; i < this->Mpanel.size(); i++) {
         QPair <GLfloat, GLfloat> pos = getpos(this->TIME, this->Mpanel[i]);
         pos.second -= .5f;
@@ -446,15 +465,30 @@ void MainWindow::searchkeys() {
 
 }
 
+void MainWindow::die() {
+    this->dead = true;
+    this->life--;
+    qDebug() << "Life:" << this->life;
+    if (this->life == 0) {
+        this->levelnomber = this->maxlevels + 1;
+        this->restart();
+    }
+}
 
 void MainWindow::timeout() {
     this->TIME += this->updatetime;
-    if (this->dead)
+    if (this->levelnomber > this->maxlevels)
         this->freefall();
+    if (this->dead) {
+        this->rx = 0;
+        this->timetorestart -= this->updatetime;
+        if (this->timetorestart <= 0)
+            this->restart();
+    }
     else
         if ((!this->jumping) && (!this->isfloor(this->x, this->y))) {
-            this->z = 0;
-            this->freefall();
+            this->z = -.4f;
+            this->die();
 
         }
     this->searchkeys();
@@ -462,13 +496,13 @@ void MainWindow::timeout() {
         this->jump();
 
     this->update();
-    if (this->z < -25.0f)
-        if (this->levelnomber <= this->maxlevels) {
-            this->rx = 0;
-            this->restart();
-         }
+//    if (this->z < -25.0f)
+//        if (this->levelnomber <= this->maxlevels) {
+//            this->rx = 0;
+//            this->restart();
+//         }
 
-    if (this->z < -95.0f) {
+    if (this->z < -110.0f) {
         if (this->levelnomber > this->maxlevels)
             this->close();
     }
@@ -496,12 +530,13 @@ hidden new_hidden(GLfloat pause,GLfloat tvis,GLfloat thid, GLint x, GLint y, boo
 void MainWindow::drawSKY() {
     this->fogg(this->dead);
     GLint p = 100;
-    this->drawQUBE(-p, -p, -p, 2 * p, 2 * p, 2 * p, PIXdrop);
+//    this->drawQUBE(-p, -p, -p, 2 * p, 2 * p, 2 * p, PIXdrop);
     this->drawNOTHING(-1, 1, 1, this->n + 2, 0, -this->m - 2, PIXsky);
 }
 
 
 void MainWindow::restart() {
+    this->timetorestart = 2000;
     this->jumpiterations = 0;
     this->jumping = false;
     this->z = 0;
@@ -533,8 +568,10 @@ void MainWindow::jump() {
     if (this->z <= 0) {
         this->z = 0;
         this->jumping = false;
-        if (! isfloor(this->x, this->y))
-            freefall();
+        if (! isfloor(this->x, this->y)) {
+            this->z = -.4f;
+            this->die();
+        }
         else
             this->jumpiterations = 0;
     }
@@ -565,7 +602,8 @@ bool MainWindow::isfloor(GLfloat x, GLfloat y) {
 
 void MainWindow::freefall() {
     const GLfloat g = 9.8f;
-    this->dead = true;
+//    this->ry += .05f;
+//    this->dead = true;
 //    if (this->z == 0)
 //        this->jumpiterations = 0;
     this->jumpiterations++;
@@ -574,6 +612,7 @@ void MainWindow::freefall() {
     this->z = -g * t * t / 2;
     this->x += this->vx;
     this->y += this->vy;
+//    qDebug() << this->x;
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
@@ -617,10 +656,13 @@ void MainWindow::switchmode() {
 
 }
 
-void MainWindow::loadlevel() {
+void MainWindow::levelclear() {
     this->sx = this->sy = 0;
     this->Hpanel.clear();
     this->Mpanel.clear();
+}
+
+void MainWindow::loadlevel() {
     FILE *inp;
     inp = fopen(QString("../Levels/" + (QString::number(this->levelnomber))).toStdString().c_str(), "r");
     if (inp == NULL) {
@@ -669,8 +711,7 @@ void MainWindow::loadlevel() {
     char s[256];
     fscanf(inp, "%s\n", &s);
     this->PIXsky = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", &s);
-    this->PIXdrop = QPixmap("../Textures/" + QString(s));
+
 
     fscanf(inp, "%s\n", &s);
     this->PIXwall = QPixmap("../Textures/" + QString(s));
@@ -686,13 +727,16 @@ void MainWindow::loadlevel() {
     fscanf(inp, "%s\n", &s);
     this->PIXmoving = QPixmap("../Textures/" + QString(s));
 
+    this->PIXwin = QPixmap("../Textures/win.jpg");
+    this->PIXlose = QPixmap("../Textures/lose.jpg");
+
     fclose(inp);
 }
 
 
 void MainWindow::fogg(bool start) {
-//    if (start)
-//        glEnable(GL_FOG);
-//    else
-//        glDisable(GL_FOG);
+    if (start)
+        glEnable(GL_FOG);
+    else
+        glDisable(GL_FOG);
 }

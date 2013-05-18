@@ -50,6 +50,7 @@ protected:
         void mouseMoveEvent(QMouseEvent *ev);
         bool inside_key(int key);
         void throw_key(int key);
+        void die();
 
     /*PHYSICS*/
         bool canGO(GLfloat x, GLfloat y);
@@ -67,15 +68,18 @@ protected:
 
     /*LOADING LEVEL*/
         void loadlevel();
+        void levelclear();
 
 private:
 
     /*PLAYER INFO*/
+        GLint life;
         bool dead;
         GLfloat x, y, z, ry, rx;
         bool jumping;
         GLint jumpiterations;
         GLfloat sx, sy, vx, vy;
+        GLint timetorestart;
 
     /*LEVEL INFO*/
         QVector <QVector <char> > map;
@@ -98,7 +102,7 @@ private:
         bool mousedetected;
 
     /*TEXTURES*/
-        QPixmap PIXsky, PIXwall, PIXfloor, PIXdrop, PIXexit, PIXdanger, PIXhidden, PIXmoving;
+        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose;
 
 
 
