@@ -31,6 +31,7 @@ OTHER_FILES += \
     ../Levels/2 \
     ../Levels/1 \
     ../Levels/9 \
-    ../param.walk
+    ../param.walk \
+    ../Levels/10
 
 FORMS +=

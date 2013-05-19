@@ -7,6 +7,13 @@
 #include <QSet>
 #include <QTimer>
 
+typedef struct {
+    GLfloat x, y, z;
+    int interval, rest; // for 1 segment
+    char direction; // UDLR
+    GLfloat dist;
+} firing;
+
 typedef struct{
     int pause, tvis, thid;
     int x, y;
@@ -15,7 +22,7 @@ typedef struct{
 } hidden;
 
 typedef struct {
-    QString param;
+    QString param; // [UDLRS]
     int interval; //for 1 segment
     int x, y;
 } moving;
@@ -83,7 +90,7 @@ private:
         GLint life;
         bool dead;
         GLfloat x, y, z, ry, rx;
-        bool jumping;
+        bool jumping, duck;
         GLint jumpiterations;
         GLfloat sx, sy, vx, vy;
         GLint timetorestart;
@@ -95,6 +102,7 @@ private:
         int levelnomber;
         QVector <hidden> Hpanel;
         QVector <moving> Mpanel;
+        QVector <firing> Fpanel;
 
     /*WINDOW INFO*/
         bool fullscreen;
@@ -115,7 +123,7 @@ private:
 
 
     /*TEXTURES*/
-        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose;
+        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose, PIXhole, PIXfireball;
 
 
 

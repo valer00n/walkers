@@ -7,3 +7,5 @@
 Русская раскладка
 Главное меню
 Уровни
+
+Defines for fireball launchers

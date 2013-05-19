@@ -7,7 +7,7 @@
 
 void MainWindow::Begin2D ()
 {
-    glDisable(GL_DEPTH_TEST);
+//    glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -24,7 +24,7 @@ void MainWindow::End2D ()
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
-    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 //    glCullFace(GL_BLACK);
 }
@@ -106,12 +106,13 @@ MainWindow::MainWindow(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 0;
+    this->levelnomber = 9;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
     this->restime = 3000;
     this->menuopened = false;
+    this->duck = false;
     this->loadparam();
     finn();
 }
@@ -129,7 +130,7 @@ void MainWindow::initializeGL() {
     glClearDepth( 1.0f );
 //    glEnable(GL_CULL_FACE);
 
-//    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_ALPHA_TEST);
 //    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -180,7 +181,6 @@ void MainWindow::paintGL() {
             this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXwin);
         else
             this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXlose);
-//    this->drawQUBE(0, .0f, -10, 1, 1, 1, TEXwall);
 }
 
 GLfloat fabs(GLfloat a) {
@@ -204,8 +204,6 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
     GLuint ap = bindTexture(texture, GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, ap);
     glTranslatef(x, y, z);
-//    qsrand(0);
-//    glColor3f((float) (qrand() % 255) / 255, (float) (qrand() % 255) / 255, (float) (qrand() % 255) / 255);
     glColor4f(1.0f, 1.0f, 1.0f, .0f);
     glBegin(GL_QUADS);
             glTexCoord2f(0, 1);
@@ -282,6 +280,7 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
 
        glTranslatef(-x, -y, -z);
        glColor4f(.0f, .0f, .0f, 1.0f);
+//       glDeleteTextures(1, &ap);
 }
 
 void MainWindow::drawNOTHING(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {
@@ -330,29 +329,121 @@ void MainWindow::drawmap() {
         QPair <GLfloat, GLfloat> res = getpos(this->TIME, this->Mpanel[i]);
        this->drawNOTHING(res.first + .01f, .0f, -res.second - 1 - .01f , 1.0f, 1, 1.0f, this->PIXmoving);
     }
+
+    for (int i = 0; i < this->Fpanel.size(); i++) {
+        GLuint tex = bindTexture(this->PIXhole, GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glEnable(GL_BLEND);
+        glColor4f(.0f, .0, .0, 1.0);
+        char d = this->Fpanel[i].direction;
+
+        if (d == 'R') {
+             glTranslatef(this->Fpanel[i].x, .0f, -this->Fpanel[i].y - 1 - 1e-2);
+             glBegin(GL_QUADS);
+                     glTexCoord2f(0, 1);
+                     glVertex3f(0.35f, 0.35f, 0.0f);
+                     glTexCoord2f(0, 0);
+                     glVertex3f(0.35f, 0.65f, 0.0f);
+                     glTexCoord2f(1, 0);
+                     glVertex3f(0.65f, 0.65f, 0.0f);
+                     glTexCoord2f(1, 1);
+                     glVertex3f(0.65f, 0.35f, 0.0f);
+              glEnd();
+             glTranslatef(-this->Fpanel[i].x, .0f, this->Fpanel[i].y + 1 + 1e-2);
+            glDisable(GL_BLEND);
+        }
+        if (d == 'L') {
+        glTranslatef(this->Fpanel[i].x - .5f, this->Fpanel[i].z - .5f, -this->Fpanel[i].y - 1 + 1e-2);
+        glBegin(GL_QUADS);
+                glTexCoord2f(0, 0);
+                glVertex3f(0.35f, 0.35f, 0);
+                glTexCoord2f(1, 0);
+                glVertex3f(0.65f, 0.35f, 0);
+                glTexCoord2f(1, 1);
+                glVertex3f(0.65f, 0.65f, 0);
+                glTexCoord2f(0, 1);
+                glVertex3f(0.35f, 0.65f, 0);
+         glEnd();
+         glTranslatef(-this->Fpanel[i].x + .5f, -this->Fpanel[i].z + .5f, this->Fpanel[i].y + 1 - 1e-2);
+        }
+        if (d == 'D') {
+            glTranslatef(this->Fpanel[i].x + 1e-2, .0f, -this->Fpanel[i].y - 1);
+         glBegin(GL_QUADS);
+                glTexCoord2f(1, 0);
+                glVertex3f(0, 0.35f, 0.35f);
+                glTexCoord2f(1, 1);
+                glVertex3f(0, 0.65, 0.35f);
+                glTexCoord2f(0, 1);
+                glVertex3f(0, 0.65, 0.65);
+                glTexCoord2f(0, 0);
+                glVertex3f(0, 0.35f, 0.65);
+         glEnd();
+         glTranslatef(-this->Fpanel[i].x - 1e-2, .0f, this->Fpanel[i].y + 1);
+        }
+        if (d == 'U') {
+               glTranslatef(this->Fpanel[i].x - 1e-2, .0f, -this->Fpanel[i].y - 1);
+         glBegin(GL_QUADS);
+                glTexCoord2f(0, 0);
+                glVertex3f(.0f, 0.35f, 0.35f);
+                glTexCoord2f(1, 0);
+                glVertex3f(.0f, 0.35f, 0.65f);
+                glTexCoord2f(1, 1);
+                glVertex3f(.0f, 0.65f, 0.65f);
+                glTexCoord2f(0, 1);
+                glVertex3f(.0f, 0.65, 0.35f);
+          glEnd();
+          glTranslatef(-this->Fpanel[i].x + 1e-2, .0f, this->Fpanel[i].y + 1);
+        }
+
+        glDisable(GL_BLEND);
+
+        tex = bindTexture(this->PIXfireball, GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        if (d == 'L') {
+            GLint f = 0;
+            GLfloat p = (GLfloat) (this->TIME % this->Fpanel[i].rest) / Fpanel[i].interval;
+            GLfloat d = (GLfloat) this->Fpanel[i].rest / this->Fpanel[i].interval;
+            GLUquadricObj *q;
+            q = gluNewQuadric();
+            while (p + f * d < this->Fpanel[i].dist) {
+
+                gluQuadricTexture(q, GL_TRUE);
+                glTranslatef(this->Fpanel[i].x, this->Fpanel[i].z, -this->Fpanel[i].y - 1 + p + f * d);
+                gluSphere(q, 0.15f, 20, 20);
+                glTranslatef(-this->Fpanel[i].x, -this->Fpanel[i].z, this->Fpanel[i].y + 1 - p - f * d);
+
+                f++;
+            }
+            gluDeleteQuadric(q);
+        }
+
+        }
+        GLuint tex = bindTexture(this->PIXfloor);
+        glBindTexture(GL_TEXTURE_2D, tex);
 }
 
 void MainWindow::drawaxes() {
     glLineWidth(3.0f);
-    glColor3f(1.0f, .0f, .0f);
+    glColor4f(1.0f, .0f, .0f, 1.0f);
     glBegin(GL_LINES);
         glVertex3f(0, 0, 0);
         glVertex3f(100, 0, 0);
     glEnd();
 
-    glColor3f(.0f, 1.0f, .0f);
+    glColor4f(.0f, 1.0f, .0f, 1.0f);
     glBegin(GL_LINES);
         glVertex3f(0, 0, 0);
         glVertex3f(0, 100, 0);
     glEnd();
 
-    glColor3f(.0f, .0f, 1.0f);
+    glColor4f(.0f, .0f, 1.0f, 1.0f);
     glBegin(GL_LINES);
         glVertex3f(0, 0, 0);
         glVertex3f(0, 0, 100);
     glEnd();
 
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 bool MainWindow::canGO (GLfloat x, GLfloat y) {
@@ -444,7 +535,7 @@ void MainWindow::searchkeys() {
     GLfloat dy = 0, dx = 0;
 
     if (!this->jumping) {
-        if (this->inside_key(Qt::Key_Control))
+        if (this->duck = this->inside_key(Qt::Key_Control))
             this->z = -.3f;
         else
             this->z = 0;
@@ -461,6 +552,10 @@ void MainWindow::searchkeys() {
         dx -= .05f;
     if (this->inside_key('D') || this->inside_key(1042))
         dx += .05f;
+    if (this->duck) {
+        dx /= 5;
+        dy /= 5;
+    }
 
     if (!this->jumping)
         this->vx = this->vy = 0;
@@ -605,7 +700,7 @@ void MainWindow::restart() {
     if (this->levelnomber > this->maxlevels)
         this->rx = -90;
     this->TIM->setInterval(this->updatetime);
-    this->TIM->start();
+    this->TIM->start();    
 }
 
 void MainWindow::jump() {
@@ -714,6 +809,7 @@ void MainWindow::levelclear() {
     this->sx = this->sy = 0;
     this->Hpanel.clear();
     this->Mpanel.clear();
+    this->Fpanel.clear();
 }
 
 void MainWindow::loadlevel() {
@@ -758,6 +854,11 @@ void MainWindow::loadlevel() {
             p.param = QString::fromStdString(s);
             this->Mpanel.push_back(p);
         }
+        if (ch == 'F') {
+            firing p;
+            fscanf(inp, "%f %f %f %c %d %d %f\n", &p.x, &p.y, &p.z, &p.direction, &p.interval, &p.rest, &p.dist);
+            this->Fpanel.push_back(p);
+        }
     }
 //    for (int i = 0; i < n; i++)
 //        qDebug() << this->map[i];
@@ -782,6 +883,8 @@ void MainWindow::loadlevel() {
 
     this->PIXwin = QPixmap("../Textures/win.jpg");
     this->PIXlose = QPixmap("../Textures/lose.jpg");
+    this->PIXhole = QPixmap("../Textures/hole.png");
+    this->PIXfireball = QPixmap("../Textures/fireball.jpg");
     fclose(inp);
 }
 
