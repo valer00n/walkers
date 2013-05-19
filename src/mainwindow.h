@@ -98,7 +98,6 @@ private:
 
     /*WINDOW INFO*/
         bool fullscreen;
-        GLint minw, minh;
 
     /*SYSTEM*/
         GLint TIME;
@@ -109,9 +108,14 @@ private:
         GLfloat mouseX, mouseY;
         GLfloat lat;
         bool mousedetected;
+        GLfloat dw, dh;
+        bool menuopened;
+        GLint element, menel;
+
+
 
     /*TEXTURES*/
-        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose ,PIXmenu;
+        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose;
 
 
 

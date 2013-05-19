@@ -7,23 +7,26 @@
 
 void MainWindow::Begin2D ()
 {
-  glDisable ( GL_DEPTH_TEST );
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-//  gluOrtho2D(0, Width, 0, Height);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    gluOrtho2D(this->dw, this->width() - this->dw, this->dh, this->height() - this->dh);
 }
 
 void MainWindow::End2D ()
 {
-     glPopMatrix();
-     glMatrixMode(GL_PROJECTION);
-     glPopMatrix();
-     glMatrixMode(GL_MODELVIEW);
-     glEnable ( GL_DEPTH_TEST );
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+//    glCullFace(GL_BLACK);
 }
 
 
@@ -106,9 +109,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->levelnomber = 0;
     this->TIME = 0;
     this->fullscreen = false;
-    this->minw = 0;
-    this->minh = 0;
+    this->setMinimumSize(610, 512);
     this->restime = 3000;
+    this->menuopened = false;
     this->loadparam();
     finn();
 }
@@ -121,7 +124,16 @@ MainWindow::~MainWindow()
 void MainWindow::initializeGL() {
     glEnable(GL_TEXTURE_2D);
     glEnable( GL_DEPTH_TEST );
-    glDepthFunc( GL_LEQUAL );
+//    glEnable(GL_BLEND);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth( 1.0f );
+//    glEnable(GL_CULL_FACE);
+
+//    glEnable(GL_ALPHA_TEST);
+//    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glDepthFunc( GL_LESS );
     glShadeModel( GL_SMOOTH );
     glFogi(GL_FOG_MODE, GL_LINEAR);
     glFogf(GL_FOG_DENSITY, 0.4f);
@@ -132,18 +144,14 @@ void MainWindow::initializeGL() {
 }
 
 void MainWindow::resizeGL(int w, int h) {
-    if (w < this->minw) {
-        this->resize(this->minw, h);
-        return;
-    }
-    if (h < this->minh) {
-        this->resize(w, this->minh);
-        return;
-    }
-    glViewport( 0, 0, w, h );
+
+    GLfloat scale = std::min((GLfloat) w / 16, (GLfloat) h / 9);
+    this->dw = (w - 16 * scale) / 2;
+    this->dh = (h - 9 * scale) / 2;
+    glViewport(this->dw, this->dh, 16 * scale, 9 * scale);
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    gluPerspective(45.0f, (GLfloat)w/(GLfloat)h, 0.01f, 200.0f );
+    gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
     glMatrixMode(GL_MODELVIEW );
     glLoadIdentity();
 }
@@ -166,6 +174,7 @@ void MainWindow::paintGL() {
         this->drawmap();
         this->drawinfo();
     }
+
     else
         if (this->life > 0)
             this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXwin);
@@ -182,7 +191,6 @@ GLfloat fabs(GLfloat a) {
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *ev) {
-//    qDebug() << ev->text() << ev->key();
     this->keys_pressed.insert(ev->key());
 }
 
@@ -200,14 +208,25 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
 //    glColor3f((float) (qrand() % 255) / 255, (float) (qrand() % 255) / 255, (float) (qrand() % 255) / 255);
     glColor4f(1.0f, 1.0f, 1.0f, .0f);
     glBegin(GL_QUADS);
-            glTexCoord2f(1, 0);
+            glTexCoord2f(0, 1);
             glVertex3f(0.0f, 0.0f, 0.0f);
             glTexCoord2f(0, 0);
-            glVertex3f(a, 0.0f, 0.0f);
-            glTexCoord2f(0, 1);
+            glVertex3f(.0f, b, 0.0f);
+            glTexCoord2f(1, 0);
             glVertex3f(a, b, 0.0f);
             glTexCoord2f(1, 1);
-            glVertex3f(.0f, b, 0.0f);
+            glVertex3f(a, 0.0f, 0.0f);
+     glEnd();
+
+    glBegin(GL_QUADS);
+            glTexCoord2f(0, 0);
+            glVertex3f(0.0f, 0.0f, c);
+            glTexCoord2f(1, 0);
+            glVertex3f(a, 0.0f, c);
+            glTexCoord2f(1, 1);
+            glVertex3f(a, b, c);
+            glTexCoord2f(0, 1);
+            glVertex3f(.0f, b, c);
      glEnd();
 
 
@@ -235,38 +254,30 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
       glEnd();
 
 
-      glBegin(GL_QUADS);
-              glTexCoord2f(0, 0);
-              glVertex3f(0.0f, 0.0f, c);
-              glTexCoord2f(0, 1);
-              glVertex3f(.0f, b, c);
-              glTexCoord2f(1, 1);
-              glVertex3f(a, b, c);
-              glTexCoord2f(1, 0);
-              glVertex3f(a, 0.0f, c);
-       glEnd();
+
 
 //--------------------------------------------------
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
             glVertex3f(.0f, b, .0f);
-            glTexCoord2f(1, 0);
-            glVertex3f(a, b, .0f);
-            glTexCoord2f(1, 1);
-            glVertex3f(a, b, c);
             glTexCoord2f(0, 1);
             glVertex3f(.0f, b, c);
+            glTexCoord2f(1, 1);
+            glVertex3f(a, b, c);
+            glTexCoord2f(1, 0);
+            glVertex3f(a, b, .0f);
+
         glEnd();
 
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
             glVertex3f(.0f, .0f, .0f);
-            glTexCoord2f(0, 1);
-            glVertex3f(.0f, .0f, c);
-            glTexCoord2f(1, 1);
-            glVertex3f(a, .0f, c);
             glTexCoord2f(1, 0);
             glVertex3f(a, .0f, .0f);
+            glTexCoord2f(1, 1);
+            glVertex3f(a, .0f, c);
+            glTexCoord2f(0, 1);
+            glVertex3f(.0f, .0f, c);
         glEnd();
 
        glTranslatef(-x, -y, -z);
@@ -317,7 +328,7 @@ void MainWindow::drawmap() {
            }
     for (int i = 0; i < this->Mpanel.size(); i++) {
         QPair <GLfloat, GLfloat> res = getpos(this->TIME, this->Mpanel[i]);
-       this->drawNOTHING(res.first + .01f, .0f, -res.second - 1 - .01f , .98f, 1, .98f, this->PIXmoving);
+       this->drawNOTHING(res.first + .01f, .0f, -res.second - 1 - .01f , 1.0f, 1, 1.0f, this->PIXmoving);
     }
 }
 
@@ -384,13 +395,24 @@ void MainWindow::searchkeys() {
 //        this->keys_pressed.erase(this->keys_pressed.find('Q'));
 //        this->restart();
 //    }
-    if (this->inside_key(Qt::Key_Escape))
-        this->close();
-    if (this->inside_key('Z') || this->inside_key(1071)){
+    if (this->inside_key(Qt::Key_Escape)) {
+        this->menuopened = !this->menuopened;
+        this->element = 0;
+        this->throw_key(Qt::Key_Escape);
+    }
+    if (this->inside_key(Qt::Key_Return)) {
+        if (this->menuopened)
+            this->close();
+        this->throw_key(Qt::Key_Return);
+    }
+    if ((this->inside_key('Z')) || (this->inside_key(1071))){
         this->switchmode();
         this->throw_key('Z');
         this->throw_key(1071);
     }
+
+    if (this->menuopened)
+        return;
     if (this->dead)
         return;
     if (this->levelnomber > this->maxlevels)
@@ -416,7 +438,7 @@ void MainWindow::searchkeys() {
     if ((!this->jumping) && (this->inside_key(Qt::Key_Space))) {
         this->jumping = true;
         this->jumpiterations = 0;
-        this->throw_key(Qt::Key_Space);
+//        this->throw_key(Qt::Key_Space);
     }
 
     GLfloat dy = 0, dx = 0;
@@ -494,7 +516,6 @@ void MainWindow::searchkeys() {
         this->y -= dx * sin(0 / 360 * 2 * 3.14159265);
         this->vy -= dx * sin(0 / 360 * 2 * 3.14159265);
     }
-//    qDebug() << this->vx << this->vy;
 
 }
 
@@ -504,12 +525,15 @@ void MainWindow::die() {
 
 
 void MainWindow::timeout() {
-    this->TIME += this->updatetime;
+    this->searchkeys();
+    if (!this->menuopened)
+        this->TIME += this->updatetime;
     if (this->levelnomber > this->maxlevels)
         this->freefall();
     if (this->dead) {
                 this->rx = 0;
-                this->timetorestart -= this->updatetime;
+                if (!this->menuopened)
+                    this->timetorestart -= this->updatetime;
                 if (this->timetorestart <= 0) {
                     this->life--;
                     qDebug() << "Life:" << this->life;
@@ -524,7 +548,6 @@ void MainWindow::timeout() {
             this->die();
 
         }
-    this->searchkeys();
     if (this->jumping)
         this->jump();
     this->update();
@@ -561,7 +584,7 @@ hidden new_hidden(GLfloat pause,GLfloat tvis,GLfloat thid, GLint x, GLint y, boo
 
 void MainWindow::drawSKY() {
     this->fogg(this->dead);
-    GLint p = 100;
+//    GLint p = 100;
 //    this->drawQUBE(-p, -p, -p, 2 * p, 2 * p, 2 * p, PIXdrop);
     this->drawNOTHING(-1, 1, 1, this->n + 2, 0, -this->m - 2, PIXsky);
 }
@@ -611,7 +634,6 @@ void MainWindow::jump() {
 }
 
 bool MainWindow::isfloor(GLfloat x, GLfloat y) {
-//    qDebug() << x - floor(x) << -y - floor(-y) << (this->map[floor(x)][floor(-y)] == '0');
     if (this->map[floor(x)][floor(-y)] != '0')
             return true;
     if ((x - floor(x) < 0.15f) && isin(floor(x) - 1, floor(-y), this->n, this->m) && (this->map[floor(x) - 1][floor(-y)] != '*') && (this->map[floor(x) - 1][floor(-y)] != '0'))
@@ -640,14 +662,14 @@ void MainWindow::freefall() {
 //        this->jumpiterations = 0;
     this->jumpiterations++;
     GLfloat t = (GLfloat) this->jumpiterations * this->updatetime / 1000;
-//    qDebug() << t << this->z << "->" << -g * t * t / 2;
     this->z = -g * t * t / 2;
     this->x += this->vx;
     this->y += this->vy;
-//    qDebug() << this->x;
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
+    if (this->menuopened)
+        return;
     if (!this->fullscreen)
         return;
     if (! this->mousedetected) {
@@ -732,43 +754,39 @@ void MainWindow::loadlevel() {
         if (ch == 'M') {
             moving p;
             char s[256];
-            fscanf(inp, "%d %d %d %s\n", &p.x, &p.y, &p.interval, &s);
+            fscanf(inp, "%d %d %d %s\n", &p.x, &p.y, &p.interval, s);
             p.param = QString::fromStdString(s);
             this->Mpanel.push_back(p);
         }
     }
-//    qDebug() << this->n << this->m;
 //    for (int i = 0; i < n; i++)
 //        qDebug() << this->map[i];
     char s[256];
-    fscanf(inp, "%s\n", &s);
+    fscanf(inp, "%s\n", s);
     this->PIXsky = QPixmap("../Textures/" + QString(s));
 
 
-    fscanf(inp, "%s\n", &s);
+    fscanf(inp, "%s\n", s);
     this->PIXwall = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", &s);
+    fscanf(inp, "%s\n", s);
     this->PIXexit = QPixmap("../Textures/" + QString(s));
 
-    fscanf(inp, "%s\n", &s);
+    fscanf(inp, "%s\n", s);
     this->PIXfloor = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", &s);
+    fscanf(inp, "%s\n", s);
     this->PIXdanger = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", &s);
+    fscanf(inp, "%s\n", s);
     this->PIXhidden = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", &s);
+    fscanf(inp, "%s\n", s);
     this->PIXmoving = QPixmap("../Textures/" + QString(s));
 
     this->PIXwin = QPixmap("../Textures/win.jpg");
     this->PIXlose = QPixmap("../Textures/lose.jpg");
-    this->PIXmenu = QPixmap("../Textures/menu.jpg");
-
     fclose(inp);
 }
 
 
 void MainWindow::fogg(bool start) {
-//    qDebug() << 1.0f - (GLfloat) this->timetorestart / this->restime;
     GLfloat fogColor[4] = {(GLfloat) this->timetorestart / this->restime, .0f, .0f, 1.0f};
     glFogfv(GL_FOG_COLOR, fogColor);
     glFogf(GL_FOG_END, (GLfloat) this->timetorestart / this->restime);
@@ -779,22 +797,50 @@ void MainWindow::fogg(bool start) {
 }
 
 void MainWindow::drawinfo() {
-//    this->Begin2D();
-//    qDebug() << this->getx(150) << this->gety(120);
-//    glColor4f(1.0f, 1.0f, 1.0f, .0f);
-//    GLuint tex = bindTexture(this->PIXmenu, GL_TEXTURE_2D);
-//    glBindTexture(GL_TEXTURE_2D, tex);
-//      glBegin (GL_QUADS);
-//        glTexCoord2f(0, 0);
-//        glVertex2f (-1, 1);
-//        glTexCoord2f(0, 1);
-//        glVertex2f (-1, 1 - this->gety(120));
-//        glTexCoord2f(1, 1);
-//        glVertex2f (-1+2 * this->getx(150), 1 - this->gety(120));
-//        glTexCoord2f(1, 0);
-//        glVertex2f (-1+2 * this->getx(150), 1);
-//      glEnd();
-//    this->End2D();
+    this->Begin2D();
+    if (!this->dead) {
+      glColor4f(.0f, .0f, .0f, .8f);
+      glBegin (GL_QUADS);
+        glVertex2f (this->dw + 0, -this->dh + this->height());
+        glVertex2f (this->dw + 0,-this->dh +  this->height() - 100);
+        glVertex2f (this->dw + 200, -this->dh + this->height() - 100);
+        glVertex2f (this->dw + 200, -this->dh + this->height());
+      glEnd();
+      glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+      this->setFont(QFont("serif", 15, -1, false));
+      renderText(this->dw + 20,this->dh + 40, "Level: " + QString::number(this->levelnomber) + "/" + QString::number(this->maxlevels));
+      renderText(this->dw + 20,this->dh + 60, "Lifes left: " + QString::number(this->life));
+      }
+      else {
+       glColor4f(std::min((GLfloat) this->timetorestart / this->restime + 0.05, 1.0d), 0.0f, 0.0f, 0.8f);
+          glBegin (GL_QUADS);
+            glVertex2f (this->dw + 0,-this->dh + this->height());
+            glVertex2f (this->dw + 0,-this->dh + this->height() - 100);
+            glVertex2f (this->dw + 300,-this->dh + this->height() - 100);
+            glVertex2f (this->dw + 300,-this->dh + this->height());
+          glEnd();
+          glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+          this->setFont(QFont("serif", 15, -1, false));
+          renderText(this->dw + 20, this->dh + 40, "You are dead...");
+          renderText(this->dw + 20, this->dh + 60, "Time to restart: " + QString::number((GLfloat)this->timetorestart / 1000));
+      }
+    if (this->menuopened) {
+        glColor4f(.0f, .0f, .0f, .8f);
+        glBegin (GL_QUADS);
+          glVertex2f (this->dw + (this->width() - this->dw * 2) / 2 - 125, this->dh + (this->height() - this->dh * 2) / 2 + 50);
+          glVertex2f (this->dw + (this->width() - this->dw * 2) / 2 - 125, this->dh + (this->height() - this->dh * 2) / 2 - 50);
+          glVertex2f (this->dw + (this->width() - this->dw * 2) / 2 + 125, this->dh + (this->height() - this->dh * 2) / 2 - 50);
+          glVertex2f (this->dw + (this->width() - this->dw * 2) / 2 + 125, this->dh + (this->height() - this->dh * 2) / 2 + 50);
+        glEnd();
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        this->setFont(QFont("serif", 15, -1, false));
+        renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 30, "PAUSE");
+        renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 60, "Press Enter to exit    ");
+        renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 80, "Press Esc. to continue");
+    }
+    this->End2D();
+
+
 }
 
 GLfloat MainWindow::getx(GLfloat x) {
