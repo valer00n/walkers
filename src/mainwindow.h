@@ -12,6 +12,8 @@ typedef struct {
     int interval, rest; // for 1 segment
     char direction; // UDLR
     GLfloat dist;
+    GLfloat r;
+    int pause;
 } firing;
 
 typedef struct{
@@ -83,6 +85,7 @@ protected:
     /*HELP*/
         GLfloat getx(GLfloat x);
         GLfloat gety(GLfloat y);
+        GLfloat dist(GLfloat x, GLfloat y, GLfloat z);
 
 private:
 

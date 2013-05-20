@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 9;
+    this->levelnomber = 0;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -337,90 +337,86 @@ void MainWindow::drawmap() {
         glColor4f(.0f, .0, .0, 1.0);
         char d = this->Fpanel[i].direction;
 
-        if (d == 'R') {
-             glTranslatef(this->Fpanel[i].x, .0f, -this->Fpanel[i].y - 1 - 1e-2);
-             glBegin(GL_QUADS);
-                     glTexCoord2f(0, 1);
-                     glVertex3f(0.35f, 0.35f, 0.0f);
-                     glTexCoord2f(0, 0);
-                     glVertex3f(0.35f, 0.65f, 0.0f);
-                     glTexCoord2f(1, 0);
-                     glVertex3f(0.65f, 0.65f, 0.0f);
-                     glTexCoord2f(1, 1);
-                     glVertex3f(0.65f, 0.35f, 0.0f);
-              glEnd();
-             glTranslatef(-this->Fpanel[i].x, .0f, this->Fpanel[i].y + 1 + 1e-2);
-            glDisable(GL_BLEND);
-        }
-        if (d == 'L') {
-        glTranslatef(this->Fpanel[i].x - .5f, this->Fpanel[i].z - .5f, -this->Fpanel[i].y - 1 + 1e-2);
+        glTranslatef(this->Fpanel[i].x, this->Fpanel[i].z, -this->Fpanel[i].y);
+        if (d == 'R')
+            glRotatef(-180, .0f, 1.0f, .0f);
+        if (d == 'U')
+            glRotatef(-90, .0f, 1.0f, .0f);
+        if (d == 'D')
+            glRotatef(90, .0f, 1.0f, .0f);
+        glTranslatef(.0f, .0f, + 1e-2);
         glBegin(GL_QUADS);
                 glTexCoord2f(0, 0);
-                glVertex3f(0.35f, 0.35f, 0);
+                glVertex3f(this->Fpanel[i].r + 0.08, this->Fpanel[i].r + 0.08, 0);
                 glTexCoord2f(1, 0);
-                glVertex3f(0.65f, 0.35f, 0);
+                glVertex3f(-this->Fpanel[i].r - 0.08, this->Fpanel[i].r + 0.08, 0);
                 glTexCoord2f(1, 1);
-                glVertex3f(0.65f, 0.65f, 0);
+                glVertex3f(-this->Fpanel[i].r - 0.08, -this->Fpanel[i].r - 0.08, 0);
                 glTexCoord2f(0, 1);
-                glVertex3f(0.35f, 0.65f, 0);
+                glVertex3f(this->Fpanel[i].r + 0.08, -this->Fpanel[i].r - 0.08, 0);
          glEnd();
-         glTranslatef(-this->Fpanel[i].x + .5f, -this->Fpanel[i].z + .5f, this->Fpanel[i].y + 1 - 1e-2);
-        }
-        if (d == 'D') {
-            glTranslatef(this->Fpanel[i].x + 1e-2, .0f, -this->Fpanel[i].y - 1);
-         glBegin(GL_QUADS);
-                glTexCoord2f(1, 0);
-                glVertex3f(0, 0.35f, 0.35f);
-                glTexCoord2f(1, 1);
-                glVertex3f(0, 0.65, 0.35f);
-                glTexCoord2f(0, 1);
-                glVertex3f(0, 0.65, 0.65);
-                glTexCoord2f(0, 0);
-                glVertex3f(0, 0.35f, 0.65);
-         glEnd();
-         glTranslatef(-this->Fpanel[i].x - 1e-2, .0f, this->Fpanel[i].y + 1);
-        }
-        if (d == 'U') {
-               glTranslatef(this->Fpanel[i].x - 1e-2, .0f, -this->Fpanel[i].y - 1);
-         glBegin(GL_QUADS);
-                glTexCoord2f(0, 0);
-                glVertex3f(.0f, 0.35f, 0.35f);
-                glTexCoord2f(1, 0);
-                glVertex3f(.0f, 0.35f, 0.65f);
-                glTexCoord2f(1, 1);
-                glVertex3f(.0f, 0.65f, 0.65f);
-                glTexCoord2f(0, 1);
-                glVertex3f(.0f, 0.65, 0.35f);
-          glEnd();
-          glTranslatef(-this->Fpanel[i].x + 1e-2, .0f, this->Fpanel[i].y + 1);
-        }
+         glTranslatef(.0f, .0f, - 1e-2);
+         if (d == 'R')
+         glRotatef(180, .0f, 1.0f, .0f);
+         if (d == 'U')
+             glRotatef(90, .0f, 1.0f, .0f);
+         if (d == 'D')
+             glRotatef(-90, .0f, 1.0f, .0f);
+         glTranslatef(-this->Fpanel[i].x, -this->Fpanel[i].z, this->Fpanel[i].y);
 
         glDisable(GL_BLEND);
 
         tex = bindTexture(this->PIXfireball, GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, tex);
         glColor3f(1.0f, 1.0f, 1.0f);
-        if (d == 'L') {
             GLint f = 0;
-            GLfloat p = (GLfloat) (this->TIME % this->Fpanel[i].rest) / Fpanel[i].interval;
-            GLfloat d = (GLfloat) this->Fpanel[i].rest / this->Fpanel[i].interval;
+            GLfloat p = (GLfloat) ((this->TIME + this->Fpanel[i].rest - this->Fpanel[i].pause) % this->Fpanel[i].rest) / Fpanel[i].interval;
+            GLfloat dl = (GLfloat) this->Fpanel[i].rest / this->Fpanel[i].interval;
             GLUquadricObj *q;
             q = gluNewQuadric();
-            while (p + f * d < this->Fpanel[i].dist) {
-
-                gluQuadricTexture(q, GL_TRUE);
-                glTranslatef(this->Fpanel[i].x, this->Fpanel[i].z, -this->Fpanel[i].y - 1 + p + f * d);
-                gluSphere(q, 0.15f, 20, 20);
-                glTranslatef(-this->Fpanel[i].x, -this->Fpanel[i].z, this->Fpanel[i].y + 1 - p - f * d);
-
+            glTranslatef(this->Fpanel[i].x, this->Fpanel[i].z, -this->Fpanel[i].y);
+            if (d == 'R')
+                glRotatef(-180, .0f, 1.0f, .0f);
+            if (d == 'U')
+                glRotatef(-90, .0f, 1.0f, .0f);
+            if (d == 'D')
+                glRotatef(90, .0f, 1.0f, .0f);
+            glTranslatef(.0f, .0f, p);
+            while (p + f * dl < this->Fpanel[i].dist) {
+                if (d == 'L') {
+                    if (dist(this->Fpanel[i].x, this->Fpanel[i].y - p - dl * f, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
+                        die();
+                }
+                if (d == 'R') {
+                    if (dist(this->Fpanel[i].x, this->Fpanel[i].y + p + dl * f, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
+                        die();
+                }
+                if (d == 'D') {
+                    if (dist(this->Fpanel[i].x + p + dl * f, this->Fpanel[i].y, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
+                        die();
+                }
+                if (d == 'U') {
+                    if (dist(this->Fpanel[i].x - p - dl * f, this->Fpanel[i].y, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
+                        die();
+                }
+                gluQuadricTexture(q, GL_TRUE);              
+                gluSphere(q, this->Fpanel[i].r, 20, 20);
+                glTranslatef(.0f, .0f, dl);
                 f++;
             }
+            glTranslatef(.0f, .0f, -p - dl * f);
+            if (d == 'R')
+            glRotatef(180, .0f, 1.0f, .0f);
+            if (d == 'U')
+                glRotatef(90, .0f, 1.0f, .0f);
+            if (d == 'D')
+                glRotatef(-90, .0f, 1.0f, .0f);
+            glTranslatef(-this->Fpanel[i].x, -this->Fpanel[i].z, this->Fpanel[i].y);
             gluDeleteQuadric(q);
-        }
 
-        }
-        GLuint tex = bindTexture(this->PIXfloor);
-        glBindTexture(GL_TEXTURE_2D, tex);
+//        GLuint tex = bindTexture(this->PIXfloor);
+//        glBindTexture(GL_TEXTURE_2D, tex);
+    }
 }
 
 void MainWindow::drawaxes() {
@@ -492,9 +488,11 @@ void MainWindow::searchkeys() {
         this->throw_key(Qt::Key_Escape);
     }
     if (this->inside_key(Qt::Key_Return)) {
+        if (this->levelnomber <= this->maxlevels) {
         if (this->menuopened)
             this->close();
         this->throw_key(Qt::Key_Return);
+        }
     }
     if ((this->inside_key('Z')) || (this->inside_key(1071))){
         this->switchmode();
@@ -621,8 +619,6 @@ void MainWindow::die() {
 
 void MainWindow::timeout() {
     this->searchkeys();
-    if (!this->menuopened)
-        this->TIME += this->updatetime;
     if (this->levelnomber > this->maxlevels)
         this->freefall();
     if (this->dead) {
@@ -637,20 +633,18 @@ void MainWindow::timeout() {
                     this->restart();
                 }
         }
-    else
+    else {
+        if (!this->menuopened)
+            this->TIME += this->updatetime;
         if ((!this->jumping) && (!this->isfloor(this->x, this->y))) {
             this->z = -.4f;
             this->die();
 
         }
+    }
     if (this->jumping)
         this->jump();
     this->update();
-//    if (this->z < -25.0f)
-//        if (this->levelnomber <= this->maxlevels) {
-//            this->rx = 0;
-//            this->restart();
-//         }
 
     if (this->z < -110.0f) {
         if (this->levelnomber > this->maxlevels)
@@ -767,6 +761,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
         return;
     if (!this->fullscreen)
         return;
+    if (this->levelnomber > this->maxlevels)
+        return;
     if (! this->mousedetected) {
         this->mouseX = ev->x();
         this->mouseY = ev->y();
@@ -856,7 +852,7 @@ void MainWindow::loadlevel() {
         }
         if (ch == 'F') {
             firing p;
-            fscanf(inp, "%f %f %f %c %d %d %f\n", &p.x, &p.y, &p.z, &p.direction, &p.interval, &p.rest, &p.dist);
+            fscanf(inp, "%f %f %f %f %c %d %d %f %d\n", &p.x, &p.y, &p.z, &p.r, &p.direction, &p.interval, &p.rest, &p.dist, &p.pause);
             this->Fpanel.push_back(p);
         }
     }
@@ -952,4 +948,8 @@ GLfloat MainWindow::getx(GLfloat x) {
 
 GLfloat MainWindow::gety(GLfloat y) {
     return (2 * y) / this->height();
+}
+
+GLfloat MainWindow::dist(GLfloat x, GLfloat y, GLfloat z) {
+    return (this->x - x) * (this->x - x) + (this->y + y) * (this->y + y) + (this->z + .5f - z) * (this->z + .5f - z);
 }
