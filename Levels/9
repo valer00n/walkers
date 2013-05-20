@@ -2,10 +2,11 @@
 .0000000000000000000000000000E
 1
 M 0 1 100 SSSSSSSSSSSSSSSSSRRRRRRRRRRRRRRRRRRRRRRRLLLLLLLLLLLLLLLLLLLLLLL
-blue_stone.jpg
-scratch.jpg
-exit.jpg
-stone.jpg
-lava.jpg
-br-glass.jpg
-metal.jpg
+7
+sky blue_stone.jpg
+wall scratch.jpg
+exit exit.jpg
+floor stone.jpg
+danger lava.jpg
+hidden br-glass.jpg
+moving metal.jpg

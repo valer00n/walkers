@@ -6,10 +6,11 @@
 2
 M 1 1 1000 URRDDLURRLLDRUULLD
 M 2 9 1000 UULLLDLULRDRURRRDD
-blue_stone.jpg
-scratch.jpg
-exit.jpg
-stone.jpg
-lava.jpg
-br-glass.jpg
-metal.jpg
+7
+sky blue_stone.jpg
+wall scratch.jpg
+exit exit.jpg
+floor stone.jpg
+danger lava.jpg
+hidden br-glass.jpg
+moving metal.jpg

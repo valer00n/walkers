@@ -5,6 +5,32 @@
 #include <QDir>
 #include <fstream>
 
+MainWindow::MainWindow(QWidget *parent)
+    : QGLWidget(parent)
+{
+    this->TIM = new QTimer;
+    QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
+    this->TIM->start();
+//    this->jumping = false;
+    this->rx = 0;
+    this->mousedetected = false;
+    this->setMouseTracking(true);
+    this->levelnomber = 0;
+    this->TIME = 0;
+    this->fullscreen = false;
+    this->setMinimumSize(610, 512);
+    this->restime = 3000;
+    this->menuopened = false;
+    this->duck = false;
+    this->loadparam();
+    finn();
+}
+
+MainWindow::~MainWindow()
+{
+
+}
+
 void MainWindow::Begin2D ()
 {
 //    glDisable(GL_DEPTH_TEST);
@@ -94,32 +120,6 @@ void MainWindow::loadparam() {
     in.open("../param.walk");
     in >>  this->maxlevels >> this->updatetime >>  this->lat >> this->life;
     in.close();
-}
-
-MainWindow::MainWindow(QWidget *parent)
-    : QGLWidget(parent)
-{
-    this->TIM = new QTimer;
-    QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
-    this->TIM->start();
-//    this->jumping = false;
-    this->rx = 0;
-    this->mousedetected = false;
-    this->setMouseTracking(true);
-    this->levelnomber = 0;
-    this->TIME = 0;
-    this->fullscreen = false;
-    this->setMinimumSize(610, 512);
-    this->restime = 3000;
-    this->menuopened = false;
-    this->duck = false;
-    this->loadparam();
-    finn();
-}
-
-MainWindow::~MainWindow()
-{
-    
 }
 
 void MainWindow::initializeGL() {
@@ -329,6 +329,8 @@ void MainWindow::drawmap() {
         QPair <GLfloat, GLfloat> res = getpos(this->TIME, this->Mpanel[i]);
        this->drawNOTHING(res.first + .01f, .0f, -res.second - 1 - .01f , 1.0f, 1, 1.0f, this->PIXmoving);
     }
+    GLUquadricObj *q;
+    q = gluNewQuadric();
 
     for (int i = 0; i < this->Fpanel.size(); i++) {
         GLuint tex = bindTexture(this->PIXhole, GL_TEXTURE_2D);
@@ -372,8 +374,7 @@ void MainWindow::drawmap() {
             GLint f = 0;
             GLfloat p = (GLfloat) ((this->TIME + this->Fpanel[i].rest - this->Fpanel[i].pause) % this->Fpanel[i].rest) / Fpanel[i].interval;
             GLfloat dl = (GLfloat) this->Fpanel[i].rest / this->Fpanel[i].interval;
-            GLUquadricObj *q;
-            q = gluNewQuadric();
+
             glTranslatef(this->Fpanel[i].x, this->Fpanel[i].z, -this->Fpanel[i].y);
             if (d == 'R')
                 glRotatef(-180, .0f, 1.0f, .0f);
@@ -382,23 +383,22 @@ void MainWindow::drawmap() {
             if (d == 'D')
                 glRotatef(90, .0f, 1.0f, .0f);
             glTranslatef(.0f, .0f, p);
+            GLfloat dx = 0, dy = 0;
             while (p + f * dl < this->Fpanel[i].dist) {
-                if (d == 'L') {
-                    if (dist(this->Fpanel[i].x, this->Fpanel[i].y - p - dl * f, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
+                if (d == 'L')
+                    dy = - p - dl * f;
+                if (d == 'R')
+                    dy = p + dl * f;
+                if (d == 'D')
+                    dx = p + dl * f;
+                if (d == 'U')
+                    dx = - p - dl * f;
+//                qDebug() << sqrt(dist(this->Fpanel[i].x + dx, this->Fpanel[i].y + dy));
+                if (dist(this->Fpanel[i].x + dx, this->Fpanel[i].y + dy) < this->Fpanel[i].r * this->Fpanel[i].r) {
+                    if ((this->z + 0.5 + 0.15 >= this->Fpanel[i].z) && (this->z + 0.5 - 0.5 <= this->Fpanel[i].z))
                         die();
-                }
-                if (d == 'R') {
-                    if (dist(this->Fpanel[i].x, this->Fpanel[i].y + p + dl * f, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
-                        die();
-                }
-                if (d == 'D') {
-                    if (dist(this->Fpanel[i].x + p + dl * f, this->Fpanel[i].y, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
-                        die();
-                }
-                if (d == 'U') {
-                    if (dist(this->Fpanel[i].x - p - dl * f, this->Fpanel[i].y, this->Fpanel[i].z) < this->Fpanel[i].r * this->Fpanel[i].r)
-                        die();
-                }
+//                    qDebug() << this->TIME;
+                 }
                 gluQuadricTexture(q, GL_TRUE);              
                 gluSphere(q, this->Fpanel[i].r, 20, 20);
                 glTranslatef(.0f, .0f, dl);
@@ -412,11 +412,11 @@ void MainWindow::drawmap() {
             if (d == 'D')
                 glRotatef(-90, .0f, 1.0f, .0f);
             glTranslatef(-this->Fpanel[i].x, -this->Fpanel[i].z, this->Fpanel[i].y);
-            gluDeleteQuadric(q);
 
 //        GLuint tex = bindTexture(this->PIXfloor);
 //        glBindTexture(GL_TEXTURE_2D, tex);
     }
+    gluDeleteQuadric(q);
 }
 
 void MainWindow::drawaxes() {
@@ -838,7 +838,7 @@ void MainWindow::loadlevel() {
         if (ch == 'H') {
             hidden p;
             int bol;
-            fscanf(inp, "%d %d %d %d %d %d\n", &p.pause, &p.tvis, &p.thid, &p.x, &p.y, &bol);
+            fscanf(inp, "%d %d %d %d %d %d\n", &p.x, &p.y, &p.pause, &p.tvis, &p.thid, &bol);
             p.visible = (bol != 0);
             p.backup = this->map[p.x][p.y];
             this->Hpanel.push_back(p);
@@ -858,25 +858,26 @@ void MainWindow::loadlevel() {
     }
 //    for (int i = 0; i < n; i++)
 //        qDebug() << this->map[i];
-    char s[256];
-    fscanf(inp, "%s\n", s);
-    this->PIXsky = QPixmap("../Textures/" + QString(s));
-
-
-    fscanf(inp, "%s\n", s);
-    this->PIXwall = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", s);
-    this->PIXexit = QPixmap("../Textures/" + QString(s));
-
-    fscanf(inp, "%s\n", s);
-    this->PIXfloor = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", s);
-    this->PIXdanger = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", s);
-    this->PIXhidden = QPixmap("../Textures/" + QString(s));
-    fscanf(inp, "%s\n", s);
-    this->PIXmoving = QPixmap("../Textures/" + QString(s));
-
+    fscanf(inp, "%d\n", &cmd);
+    for (int i = 0; i < cmd; i++) {
+        char s[256], sp[256];
+        fscanf(inp, "%s %s\n", sp, s);
+        QString s1 = QString(sp);
+        if (s1 == "sky")
+            this->PIXsky = QPixmap("../Textures/" + QString(s));
+        if (s1 == "wall")
+            this->PIXwall = QPixmap("../Textures/" + QString(s));
+        if (s1 == "exit")
+            this->PIXexit = QPixmap("../Textures/" + QString(s));
+        if (s1 == "floor")
+            this->PIXfloor = QPixmap("../Textures/" + QString(s));
+        if (s1 == "danger")
+            this->PIXdanger = QPixmap("../Textures/" + QString(s));
+        if (s1 == "hidden")
+            this->PIXhidden = QPixmap("../Textures/" + QString(s));
+        if (s1 == "moving")
+            this->PIXmoving = QPixmap("../Textures/" + QString(s));
+    }
     this->PIXwin = QPixmap("../Textures/win.jpg");
     this->PIXlose = QPixmap("../Textures/lose.jpg");
     this->PIXhole = QPixmap("../Textures/hole.png");
@@ -950,6 +951,6 @@ GLfloat MainWindow::gety(GLfloat y) {
     return (2 * y) / this->height();
 }
 
-GLfloat MainWindow::dist(GLfloat x, GLfloat y, GLfloat z) {
-    return (this->x - x) * (this->x - x) + (this->y + y) * (this->y + y) + (this->z + .5f - z) * (this->z + .5f - z);
+GLfloat MainWindow::dist(GLfloat x, GLfloat y) {
+    return (this->x - x) * (this->x - x) + (this->y + y) * (this->y + y);
 }

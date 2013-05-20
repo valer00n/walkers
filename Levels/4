@@ -15,10 +15,11 @@
 **************0
 **************E
 0
-wire.jpg
-lines.jpg
-exit.jpg
-stone.jpg
-lava.jpg
-br-glass.jpg
-metal.jpg
+7
+sky wire.jpg
+wall lines.jpg
+exit exit.jpg
+floor stone.jpg
+danger lava.jpg
+hidden br-glass.jpg
+moving metal.jpg

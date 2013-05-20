@@ -85,7 +85,7 @@ protected:
     /*HELP*/
         GLfloat getx(GLfloat x);
         GLfloat gety(GLfloat y);
-        GLfloat dist(GLfloat x, GLfloat y, GLfloat z);
+        GLfloat dist(GLfloat x, GLfloat y);
 
 private:
 

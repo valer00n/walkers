@@ -1,0 +1,30 @@
+1)Control
+WASD   :: move
+arrows :: rotate camera
+Space  :: jump
+Ctrl   :: duck
+Esc    :: pause
+Z      :: fullscreen
+2)Creating level help
+
+<texture_name>:
+    sky
+    wall
+    exit
+    floor
+    danger
+    hidden
+    moving
+
+'.' == floor
+'0' == hole
+'*' == wall
+
+Hpanel:
+    x y show_time_first show_second show_first first
+Mpanel:
+    x y interval PARAM
+    (S == 'stay', UDLR <as map drown>)
+Fpanel:
+    x y z r DIR time_for_1_segment cool_down first_pause
+
