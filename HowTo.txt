@@ -26,5 +26,5 @@ Mpanel:
     x y interval PARAM
     (S == 'stay', UDLR <as map drown>)
 Fpanel:
-    x y z r DIR time_for_1_segment cool_down first_pause
+    x y z r DIR time_for_1_segment cool_down first_pause stratch_X stratch_Y stratch_Z
 

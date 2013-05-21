@@ -14,6 +14,7 @@ typedef struct {
     GLfloat dist;
     GLfloat r;
     int pause;
+    GLfloat stratchX, stratchY, stratchZ;
 } firing;
 
 typedef struct{

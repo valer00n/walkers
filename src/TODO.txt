@@ -9,3 +9,6 @@
 Уровни
 
 Defines for fireball launchers
+
+
+400

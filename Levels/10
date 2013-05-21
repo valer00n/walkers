@@ -4,16 +4,15 @@
 ..........
 EEEEEEEEEE
 4
-F 1,5 9 0,2 0,1 L 1000 1000 9,5 0
-F 1,5 9 0,7 0,1 L 1000 1000 9,5 0
-F 1,2 9 0,5 0,1 L 1000 1000 9,5 0
-F 1,8 9 0,5 0,1 L 1000 1000 9,5 0
+F 1,5 9 0,2 0,1 L 1000 1000 9,5 0 1 1 1
+F 1,5 9 0,7 0,1 L 1000 1000 9,5 0 1 1 1
+F 1,2 9 0,5 0,1 L 1000 1000 9,5 0 1 1 1
+F 1,8 9 0,5 0,1 L 1000 1000 9,5 0 1 1 1
 7
-sky blue_stone.jpg
-wall scratch.jpg
+sky metal-square.jpg
+wall black-wood.jpg
 exit exit.jpg
-floor stone.jpg
+floor wood.jpg
 danger lava.jpg
 hidden br-glass.jpg
 moving metal.jpg
-

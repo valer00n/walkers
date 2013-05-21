@@ -347,6 +347,7 @@ void MainWindow::drawmap() {
         if (d == 'D')
             glRotatef(90, .0f, 1.0f, .0f);
         glTranslatef(.0f, .0f, + 1e-2);
+        glScalef(this->Fpanel[i].stratchX, this->Fpanel[i].stratchZ, this->Fpanel[i].stratchY);
         glBegin(GL_QUADS);
                 glTexCoord2f(0, 0);
                 glVertex3f(this->Fpanel[i].r + 0.08, this->Fpanel[i].r + 0.08, 0);
@@ -357,6 +358,7 @@ void MainWindow::drawmap() {
                 glTexCoord2f(0, 1);
                 glVertex3f(this->Fpanel[i].r + 0.08, -this->Fpanel[i].r - 0.08, 0);
          glEnd();
+         glScalef(1.0f / this->Fpanel[i].stratchX, 1.0f / this->Fpanel[i].stratchZ, 1.0f / this->Fpanel[i].stratchY);
          glTranslatef(.0f, .0f, - 1e-2);
          if (d == 'R')
          glRotatef(180, .0f, 1.0f, .0f);
@@ -374,7 +376,6 @@ void MainWindow::drawmap() {
             GLint f = 0;
             GLfloat p = (GLfloat) ((this->TIME + this->Fpanel[i].rest - this->Fpanel[i].pause) % this->Fpanel[i].rest) / Fpanel[i].interval;
             GLfloat dl = (GLfloat) this->Fpanel[i].rest / this->Fpanel[i].interval;
-
             glTranslatef(this->Fpanel[i].x, this->Fpanel[i].z, -this->Fpanel[i].y);
             if (d == 'R')
                 glRotatef(-180, .0f, 1.0f, .0f);
@@ -382,6 +383,8 @@ void MainWindow::drawmap() {
                 glRotatef(-90, .0f, 1.0f, .0f);
             if (d == 'D')
                 glRotatef(90, .0f, 1.0f, .0f);
+
+
             glTranslatef(.0f, .0f, p);
             GLfloat dx = 0, dy = 0;
             while (p + f * dl < this->Fpanel[i].dist) {
@@ -394,13 +397,19 @@ void MainWindow::drawmap() {
                 if (d == 'U')
                     dx = - p - dl * f;
 //                qDebug() << sqrt(dist(this->Fpanel[i].x + dx, this->Fpanel[i].y + dy));
-                if (dist(this->Fpanel[i].x + dx, this->Fpanel[i].y + dy) < this->Fpanel[i].r * this->Fpanel[i].r) {
-                    if ((this->z + 0.5 + 0.15 >= this->Fpanel[i].z) && (this->z + 0.5 - 0.5 <= this->Fpanel[i].z))
+                GLfloat FF = (this->x - this->Fpanel[i].x - dx) * (this->x - this->Fpanel[i].x - dx) / (this->Fpanel[i].stratchX * this->Fpanel[i].stratchX) + (-this->y - this->Fpanel[i].y - dy) * (-this->y - this->Fpanel[i].y - dy) / (this->Fpanel[i].stratchY * this->Fpanel[i].stratchY);
+                if (FF < (this->Fpanel[i].r * this->Fpanel[i].r)) {
+                    GLfloat PP = ((this->Fpanel[i].r * this->Fpanel[i].r) - FF) * (this->Fpanel[i].stratchZ * this->Fpanel[i].stratchZ);
+                    GLfloat P1 = std::sqrt(PP) + this->Fpanel[i].z - .5f;
+                    GLfloat P2 =-std::sqrt(PP) + this->Fpanel[i].z - .5f;
+                    if (std::min(this->z + 0.15f, P1) >= std::max(this->z - 0.5f, P2))
                         die();
-//                    qDebug() << this->TIME;
                  }
-                gluQuadricTexture(q, GL_TRUE);              
+
+                gluQuadricTexture(q, GL_TRUE);
+                glScalef(this->Fpanel[i].stratchX, this->Fpanel[i].stratchZ, this->Fpanel[i].stratchY);
                 gluSphere(q, this->Fpanel[i].r, 20, 20);
+                glScalef(1.0f / this->Fpanel[i].stratchX, 1.0f / this->Fpanel[i].stratchZ, 1.0f / this->Fpanel[i].stratchY);
                 glTranslatef(.0f, .0f, dl);
                 f++;
             }
@@ -675,7 +684,9 @@ void MainWindow::drawSKY() {
     this->fogg(this->dead);
 //    GLint p = 100;
 //    this->drawQUBE(-p, -p, -p, 2 * p, 2 * p, 2 * p, PIXdrop);
-    this->drawNOTHING(-1, 1, 1, this->n + 2, 0, -this->m - 2, PIXsky);
+    for (int i = 0; i < this->n; i++)
+        for (int j = 0; j < this->m; j++)
+            this->drawQUBE(i, 1.0f, -j - 1, 1, 1, 1, this->PIXsky);
 }
 
 
@@ -698,6 +709,8 @@ void MainWindow::restart() {
 }
 
 void MainWindow::jump() {
+    if (this->dead)
+        return;
     const GLfloat v = 3.0f, g = 9.8f;
     if (canGO(this->x + this->vx, -this->y))
         this->x += this->vx;
@@ -852,7 +865,7 @@ void MainWindow::loadlevel() {
         }
         if (ch == 'F') {
             firing p;
-            fscanf(inp, "%f %f %f %f %c %d %d %f %d\n", &p.x, &p.y, &p.z, &p.r, &p.direction, &p.interval, &p.rest, &p.dist, &p.pause);
+            fscanf(inp, "%f %f %f %f %c %d %d %f %d %f %f %f\n", &p.x, &p.y, &p.z, &p.r, &p.direction, &p.interval, &p.rest, &p.dist, &p.pause, &p.stratchX, &p.stratchY, &p.stratchZ);
             this->Fpanel.push_back(p);
         }
     }
