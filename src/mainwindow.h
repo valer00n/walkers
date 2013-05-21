@@ -82,6 +82,7 @@ protected:
     /*LOADING LEVEL*/
         void loadlevel();
         void levelclear();
+        void loadstaticTEX();
 
     /*HELP*/
         GLfloat getx(GLfloat x);
@@ -107,6 +108,7 @@ private:
         QVector <hidden> Hpanel;
         QVector <moving> Mpanel;
         QVector <firing> Fpanel;
+        bool FFall;
 
     /*WINDOW INFO*/
         bool fullscreen;
@@ -127,7 +129,7 @@ private:
 
 
     /*TEXTURES*/
-        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose, PIXhole, PIXfireball;
+        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose, PIXhole, PIXfireball, PIXinfo;
 
 
 

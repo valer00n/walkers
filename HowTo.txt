@@ -5,6 +5,9 @@ Space  :: jump
 Ctrl   :: duck
 Esc    :: pause
 Z      :: fullscreen
+<Press ENTER to Start>
+or
+<Press Esc to exit>
 2)Creating level help
 
 <texture_name>:

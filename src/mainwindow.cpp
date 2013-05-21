@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 0;
+    this->levelnomber = -1;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->menuopened = false;
     this->duck = false;
     this->loadparam();
+    this->loadstaticTEX();
+    this->FFall = false;
     finn();
 }
 
@@ -170,12 +172,15 @@ void MainWindow::paintGL() {
     glRotatef(-this->ry, .0f, 1.0f, .0f);
     glTranslatef(-this->x, -.5f - this->z, -this->y);
     GLfloat p = 100;
+    if (this->levelnomber == 0) {
+       this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXinfo);
+    }
+    else
     if (this->levelnomber <= this->maxlevels) {
         this->drawSKY();
         this->drawmap();
         this->drawinfo();
     }
-
     else
         if (this->life > 0)
             this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXwin);
@@ -475,11 +480,14 @@ void MainWindow::finn() {
     this->levelnomber++;
 //    qDebug() << this->levelnomber << this->maxlevels;
     if (this->levelnomber > this->maxlevels + 1) {
-        this->close();
+        this->levelnomber = -1;
+        if (this->life != 0)
+            this->close();
+        this->finn();
         return;
     }
     this->levelclear();
-    if (this->levelnomber <= this->maxlevels)
+    if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0))
         this->loadlevel();
     this->restart();
     this->TIM->start();
@@ -492,15 +500,24 @@ void MainWindow::searchkeys() {
 //        this->restart();
 //    }
     if (this->inside_key(Qt::Key_Escape)) {
-        this->menuopened = !this->menuopened;
-        this->element = 0;
+        if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
+            this->menuopened = !this->menuopened;
+            this->element = 0;
+        }
+        else
+            if (!this->FFall)
+                this->close();
         this->throw_key(Qt::Key_Escape);
     }
     if (this->inside_key(Qt::Key_Return)) {
-        if (this->levelnomber <= this->maxlevels) {
-        if (this->menuopened)
-            this->close();
         this->throw_key(Qt::Key_Return);
+        if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
+            if (this->menuopened)
+                 this->close();
+        }
+        if (this->levelnomber == 0) {
+            this->FFall = true;
+            return;
         }
     }
     if ((this->inside_key('Z')) || (this->inside_key(1071))){
@@ -515,7 +532,6 @@ void MainWindow::searchkeys() {
         return;
     if (this->levelnomber > this->maxlevels)
         return;
-
     if (this->inside_key(Qt::Key_Left))
         this->ry += 2.0f;
     if (this->inside_key(Qt::Key_Right))
@@ -528,6 +544,8 @@ void MainWindow::searchkeys() {
         this->rx = 90;
     if (this->rx < -90)
         this->rx = -90;
+    if (this->levelnomber == 0)
+        return;
 
     if (this->dead)
         return;
@@ -628,8 +646,10 @@ void MainWindow::die() {
 
 void MainWindow::timeout() {
     this->searchkeys();
-    if (this->levelnomber > this->maxlevels)
+    if ((this->levelnomber > this->maxlevels) || this->FFall)
         this->freefall();
+//    if (this->levelnomber == 0)
+//        this->freefall();
     if (this->dead) {
                 this->rx = 0;
                 if (!this->menuopened)
@@ -645,7 +665,7 @@ void MainWindow::timeout() {
     else {
         if (!this->menuopened)
             this->TIME += this->updatetime;
-        if ((!this->jumping) && (!this->isfloor(this->x, this->y))) {
+        if ((this->levelnomber != 0) && (this->levelnomber <= this->maxlevels) && (!this->jumping) && (!this->isfloor(this->x, this->y))) {
             this->z = -.4f;
             this->die();
 
@@ -655,9 +675,8 @@ void MainWindow::timeout() {
         this->jump();
     this->update();
 
-    if (this->z < -110.0f) {
-        if (this->levelnomber > this->maxlevels)
-            this->close();
+    if (this->z < -100.0f) {
+        finn();
     }
 }
 
@@ -691,6 +710,8 @@ void MainWindow::drawSKY() {
 
 
 void MainWindow::restart() {
+    this->FFall = false;
+    this->menuopened = false;
     this->timetorestart = this->restime;
     this->jumpiterations = 0;
     this->jumping = false;
@@ -702,7 +723,10 @@ void MainWindow::restart() {
     this->y = -this->sy - .5f;
     this->vx = this->vy = 0;
     this->ry = 0;
+    this->rx = 0;
     if (this->levelnomber > this->maxlevels)
+        this->rx = -90;
+    if (this->levelnomber == 0)
         this->rx = -90;
     this->TIM->setInterval(this->updatetime);
     this->TIM->start();    
@@ -757,6 +781,8 @@ bool MainWindow::isfloor(GLfloat x, GLfloat y) {
 }
 
 void MainWindow::freefall() {
+    this->rx = -90;
+    this->ry = 0;
     const GLfloat g = 9.8f;
 //    this->ry += .05f;
 //    this->dead = true;
@@ -776,6 +802,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
         return;
     if (this->levelnomber > this->maxlevels)
         return;
+
     if (! this->mousedetected) {
         this->mouseX = ev->x();
         this->mouseY = ev->y();
@@ -891,13 +918,16 @@ void MainWindow::loadlevel() {
         if (s1 == "moving")
             this->PIXmoving = QPixmap("../Textures/" + QString(s));
     }
+    fclose(inp);
+}
+
+void MainWindow::loadstaticTEX() {
     this->PIXwin = QPixmap("../Textures/win.jpg");
     this->PIXlose = QPixmap("../Textures/lose.jpg");
     this->PIXhole = QPixmap("../Textures/hole.png");
     this->PIXfireball = QPixmap("../Textures/fireball.jpg");
-    fclose(inp);
+    this->PIXinfo = QPixmap("../Textures/info.jpg");
 }
-
 
 void MainWindow::fogg(bool start) {
     GLfloat fogColor[4] = {(GLfloat) this->timetorestart / this->restime, .0f, .0f, 1.0f};
