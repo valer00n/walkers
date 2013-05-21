@@ -127,10 +127,9 @@ private:
         GLint element, menel;
 
 
-
     /*TEXTURES*/
         QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose, PIXhole, PIXfireball, PIXinfo;
-
+        bool stretch_sky;
 
 
 private slots:

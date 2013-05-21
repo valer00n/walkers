@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->TIM = new QTimer;
     QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
     this->TIM->start();
-//    this->jumping = false;
+    this->jumping = false;
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
@@ -35,7 +35,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::Begin2D ()
 {
-//    glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -52,9 +51,7 @@ void MainWindow::End2D ()
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
-//    glEnable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-//    glCullFace(GL_BLACK);
 }
 
 
@@ -127,13 +124,10 @@ void MainWindow::loadparam() {
 void MainWindow::initializeGL() {
     glEnable(GL_TEXTURE_2D);
     glEnable( GL_DEPTH_TEST );
-//    glEnable(GL_BLEND);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth( 1.0f );
-//    glEnable(GL_CULL_FACE);
 
     glEnable(GL_ALPHA_TEST);
-//    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glDepthFunc( GL_LESS );
@@ -161,8 +155,6 @@ void MainWindow::resizeGL(int w, int h) {
 
 void MainWindow::paintGL() {
     this->fogg(false);
-//    qDebug() << "L" << this->life << this->levelnomber << this->maxlevels;
-//    qDebug() << this->TIME << this->x << this->z << this->y;
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth( 1.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -211,13 +203,13 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
     glTranslatef(x, y, z);
     glColor4f(1.0f, 1.0f, 1.0f, .0f);
     glBegin(GL_QUADS);
-            glTexCoord2f(0, 1);
-            glVertex3f(0.0f, 0.0f, 0.0f);
-            glTexCoord2f(0, 0);
-            glVertex3f(.0f, b, 0.0f);
             glTexCoord2f(1, 0);
-            glVertex3f(a, b, 0.0f);
+            glVertex3f(0.0f, 0.0f, 0.0f);
             glTexCoord2f(1, 1);
+            glVertex3f(.0f, b, 0.0f);
+            glTexCoord2f(0, 1);
+            glVertex3f(a, b, 0.0f);
+            glTexCoord2f(0, 0);
             glVertex3f(a, 0.0f, 0.0f);
      glEnd();
 
@@ -255,10 +247,6 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
             glTexCoord2f(0, 1);
             glVertex3f(.0f, b, .0f);
       glEnd();
-
-
-
-
 //--------------------------------------------------
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
@@ -285,7 +273,6 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
 
        glTranslatef(-x, -y, -z);
        glColor4f(.0f, .0f, .0f, 1.0f);
-//       glDeleteTextures(1, &ap);
 }
 
 void MainWindow::drawNOTHING(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {
@@ -316,6 +303,7 @@ void MainWindow::drawmap() {
         this->drawQUBE(-1, .0f, -j - 1, 1, 1, 1, this->PIXwall);
         this->drawQUBE(n, .0f, -j - 1, 1, 1, 1, this->PIXwall);
     }
+
 
     for (int i = 0; i < n; i++)
         for (int j = 0; j < m; j++) {
@@ -401,7 +389,6 @@ void MainWindow::drawmap() {
                     dx = p + dl * f;
                 if (d == 'U')
                     dx = - p - dl * f;
-//                qDebug() << sqrt(dist(this->Fpanel[i].x + dx, this->Fpanel[i].y + dy));
                 GLfloat FF = (this->x - this->Fpanel[i].x - dx) * (this->x - this->Fpanel[i].x - dx) / (this->Fpanel[i].stratchX * this->Fpanel[i].stratchX) + (-this->y - this->Fpanel[i].y - dy) * (-this->y - this->Fpanel[i].y - dy) / (this->Fpanel[i].stratchY * this->Fpanel[i].stratchY);
                 if (FF < (this->Fpanel[i].r * this->Fpanel[i].r)) {
                     GLfloat PP = ((this->Fpanel[i].r * this->Fpanel[i].r) - FF) * (this->Fpanel[i].stratchZ * this->Fpanel[i].stratchZ);
@@ -426,9 +413,6 @@ void MainWindow::drawmap() {
             if (d == 'D')
                 glRotatef(-90, .0f, 1.0f, .0f);
             glTranslatef(-this->Fpanel[i].x, -this->Fpanel[i].z, this->Fpanel[i].y);
-
-//        GLuint tex = bindTexture(this->PIXfloor);
-//        glBindTexture(GL_TEXTURE_2D, tex);
     }
     gluDeleteQuadric(q);
 }
@@ -465,20 +449,16 @@ bool MainWindow::canGO (GLfloat x, GLfloat y) {
 }
 
 bool MainWindow::canGO2(GLfloat x, GLfloat y) {
-//    qDebug() << this->x << this->y;
     if ((x >= 0) && (x < n) && (y >= 0) && (y  < m) && (this->map[(GLint)floor(x)][(GLint)floor(y)] == 'E')) {
         this->finn();
         return false;
     }
-//    qDebug() << x << y;
-//    qDebug() << x << y;
     return (x >= 0) && (x < n) && (y >= 0) && (y < m) && (this->map[(GLint)floor(x)][(GLint)floor(y)] != '*');
 }
 
 void MainWindow::finn() {
     this->TIM->stop();
     this->levelnomber++;
-//    qDebug() << this->levelnomber << this->maxlevels;
     if (this->levelnomber > this->maxlevels + 1) {
         this->levelnomber = -1;
         if (this->life != 0)
@@ -494,18 +474,13 @@ void MainWindow::finn() {
 }
 
 void MainWindow::searchkeys() {
-    //ALWAYS
-//    if (this->keys_pressed.find('Q') != this->keys_pressed.end()) {
-//        this->keys_pressed.erase(this->keys_pressed.find('Q'));
-//        this->restart();
-//    }
     if (this->inside_key(Qt::Key_Escape)) {
         if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
             this->menuopened = !this->menuopened;
             this->element = 0;
         }
         else
-            if (!this->FFall)
+            if ((!this->FFall) && (this->levelnomber == 0))
                 this->close();
         this->throw_key(Qt::Key_Escape);
     }
@@ -532,6 +507,9 @@ void MainWindow::searchkeys() {
         return;
     if (this->levelnomber > this->maxlevels)
         return;
+    if (this->levelnomber == 0)
+        return;
+
     if (this->inside_key(Qt::Key_Left))
         this->ry += 2.0f;
     if (this->inside_key(Qt::Key_Right))
@@ -544,9 +522,6 @@ void MainWindow::searchkeys() {
         this->rx = 90;
     if (this->rx < -90)
         this->rx = -90;
-    if (this->levelnomber == 0)
-        return;
-
     if (this->dead)
         return;
     //WHILE ALIVE
@@ -554,7 +529,6 @@ void MainWindow::searchkeys() {
     if ((!this->jumping) && (this->inside_key(Qt::Key_Space))) {
         this->jumping = true;
         this->jumpiterations = 0;
-//        this->throw_key(Qt::Key_Space);
     }
 
     GLfloat dy = 0, dx = 0;
@@ -565,9 +539,6 @@ void MainWindow::searchkeys() {
         else
             this->z = 0;
     }
-
-//    if (this->jumping)
-//        return;
 
     if (this->inside_key('W') || this->inside_key(1062))
         dy -= .05f;
@@ -656,7 +627,7 @@ void MainWindow::timeout() {
                     this->timetorestart -= this->updatetime;
                 if (this->timetorestart <= 0) {
                     this->life--;
-                    qDebug() << "Life:" << this->life;
+//                    qDebug() << "Life:" << this->life;
                     if (this->life == 0)
                         this->levelnomber = this->maxlevels + 1;
                     this->restart();
@@ -701,8 +672,9 @@ hidden new_hidden(GLfloat pause,GLfloat tvis,GLfloat thid, GLint x, GLint y, boo
 
 void MainWindow::drawSKY() {
     this->fogg(this->dead);
-//    GLint p = 100;
-//    this->drawQUBE(-p, -p, -p, 2 * p, 2 * p, 2 * p, PIXdrop);
+    if (this->stretch_sky)
+         this->drawNOTHING(-1, 1, 1, this->n + 2, 0, -this->m - 2, PIXsky);
+    else
     for (int i = 0; i < this->n; i++)
         for (int j = 0; j < this->m; j++)
             this->drawQUBE(i, 1.0f, -j - 1, 1, 1, 1, this->PIXsky);
@@ -740,9 +712,6 @@ void MainWindow::jump() {
         this->x += this->vx;
     if (canGO(this->x, -this->y - this->vy))
         this->y += this->vy;
-//    if (this->z == 0) {
-//        this->jumpiterations = 0;
-//    }
     this->jumpiterations++;
     GLfloat t = (GLfloat) (this->jumpiterations * this->updatetime) / 1000;
     this->z = v * t - g * t * t / 2;
@@ -784,10 +753,6 @@ void MainWindow::freefall() {
     this->rx = -90;
     this->ry = 0;
     const GLfloat g = 9.8f;
-//    this->ry += .05f;
-//    this->dead = true;
-//    if (this->z == 0)
-//        this->jumpiterations = 0;
     this->jumpiterations++;
     GLfloat t = (GLfloat) this->jumpiterations * this->updatetime / 1000;
     this->z = -g * t * t / 2;
@@ -801,6 +766,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
     if (!this->fullscreen)
         return;
     if (this->levelnomber > this->maxlevels)
+        return;
+    if (this->levelnomber == 0)
         return;
 
     if (! this->mousedetected) {
@@ -901,10 +868,14 @@ void MainWindow::loadlevel() {
     fscanf(inp, "%d\n", &cmd);
     for (int i = 0; i < cmd; i++) {
         char s[256], sp[256];
-        fscanf(inp, "%s %s\n", sp, s);
+        fscanf(inp, "%s %s", sp, s);
         QString s1 = QString(sp);
-        if (s1 == "sky")
+        if (s1 == "sky") {
+            int b;
+            fscanf(inp, "%d", &b);
+            this->stretch_sky = (b == 1);
             this->PIXsky = QPixmap("../Textures/" + QString(s));
+        }
         if (s1 == "wall")
             this->PIXwall = QPixmap("../Textures/" + QString(s));
         if (s1 == "exit")

@@ -15,8 +15,8 @@ H 0 11 5500 1500 1500 0
 H 0 12 6000 1500 1500 0
 H 0 13 6500 1500 1500 0
 7
-sky wire.jpg
-wall lines.jpg
+sky wire.jpg 0
+wall black-fence.jpg
 exit exit.jpg
 floor stone.jpg
 danger lava.jpg

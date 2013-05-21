@@ -12,7 +12,7 @@ H 0 7 0 2000 2000  0
 H 1 7 0 2000 2000  0
 M 0 14 1000 LLLLLDRRRRRU
 7
-sky metal-square.jpg
+sky metal-square.jpg 0
 wall black-wood.jpg
 exit exit.jpg
 floor wood.jpg

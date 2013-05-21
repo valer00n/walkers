@@ -5,7 +5,7 @@ P.************************************.E
 F 0,5 39 0,6 0,4 L 500 5000 39,5 2500 1 1 0,2
 F 0,5 39 0,25 0,4 L 500 5000 39,5 0 1 1 0,2
 7
-sky metal-square.jpg
+sky metal-square.jpg 0
 wall black-wood.jpg
 exit exit.jpg
 floor wood.jpg
