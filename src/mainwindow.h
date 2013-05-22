@@ -40,6 +40,8 @@ public:
 
 protected:
 
+    /*HELP*/
+        void loadLists();
     /*GL CONTROL*/
         void initializeGL();
         void resizeGL(int w, int h);
@@ -109,6 +111,7 @@ private:
         QVector <moving> Mpanel;
         QVector <firing> Fpanel;
         bool FFall;
+        GLuint wall;
 
     /*WINDOW INFO*/
         bool fullscreen;

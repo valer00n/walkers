@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = -1;
+    this->levelnomber = 2;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -136,8 +136,88 @@ void MainWindow::initializeGL() {
     glFogf(GL_FOG_DENSITY, 0.4f);
     glHint(GL_FOG_HINT, GL_NICEST);
     glFogf(GL_FOG_START, 0.0f);
-
+    this->loadLists();
     this->switchmode();
+}
+
+void MainWindow::loadLists() {
+
+    this->wall = glGenLists(1);
+
+    GLint a = 1, b = 1, c = 1;
+
+    glNewList(this->wall, GL_COMPILE);
+        glColor4f(1.0f, 1.0f, 1.0f, .0f);
+        glBegin(GL_QUADS);
+                glTexCoord2f(1, 0);
+                glVertex3f(0.0f, 0.0f, 0.0f);
+                glTexCoord2f(1, 1);
+                glVertex3f(.0f, b, 0.0f);
+                glTexCoord2f(0, 1);
+                glVertex3f(a, b, 0.0f);
+                glTexCoord2f(0, 0);
+                glVertex3f(a, 0.0f, 0.0f);
+         glEnd();
+
+        glBegin(GL_QUADS);
+                glTexCoord2f(0, 0);
+                glVertex3f(0.0f, 0.0f, c);
+                glTexCoord2f(1, 0);
+                glVertex3f(a, 0.0f, c);
+                glTexCoord2f(1, 1);
+                glVertex3f(a, b, c);
+                glTexCoord2f(0, 1);
+                glVertex3f(.0f, b, c);
+         glEnd();
+
+
+         glBegin(GL_QUADS);
+                glTexCoord2f(1, 0);
+                glVertex3f(a, .0f, .0f);
+                glTexCoord2f(1, 1);
+                glVertex3f(a, b, .0f);
+                glTexCoord2f(0, 1);
+                glVertex3f(a, b, c);
+                glTexCoord2f(0, 0);
+                glVertex3f(a, .0f, c);
+         glEnd();
+
+
+         glBegin(GL_QUADS);
+                glTexCoord2f(0, 0);
+                glVertex3f(.0f, .0f, .0f);
+                glTexCoord2f(1, 0);
+                glVertex3f(.0f, .0f, c);
+                glTexCoord2f(1, 1);
+                glVertex3f(.0f, b, c);
+                glTexCoord2f(0, 1);
+                glVertex3f(.0f, b, .0f);
+          glEnd();
+    //--------------------------------------------------
+            glBegin(GL_QUADS);
+                glTexCoord2f(0, 0);
+                glVertex3f(.0f, b, .0f);
+                glTexCoord2f(0, 1);
+                glVertex3f(.0f, b, c);
+                glTexCoord2f(1, 1);
+                glVertex3f(a, b, c);
+                glTexCoord2f(1, 0);
+                glVertex3f(a, b, .0f);
+
+            glEnd();
+
+            glBegin(GL_QUADS);
+                glTexCoord2f(0, 0);
+                glVertex3f(.0f, .0f, .0f);
+                glTexCoord2f(1, 0);
+                glVertex3f(a, .0f, .0f);
+                glTexCoord2f(1, 1);
+                glVertex3f(a, .0f, c);
+                glTexCoord2f(0, 1);
+                glVertex3f(.0f, .0f, c);
+            glEnd();
+
+    glEndList();
 }
 
 void MainWindow::resizeGL(int w, int h) {
@@ -202,6 +282,9 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
     glBindTexture(GL_TEXTURE_2D, ap);
     glTranslatef(x, y, z);
     glColor4f(1.0f, 1.0f, 1.0f, .0f);
+    glScalef(a, b, c);
+    glCallList(this->wall);
+    if (1 != 1) {
     glBegin(GL_QUADS);
             glTexCoord2f(1, 0);
             glVertex3f(0.0f, 0.0f, 0.0f);
@@ -270,9 +353,10 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
             glTexCoord2f(0, 1);
             glVertex3f(.0f, .0f, c);
         glEnd();
-
-       glTranslatef(-x, -y, -z);
-       glColor4f(.0f, .0f, .0f, 1.0f);
+}
+    glScalef(1.0f / a, 1.0f / b, 1.0f / c);
+    glTranslatef(-x, -y, -z);
+    glColor4f(.0f, .0f, .0f, 1.0f);
 }
 
 void MainWindow::drawNOTHING(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {
