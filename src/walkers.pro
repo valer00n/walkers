@@ -35,6 +35,7 @@ OTHER_FILES += \
     ../Levels/10 \
     ../Levels/11 \
     ../HowTo.txt \
-    ../Levels/12
+    ../Levels/12 \
+    ../Levels/13
 
 FORMS +=

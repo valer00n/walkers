@@ -476,6 +476,17 @@ void MainWindow::finn() {
 }
 
 void MainWindow::searchkeys() {
+    if (this->menuopened) {
+        if (this->inside_key('+')) {
+            this->life++;
+            this->throw_key('+');
+        }
+        if (this->inside_key('-')) {
+            this->throw_key('-');
+            this->finn();
+            return;
+        }
+    }
     if (this->inside_key(Qt::Key_Escape)) {
         if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
             this->menuopened = !this->menuopened;
@@ -870,7 +881,8 @@ void MainWindow::loadlevel() {
     fscanf(inp, "%d\n", &cmd);
     for (int i = 0; i < cmd; i++) {
         char s[256], sp[256];
-        fscanf(inp, "%s %s", sp, s);
+        fscanf(inp, "%s", sp);
+        fscanf(inp, "%s", s);
         QString s1 = QString(sp);
         if (s1 == "sky") {
             int b;
