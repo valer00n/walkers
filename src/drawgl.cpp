@@ -1,21 +1,25 @@
-#include "mainwindow.h"
+#include "drawgl.h"
 #include <QDebug>
 #include <cstdio>
 #include <cmath>
 #include <QDir>
 #include <fstream>
+#include <QPainter>
 
-MainWindow::MainWindow(QWidget *parent)
+GLPainter::GLPainter(QWidget *parent)
     : QGLWidget(parent)
 {
-    this->TIM = new QTimer;
-    QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
-    this->TIM->start();
+    this->setFont(QFont("serif", 15, -1, false));
+    this->timerT = new timer;
+    this->timerT->start();
+    this->timerT->TIM = new QTimer;
+    QObject::connect(this->timerT->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
+    this->timerT->TIM->start();
     this->jumping = false;
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 2;
+    this->levelnomber = -1;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -25,15 +29,16 @@ MainWindow::MainWindow(QWidget *parent)
     this->loadparam();
     this->loadstaticTEX();
     this->FFall = false;
+    this->life = 0;
     finn();
 }
 
-MainWindow::~MainWindow()
+GLPainter::~GLPainter()
 {
 
 }
 
-void MainWindow::Begin2D ()
+void GLPainter::Begin2D ()
 {
     glEnable(GL_BLEND);
     glMatrixMode(GL_PROJECTION);
@@ -45,7 +50,7 @@ void MainWindow::Begin2D ()
     gluOrtho2D(this->dw, this->width() - this->dw, this->dh, this->height() - this->dh);
 }
 
-void MainWindow::End2D ()
+void GLPainter::End2D ()
 {
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -55,11 +60,11 @@ void MainWindow::End2D ()
 }
 
 
-bool MainWindow::inside_key(int key) {
+bool GLPainter::inside_key(int key) {
     return (this->keys_pressed.find(key) != this->keys_pressed.end());
 }
 
-void MainWindow::throw_key(int key) {
+void GLPainter::throw_key(int key) {
     if (this->keys_pressed.find(key) != this->keys_pressed.end())
         this->keys_pressed.erase(this->keys_pressed.find(key));
 }
@@ -114,14 +119,19 @@ QPair <GLfloat, GLfloat> getdir(GLint TIME, moving panel) {
     return QPair <GLfloat, GLfloat> (x, y);
 }
 
-void MainWindow::loadparam() {
+bool GLPainter::loadparam() {
     std::ifstream in;
     in.open("../param.walk");
-    in >> this->maxlevels >> this->updatetime >>  this->lat >> this->life;
+    if (in == NULL) {
+        qDebug() << "param.walk not found!";
+        return false;
+    }
+    in >> this->maxlevels >> this->updatetime >>  this->lat;
     in.close();
+    return true;
 }
 
-void MainWindow::initializeGL() {
+void GLPainter::initializeGL() {
     glEnable(GL_TEXTURE_2D);
     glEnable( GL_DEPTH_TEST );
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -140,7 +150,7 @@ void MainWindow::initializeGL() {
     this->switchmode();
 }
 
-void MainWindow::loadLists() {
+void GLPainter::loadLists() {
 
     this->wall = glGenLists(1);
 
@@ -195,13 +205,13 @@ void MainWindow::loadLists() {
           glEnd();
     //--------------------------------------------------
             glBegin(GL_QUADS);
-                glTexCoord2f(0, 0);
-                glVertex3f(.0f, b, .0f);
                 glTexCoord2f(0, 1);
+                glVertex3f(.0f, b, .0f);
+                glTexCoord2f(0, 0);
                 glVertex3f(.0f, b, c);
-                glTexCoord2f(1, 1);
-                glVertex3f(a, b, c);
                 glTexCoord2f(1, 0);
+                glVertex3f(a, b, c);
+                glTexCoord2f(1, 1);
                 glVertex3f(a, b, .0f);
 
             glEnd();
@@ -220,7 +230,7 @@ void MainWindow::loadLists() {
     glEndList();
 }
 
-void MainWindow::resizeGL(int w, int h) {
+void GLPainter::resizeGL(int w, int h) {
 
     GLfloat scale = std::min((GLfloat) w / 16, (GLfloat) h / 9);
     this->dw = (w - 16 * scale) / 2;
@@ -233,7 +243,7 @@ void MainWindow::resizeGL(int w, int h) {
     glLoadIdentity();
 }
 
-void MainWindow::paintGL() {
+void GLPainter::paintGL() {
     this->fogg(false);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth( 1.0f );
@@ -245,7 +255,7 @@ void MainWindow::paintGL() {
     glTranslatef(-this->x, -.5f - this->z, -this->y);
     GLfloat p = 100;
     if (this->levelnomber == 0) {
-       this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXinfo);
+        this->mainmenu();
     }
     else
     if (this->levelnomber <= this->maxlevels) {
@@ -254,10 +264,7 @@ void MainWindow::paintGL() {
         this->drawinfo();
     }
     else
-        if (this->life > 0)
-            this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXwin);
-        else
-            this->drawNOTHING(-p, -p, -p, 2 * p, 0, 2 * p, PIXlose);
+        this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXwin);
 }
 
 GLfloat fabs(GLfloat a) {
@@ -267,16 +274,16 @@ GLfloat fabs(GLfloat a) {
         return a;
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *ev) {
+void GLPainter::keyPressEvent(QKeyEvent *ev) {
     this->keys_pressed.insert(ev->key());
 }
 
-void MainWindow::keyReleaseEvent(QKeyEvent *ev) {
+void GLPainter::keyReleaseEvent(QKeyEvent *ev) {
     if (this->keys_pressed.find(ev->key()) != this->keys_pressed.end())
         this->keys_pressed.erase(this->keys_pressed.find(ev->key()));
 }
 
-void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {
+void GLPainter::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {
 
     GLuint ap = bindTexture(texture, GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, ap);
@@ -284,82 +291,12 @@ void MainWindow::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b,
     glColor4f(1.0f, 1.0f, 1.0f, .0f);
     glScalef(a, b, c);
     glCallList(this->wall);
-    if (1 != 1) {
-    glBegin(GL_QUADS);
-            glTexCoord2f(1, 0);
-            glVertex3f(0.0f, 0.0f, 0.0f);
-            glTexCoord2f(1, 1);
-            glVertex3f(.0f, b, 0.0f);
-            glTexCoord2f(0, 1);
-            glVertex3f(a, b, 0.0f);
-            glTexCoord2f(0, 0);
-            glVertex3f(a, 0.0f, 0.0f);
-     glEnd();
-
-    glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex3f(0.0f, 0.0f, c);
-            glTexCoord2f(1, 0);
-            glVertex3f(a, 0.0f, c);
-            glTexCoord2f(1, 1);
-            glVertex3f(a, b, c);
-            glTexCoord2f(0, 1);
-            glVertex3f(.0f, b, c);
-     glEnd();
-
-
-     glBegin(GL_QUADS);
-            glTexCoord2f(1, 0);
-            glVertex3f(a, .0f, .0f);
-            glTexCoord2f(1, 1);
-            glVertex3f(a, b, .0f);
-            glTexCoord2f(0, 1);
-            glVertex3f(a, b, c);
-            glTexCoord2f(0, 0);
-            glVertex3f(a, .0f, c);
-     glEnd();
-
-
-     glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex3f(.0f, .0f, .0f);
-            glTexCoord2f(1, 0);
-            glVertex3f(.0f, .0f, c);
-            glTexCoord2f(1, 1);
-            glVertex3f(.0f, b, c);
-            glTexCoord2f(0, 1);
-            glVertex3f(.0f, b, .0f);
-      glEnd();
-//--------------------------------------------------
-        glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex3f(.0f, b, .0f);
-            glTexCoord2f(0, 1);
-            glVertex3f(.0f, b, c);
-            glTexCoord2f(1, 1);
-            glVertex3f(a, b, c);
-            glTexCoord2f(1, 0);
-            glVertex3f(a, b, .0f);
-
-        glEnd();
-
-        glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex3f(.0f, .0f, .0f);
-            glTexCoord2f(1, 0);
-            glVertex3f(a, .0f, .0f);
-            glTexCoord2f(1, 1);
-            glVertex3f(a, .0f, c);
-            glTexCoord2f(0, 1);
-            glVertex3f(.0f, .0f, c);
-        glEnd();
-}
     glScalef(1.0f / a, 1.0f / b, 1.0f / c);
     glTranslatef(-x, -y, -z);
     glColor4f(.0f, .0f, .0f, 1.0f);
 }
 
-void MainWindow::drawNOTHING(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {
+void GLPainter::drawNOTHING(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {
     b = b;
     drawQUBE(x, y, z, a, .1f, c, texture);
 }
@@ -373,7 +310,7 @@ bool getstate(int TIME, hidden panel) {
         return panel.visible;
 }
 
-void MainWindow::drawmap() {
+void GLPainter::drawmap() {
     for (int i = 0; i < this->Hpanel.size(); i++)
         if (getstate(this->TIME, this->Hpanel[i]))
             this->map[this->Hpanel[i].x][this->Hpanel[i].y] = 'H';
@@ -501,7 +438,7 @@ void MainWindow::drawmap() {
     gluDeleteQuadric(q);
 }
 
-void MainWindow::drawaxes() {
+void GLPainter::drawaxes() {
     glLineWidth(3.0f);
     glColor4f(1.0f, .0f, .0f, 1.0f);
     glBegin(GL_LINES);
@@ -524,7 +461,7 @@ void MainWindow::drawaxes() {
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-bool MainWindow::canGO (GLfloat x, GLfloat y) {
+bool GLPainter::canGO (GLfloat x, GLfloat y) {
     return
             this->canGO2(x + 1e-1, y + 1e-1) &&
             this->canGO2(x + 1e-1, y - 1e-1) &&
@@ -532,7 +469,7 @@ bool MainWindow::canGO (GLfloat x, GLfloat y) {
             this->canGO2(x - 1e-1, y - 1e-1);
 }
 
-bool MainWindow::canGO2(GLfloat x, GLfloat y) {
+bool GLPainter::canGO2(GLfloat x, GLfloat y) {
     if ((x >= 0) && (x < n) && (y >= 0) && (y  < m) && (this->map[(GLint)floor(x)][(GLint)floor(y)] == 'E')) {
         this->finn();
         return false;
@@ -540,26 +477,23 @@ bool MainWindow::canGO2(GLfloat x, GLfloat y) {
     return (x >= 0) && (x < n) && (y >= 0) && (y < m) && (this->map[(GLint)floor(x)][(GLint)floor(y)] != '*');
 }
 
-void MainWindow::finn() {
-    if (this->levelnomber == 0)
+void GLPainter::finn() {
+    if (this->levelnomber == 0) {
+        this->timerT->globaltime = 0;
         this->loadparam();
-    this->TIM->stop();
-    this->levelnomber++;
-    if (this->levelnomber > this->maxlevels + 1) {
-        this->levelnomber = -1;
-        if (this->life != 0)
-            this->close();
-        this->finn();
-        return;
     }
+    this->timerT->TIM->stop();
+    this->levelnomber++;
+    if (this->levelnomber > this->maxlevels + 1)
+        this->levelnomber = 0;
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0))
         this->loadlevel();
     this->restart();
-    this->TIM->start();
+    this->timerT->TIM->start();
 }
 
-void MainWindow::searchkeys() {
+void GLPainter::searchkeys() {
     if (this->menuopened) {
         if (this->inside_key('+')) {
             this->life++;
@@ -707,12 +641,13 @@ void MainWindow::searchkeys() {
 
 }
 
-void MainWindow::die() {
+void GLPainter::die() {
     this->dead = true;
 }
 
 
-void MainWindow::timeout() {
+void GLPainter::timeout() {
+    this->timerT->globaltime += this->updatetime;
     this->searchkeys();
     if ((this->levelnomber > this->maxlevels) || this->FFall)
         this->freefall();
@@ -723,10 +658,7 @@ void MainWindow::timeout() {
                 if (!this->menuopened)
                     this->timetorestart -= this->updatetime;
                 if (this->timetorestart <= 0) {
-                    this->life--;
-//                    qDebug() << "Life:" << this->life;
-                    if (this->life == 0)
-                        this->levelnomber = this->maxlevels + 1;
+                    this->life++;
                     this->restart();
                 }
         }
@@ -767,7 +699,7 @@ hidden new_hidden(GLfloat pause,GLfloat tvis,GLfloat thid, GLint x, GLint y, boo
 
 
 
-void MainWindow::drawSKY() {
+void GLPainter::drawSKY() {
     this->fogg(this->dead);
     if (this->stretch_sky)
          this->drawNOTHING(-1, 1, 1, this->n + 2, 0, -this->m - 2, PIXsky);
@@ -778,14 +710,14 @@ void MainWindow::drawSKY() {
 }
 
 
-void MainWindow::restart() {
+void GLPainter::restart() {
     this->FFall = false;
     this->menuopened = false;
     this->timetorestart = this->restime;
     this->jumpiterations = 0;
     this->jumping = false;
     this->z = 0;
-    this->TIM->stop();
+    this->timerT->TIM->stop();
     this->TIME = 0;
     this->dead = false;
     this->x = this->sx + .5f;
@@ -797,11 +729,11 @@ void MainWindow::restart() {
         this->rx = -90;
     if (this->levelnomber == 0)
         this->rx = -90;
-    this->TIM->setInterval(this->updatetime);
-    this->TIM->start();    
+    this->timerT->TIM->setInterval(this->updatetime);
+    this->timerT->TIM->start();
 }
 
-void MainWindow::jump() {
+void GLPainter::jump() {
     if (this->dead)
         return;
     const GLfloat v = 3.0f, g = 9.8f;
@@ -825,7 +757,7 @@ void MainWindow::jump() {
 
 }
 
-bool MainWindow::isfloor(GLfloat x, GLfloat y) {
+bool GLPainter::isfloor(GLfloat x, GLfloat y) {
     if (this->map[floor(x)][floor(-y)] != '0')
             return true;
     if ((x - floor(x) < 0.15f) && isin(floor(x) - 1, floor(-y), this->n, this->m) && (this->map[floor(x) - 1][floor(-y)] != '*') && (this->map[floor(x) - 1][floor(-y)] != '0'))
@@ -846,7 +778,7 @@ bool MainWindow::isfloor(GLfloat x, GLfloat y) {
     return false;
 }
 
-void MainWindow::freefall() {
+void GLPainter::freefall() {
     this->rx = -90;
     this->ry = 0;
     const GLfloat g = 9.8f;
@@ -857,7 +789,7 @@ void MainWindow::freefall() {
     this->y += this->vy;
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
+void GLPainter::mouseMoveEvent(QMouseEvent *ev) {
     if (this->menuopened)
         return;
     if (!this->fullscreen)
@@ -873,6 +805,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
         this->mousedetected = true;
     }
     QPoint NP(ev->x(), ev->y());
+//    qDebug() << (this->mouseX - ev->x()) / 100 * this->lat << (this->mouseY - ev->y()) / 100 * this->lat;
     this->ry += (this->mouseX - ev->x()) / 100 * this->lat;
     this->rx += (this->mouseY - ev->y()) / 100 * this->lat;
     if (ev->x() == this->width() - 1) {
@@ -895,7 +828,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev) {
     this->mouseY = NP.y();
 }
 
-void MainWindow::switchmode() {
+void GLPainter::switchmode() {
     this->fullscreen = !this->fullscreen;
     setWindowState(this->fullscreen ? Qt::WindowFullScreen : Qt::WindowNoState);
     if (this->fullscreen)
@@ -905,18 +838,18 @@ void MainWindow::switchmode() {
 
 }
 
-void MainWindow::levelclear() {
+void GLPainter::levelclear() {
     this->sx = this->sy = 0;
     this->Hpanel.clear();
     this->Mpanel.clear();
     this->Fpanel.clear();
 }
 
-void MainWindow::loadlevel() {
+void GLPainter::loadlevel() {
     FILE *inp;
     inp = fopen(QString("../Levels/" + (QString::number(this->levelnomber))).toStdString().c_str(), "r");
     if (inp == NULL) {
-        qDebug() << "file with map not found. Halting!";
+        qDebug() << "file with map" << this->levelnomber << "not found. Halting!";
         this->close();
     }
     fscanf(inp, "%d %d\n", &this->n, &this->m);
@@ -990,15 +923,61 @@ void MainWindow::loadlevel() {
     fclose(inp);
 }
 
-void MainWindow::loadstaticTEX() {
-    this->PIXwin = QPixmap("../Textures/win.jpg");
-    this->PIXlose = QPixmap("../Textures/lose.jpg");
-    this->PIXhole = QPixmap("../Textures/hole.png");
-    this->PIXfireball = QPixmap("../Textures/fireball.jpg");
-    this->PIXinfo = QPixmap("../Textures/info.jpg");
+QPixmap GLPainter::genpix(int w, int h, int f, QVector<QString> &mes) {
+    QPixmap *menu = new QPixmap(w, h);
+    QPainter p(menu);
+    p.setFont(QFont("Liberation Mono", f, -1, false));
+
+    QPen pn = p.pen();
+    pn.setColor(QColor("white"));
+    p.setPen(pn);
+    QBrush br = p.brush();
+    br.setColor(QColor("black"));
+    p.setBrush(br);
+    int a = 0;
+    int b = 0;
+    for (int i = 0; i < mes.size(); i++) {
+        a = std::max(a, p.fontMetrics().width(mes[i]));
+        b = std::max(b, p.fontMetrics().height());
+    }
+    qDebug() << a << b;
+    int dx = (w - a) / 2;
+    int dy = (h - b * mes.size()) / 2;
+    qDebug() << dx << dy;
+//    dy = 0;
+//    p.drawText(40, 40, "ASDD);
+    for (int i = 0; i < mes.size(); i++)
+        p.drawText(dx, dy + b * (i), mes[i]);
+    p.end();
+    return *menu;
 }
 
-void MainWindow::fogg(bool start) {
+void GLPainter::loadstaticTEX() {
+    this->PIXwin = QPixmap("../Textures/win.jpg");
+    this->PIXhole = QPixmap("../Textures/hole.png");
+    this->PIXfireball = QPixmap("../Textures/fireball.jpg");
+    QVector <QString> mes (10);
+    mes[0] = "WASD   :: move";
+    mes[1] = "arrows :: rotate camera";
+    mes[2] = "Space  :: jump";
+    mes[3] = "Ctrl   :: duck";
+    mes[4] = "Esc    :: pause";
+    mes[5] = "Z      :: fullscreen";
+    mes[6] = "Reach finish...";
+    mes[7] = "<Press ENTER to Start>";
+    mes[8] = "         or";
+    mes[9] = "<Press Esc to exit>";
+    this->PIXmenu = this->genpix(1024, 1024, 40, mes);
+
+    mes.resize(3);
+    mes[0] = "You won!";
+    mes[1] = "Thank you for playing Walkers!";
+    mes[2] = "                    buy danpol";
+    this->PIXwin = this->genpix(1024, 1024, 40, mes);
+
+}
+
+void GLPainter::fogg(bool start) {
     GLfloat fogColor[4] = {(GLfloat) this->timetorestart / this->restime, .0f, .0f, 1.0f};
     glFogfv(GL_FOG_COLOR, fogColor);
     glFogf(GL_FOG_END, (GLfloat) this->timetorestart / this->restime);
@@ -1008,7 +987,7 @@ void MainWindow::fogg(bool start) {
         glDisable(GL_FOG);
 }
 
-void MainWindow::drawinfo() {
+void GLPainter::drawinfo() {
     this->Begin2D();
     if (!this->dead) {
       glColor4f(.0f, .0f, .0f, .8f);
@@ -1018,10 +997,10 @@ void MainWindow::drawinfo() {
         glVertex2f (this->dw + 200, -this->dh + this->height() - 100);
         glVertex2f (this->dw + 200, -this->dh + this->height());
       glEnd();
-      glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-      this->setFont(QFont("serif", 15, -1, false));
-      renderText(this->dw + 20,this->dh + 40, "Level: " + QString::number(this->levelnomber) + "/" + QString::number(this->maxlevels));
-      renderText(this->dw + 20,this->dh + 60, "Lifes left: " + QString::number(this->life));
+      glColor4f(1.0f, 1.0f, 1.0f, 1.0f);      
+      renderText(this->dw + 5,this->dh + 25, "Level: " + QString::number(this->levelnomber) + "/" + QString::number(this->maxlevels));
+      renderText(this->dw + 5,this->dh + 45, "Extra lifes taken: " + QString::number(this->life));
+      renderText(this->dw + 5,this->dh + 65, "Time: " + QString::number(this->timerT->globaltime / 1000) + "s.");
       }
       else {
        glColor4f(std::min((GLfloat) this->timetorestart / this->restime + 0.05, 1.0d), 0.0f, 0.0f, 0.8f);
@@ -1055,14 +1034,18 @@ void MainWindow::drawinfo() {
 
 }
 
-GLfloat MainWindow::getx(GLfloat x) {
+GLfloat GLPainter::getx(GLfloat x) {
     return (2 * x) / this->width();
 }
 
-GLfloat MainWindow::gety(GLfloat y) {
+GLfloat GLPainter::gety(GLfloat y) {
     return (2 * y) / this->height();
 }
 
-GLfloat MainWindow::dist(GLfloat x, GLfloat y) {
+GLfloat GLPainter::dist(GLfloat x, GLfloat y) {
     return (this->x - x) * (this->x - x) + (this->y + y) * (this->y + y);
+}
+
+void GLPainter::mainmenu() {;
+    this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXmenu);
 }

@@ -14,11 +14,13 @@ TEMPLATE = app
 LIBS += -L/usr/local/lib -lGLU
 
 SOURCES += \
-    mainwindow.cpp \
-    main.cpp
+    main.cpp \
+    drawgl.cpp \
+    timer.cpp
 
 HEADERS  += \
-    mainwindow.h
+    drawgl.h \
+    timer.h
 
 OTHER_FILES += \
     TODO.txt \

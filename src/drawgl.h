@@ -1,11 +1,12 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef GLPAINTER_H
+#define GLPAINTER_H
 
 #include <QGLWidget>
 #include <GL/glu.h>
 #include <QtOpenGL>
 #include <QSet>
 #include <QTimer>
+#include <timer.h>
 
 typedef struct {
     GLfloat x, y, z;
@@ -30,13 +31,13 @@ typedef struct {
     int x, y;
 } moving;
 
-class MainWindow : public QGLWidget
+class GLPainter : public QGLWidget
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    GLPainter(QWidget *parent = 0);
+    ~GLPainter();
 
 protected:
 
@@ -54,7 +55,7 @@ protected:
     /*LEVEL CONTROL*/
         void finn();
         void restart();
-        void loadparam();
+        bool loadparam();
 
     /*CONTROL*/
         void keyPressEvent(QKeyEvent *ev);
@@ -80,6 +81,7 @@ protected:
         void drawSKY();
         void fogg(bool start);
         void drawinfo();
+        void mainmenu();
 
     /*LOADING LEVEL*/
         void loadlevel();
@@ -90,6 +92,7 @@ protected:
         GLfloat getx(GLfloat x);
         GLfloat gety(GLfloat y);
         GLfloat dist(GLfloat x, GLfloat y);
+        QPixmap genpix(int w, int h, int f, QVector <QString> &mes);
 
 private:
 
@@ -119,7 +122,8 @@ private:
     /*SYSTEM*/
         GLint TIME;
         QSet <int> keys_pressed;
-        QTimer *TIM;
+        timer *timerT;
+//        QTimer *TIM;
         GLint updatetime;
         int maxlevels;
         GLfloat mouseX, mouseY;
@@ -131,7 +135,8 @@ private:
 
 
     /*TEXTURES*/
-        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXwin, PIXlose, PIXhole, PIXfireball, PIXinfo;
+        QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXhole, PIXfireball;
+        QPixmap PIXmenu, PIXwin;
         bool stretch_sky;
 
 
@@ -140,4 +145,4 @@ private slots:
 
 };
 
-#endif // MAINWINDOW_H
+#endif // GLPainter_H

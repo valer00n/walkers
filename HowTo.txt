@@ -5,6 +5,7 @@ Space  :: jump
 Ctrl   :: duck
 Esc    :: pause
 Z      :: fullscreen
+Reach finish...
 <Press ENTER to Start>
 or
 <Press Esc to exit>
