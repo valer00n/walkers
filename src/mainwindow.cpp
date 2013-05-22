@@ -117,7 +117,7 @@ QPair <GLfloat, GLfloat> getdir(GLint TIME, moving panel) {
 void MainWindow::loadparam() {
     std::ifstream in;
     in.open("../param.walk");
-    in >>  this->maxlevels >> this->updatetime >>  this->lat >> this->life;
+    in >> this->maxlevels >> this->updatetime >>  this->lat >> this->life;
     in.close();
 }
 
@@ -457,6 +457,8 @@ bool MainWindow::canGO2(GLfloat x, GLfloat y) {
 }
 
 void MainWindow::finn() {
+    if (this->levelnomber == 0)
+        this->loadparam();
     this->TIM->stop();
     this->levelnomber++;
     if (this->levelnomber > this->maxlevels + 1) {
