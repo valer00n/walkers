@@ -93,6 +93,7 @@ protected:
         GLfloat gety(GLfloat y);
         GLfloat dist(GLfloat x, GLfloat y);
         QPixmap genpix(int w, int h, int f, QVector <QString> &mes);
+        void savescore();
 
 private:
 
@@ -132,6 +133,9 @@ private:
         GLfloat dw, dh;
         bool menuopened;
         GLint element, menel;
+        QVector <QPair <QString, int> > score;
+        QString nametyped, curs;
+        int ttoch;
 
 
     /*TEXTURES*/

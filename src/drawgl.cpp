@@ -10,6 +10,7 @@
 GLPainter::GLPainter(QWidget *parent)
     : QGLWidget(parent)
 {
+    this->curs = "";
     this->setFont(QFont("serif", 15, -1, false));
     this->timerT = new timer;
     this->timerT->start();
@@ -22,7 +23,7 @@ GLPainter::GLPainter(QWidget *parent)
     this->setMouseTracking(true);
     this->levelnomber = -1;
     this->TIME = 0;
-    this->fullscreen = true;
+    this->fullscreen = false;
     this->setMinimumSize(610, 512);
     this->restime = 1500;
     this->menuopened = false;
@@ -254,7 +255,6 @@ void GLPainter::paintGL() {
     glRotatef(-this->rx, 1.0f, .0f, .0f);
     glRotatef(-this->ry, .0f, 1.0f, .0f);
     glTranslatef(-this->x, -.5f - this->z, -this->y);
-    GLfloat p = 100;
     if (this->levelnomber == 0) {
         this->mainmenu();
     }
@@ -265,7 +265,28 @@ void GLPainter::paintGL() {
         this->drawinfo();
     }
     else
-        this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXwin);
+        if (this->levelnomber == this->maxlevels + 1)
+            this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXwin);
+        else
+            this->savescore();
+}
+
+void GLPainter::savescore() {
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
+    if (newscore <= this->score[9].second) {
+        this->finn();
+        return;
+    }
+    int i = 0;
+    while (this->score[i].second >= newscore)
+        i++;
+    renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 30, "New record! Your place: " + QString::number(i + 1));
+    renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 60, "Enter your name: " + this->nametyped + this->curs);
+    renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 90, "<Press Enter to save>");
+    renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 110, "<Press Esc to exit>");
+
+
 }
 
 GLfloat fabs(GLfloat a) {
@@ -276,7 +297,18 @@ GLfloat fabs(GLfloat a) {
 }
 
 void GLPainter::keyPressEvent(QKeyEvent *ev) {
-    this->keys_pressed.insert(ev->key());
+    if (this->levelnomber == this->maxlevels + 2) {
+        if (((ev->text() >= "0") && (ev->text() <= "9")) || ((ev->text() >= "a") && (ev->text() <= "z")) || ((ev->text() >= "A") && (ev->text() <= "Z")) || (ev->text() == "_"))
+            this->nametyped += ev->text();
+        else
+        if (ev->key() == Qt::Key_Backspace)
+            this->nametyped = this->nametyped.left(this->nametyped.length() - 1);
+        else
+            this->keys_pressed.insert(ev->key());
+        this->nametyped = this->nametyped.left(10);
+    }
+    else
+        this->keys_pressed.insert(ev->key());
 }
 
 void GLPainter::keyReleaseEvent(QKeyEvent *ev) {
@@ -479,18 +511,20 @@ bool GLPainter::canGO2(GLfloat x, GLfloat y) {
 }
 
 void GLPainter::finn() {
-    if (this->levelnomber == this->maxlevels)
-        qDebug() << 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life);
-    if (this->levelnomber == 0) {
+    this->keys_pressed.clear();
+    this->nametyped = "";
+    this->timerT->TIM->stop();
+    this->levelnomber++;
+//    if (this->levelnomber == this->maxlevels + 1)
+//        this->levelnomber++;
+    if (this->levelnomber > this->maxlevels + 2)
+        this->levelnomber = 0;
+    if (this->levelnomber <= 1) {
         this->timerT->globaltime = 0;
         this->life = 0;
         this->loadparam();
         this->loadstaticTEX();
     }
-    this->timerT->TIM->stop();
-    this->levelnomber++;
-    if (this->levelnomber > this->maxlevels + 1)
-        this->levelnomber = 0;
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0))
         this->loadlevel();
@@ -499,17 +533,17 @@ void GLPainter::finn() {
 }
 
 void GLPainter::searchkeys() {
-    if (this->menuopened) {
-        if (this->inside_key('+')) {
-            this->life++;
-            this->throw_key('+');
-        }
-        if (this->inside_key('-')) {
-            this->throw_key('-');
-            this->finn();
-            return;
-        }
-    }
+//    if (this->menuopened) {
+//        if (this->inside_key('+')) {
+//            this->life++;
+//            this->throw_key('+');
+//        }
+//        if (this->inside_key('-')) {
+//            this->throw_key('-');
+//            this->finn();
+//            return;
+//        }
+//    }
     if (this->inside_key(Qt::Key_Escape)) {
         if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
             this->menuopened = !this->menuopened;
@@ -518,6 +552,8 @@ void GLPainter::searchkeys() {
         else
             if ((!this->FFall) && (this->levelnomber == 0))
                 this->close();
+        if (this->levelnomber == this->maxlevels + 2)
+            this->finn();
         this->throw_key(Qt::Key_Escape);
     }
     if (this->inside_key(Qt::Key_Return)) {
@@ -532,6 +568,25 @@ void GLPainter::searchkeys() {
                 finn();
 //                 this->close();
             }
+        }
+        if ((this->levelnomber == this->maxlevels + 2) && (this->nametyped != "")) {
+            int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
+            if (newscore <= this->score[9].second) {
+                this->finn();
+                return;
+            }
+            int i = 0;
+            while (this->score[i].second >= newscore)
+                i++;
+            std::ofstream out;
+            out.open("../Param/results.walk");
+            for (int j = 0; j < i; j++)
+                out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
+            out << this->nametyped.toStdString() << " " << newscore << " ";
+            for (int j = i; j < 9; j++)
+                out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
+            out.close();
+            this->finn();
         }
     }
     if ((this->inside_key('Z')) || (this->inside_key(1071))){
@@ -665,9 +720,18 @@ void GLPainter::die() {
 
 
 void GLPainter::timeout() {
+    this->ttoch--;
+    if (this->ttoch < 0)
+        this->ttoch = 30;
+    if (this->ttoch == 0) {
+    if (this->curs == "_")
+        this->curs = "";
+    else
+        this->curs = "_";
+    }
 //    qDebug() << this->timerT->globaltime;
     this->searchkeys();
-    if ((this->levelnomber > this->maxlevels) || this->FFall)
+    if ((this->levelnomber == this->maxlevels + 1) || this->FFall)
         this->freefall();
 //    if (this->levelnomber == 0)
 //        this->freefall();
@@ -683,6 +747,7 @@ void GLPainter::timeout() {
     else {
         if (!this->menuopened) {
             this->TIME += this->updatetime;
+            if (this->levelnomber <= this->maxlevels)
             this->timerT->globaltime += this->updatetime;
         }
         if ((this->levelnomber != 0) && (this->levelnomber <= this->maxlevels) && (!this->jumping) && (!this->isfloor(this->x, this->y))) {
@@ -846,7 +911,7 @@ void GLPainter::mouseMoveEvent(QMouseEvent *ev) {
     }
     this->mouseX = NP.x();
     this->mouseY = NP.y();
-    qDebug() << this->timerT->globaltime << this->rx << this->ry;
+//    qDebug() << this->timerT->globaltime << this->rx << this->ry;
 
 }
 
@@ -1027,6 +1092,9 @@ void GLPainter::loadstaticTEX() {
         mes.push_back(res[i].first + " :: " + QString::number(res[i].second));
     }
     inp.close();
+
+    this->score = res;
+//    qDebug() << this->score;
 
     this->PIXresults = this->genpix(1024, 1024, 40, mes);
     mes.clear();
