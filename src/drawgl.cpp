@@ -5,6 +5,7 @@
 #include <QDir>
 #include <fstream>
 #include <QPainter>
+#include <string>
 
 GLPainter::GLPainter(QWidget *parent)
     : QGLWidget(parent)
@@ -21,9 +22,9 @@ GLPainter::GLPainter(QWidget *parent)
     this->setMouseTracking(true);
     this->levelnomber = -1;
     this->TIME = 0;
-    this->fullscreen = false;
+    this->fullscreen = true;
     this->setMinimumSize(610, 512);
-    this->restime = 3000;
+    this->restime = 1500;
     this->menuopened = false;
     this->duck = false;
     this->loadparam();
@@ -121,7 +122,7 @@ QPair <GLfloat, GLfloat> getdir(GLint TIME, moving panel) {
 
 bool GLPainter::loadparam() {
     std::ifstream in;
-    in.open("../param.walk");
+    in.open("../Param/param.walk");
     if (in == NULL) {
         qDebug() << "param.walk not found!";
         return false;
@@ -478,9 +479,13 @@ bool GLPainter::canGO2(GLfloat x, GLfloat y) {
 }
 
 void GLPainter::finn() {
+    if (this->levelnomber == this->maxlevels)
+        qDebug() << 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life);
     if (this->levelnomber == 0) {
         this->timerT->globaltime = 0;
+        this->life = 0;
         this->loadparam();
+        this->loadstaticTEX();
     }
     this->timerT->TIM->stop();
     this->levelnomber++;
@@ -517,13 +522,16 @@ void GLPainter::searchkeys() {
     }
     if (this->inside_key(Qt::Key_Return)) {
         this->throw_key(Qt::Key_Return);
-        if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
-            if (this->menuopened)
-                 this->close();
-        }
         if (this->levelnomber == 0) {
             this->FFall = true;
             return;
+        }
+        if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
+            if (this->menuopened) {
+                this->levelnomber = -1;
+                finn();
+//                 this->close();
+            }
         }
     }
     if ((this->inside_key('Z')) || (this->inside_key(1071))){
@@ -538,23 +546,33 @@ void GLPainter::searchkeys() {
         return;
     if (this->levelnomber > this->maxlevels)
         return;
-    if (this->levelnomber == 0)
-        return;
 
-    if (this->inside_key(Qt::Key_Left))
-        this->ry += 2.0f;
-    if (this->inside_key(Qt::Key_Right))
-        this->ry -= 2.0f;
     if (this->inside_key(Qt::Key_Up))
         this->rx += 2.0f;
     if (this->inside_key(Qt::Key_Down))
         this->rx -= 2.0f;
     if (this->rx > 90)
         this->rx = 90;
+    if (this->levelnomber == 0)
+        if (this->rx > -40)
+            this->rx = -40;
+    if (this->levelnomber == 0)
+        if (this->rx < -130)
+            this->rx = -130;
+    if (this->levelnomber == 0)
+        return;
+
     if (this->rx < -90)
         this->rx = -90;
+
+    if (this->inside_key(Qt::Key_Left))
+        this->ry += 2.0f;
+    if (this->inside_key(Qt::Key_Right))
+        this->ry -= 2.0f;
     if (this->dead)
         return;
+
+
     //WHILE ALIVE
 
     if ((!this->jumping) && (this->inside_key(Qt::Key_Space))) {
@@ -647,7 +665,7 @@ void GLPainter::die() {
 
 
 void GLPainter::timeout() {
-    this->timerT->globaltime += this->updatetime;
+//    qDebug() << this->timerT->globaltime;
     this->searchkeys();
     if ((this->levelnomber > this->maxlevels) || this->FFall)
         this->freefall();
@@ -663,8 +681,10 @@ void GLPainter::timeout() {
                 }
         }
     else {
-        if (!this->menuopened)
+        if (!this->menuopened) {
             this->TIME += this->updatetime;
+            this->timerT->globaltime += this->updatetime;
+        }
         if ((this->levelnomber != 0) && (this->levelnomber <= this->maxlevels) && (!this->jumping) && (!this->isfloor(this->x, this->y))) {
             this->z = -.4f;
             this->die();
@@ -796,8 +816,6 @@ void GLPainter::mouseMoveEvent(QMouseEvent *ev) {
         return;
     if (this->levelnomber > this->maxlevels)
         return;
-    if (this->levelnomber == 0)
-        return;
 
     if (! this->mousedetected) {
         this->mouseX = ev->x();
@@ -806,8 +824,10 @@ void GLPainter::mouseMoveEvent(QMouseEvent *ev) {
     }
     QPoint NP(ev->x(), ev->y());
 //    qDebug() << (this->mouseX - ev->x()) / 100 * this->lat << (this->mouseY - ev->y()) / 100 * this->lat;
-    this->ry += (this->mouseX - ev->x()) / 100 * this->lat;
     this->rx += (this->mouseY - ev->y()) / 100 * this->lat;
+    if (this->levelnomber != 0)
+        this->ry += (this->mouseX - ev->x()) / 100 * this->lat;
+
     if (ev->x() == this->width() - 1) {
         this->cursor().setPos(1, ev->y());
         NP.setX(1);
@@ -826,6 +846,8 @@ void GLPainter::mouseMoveEvent(QMouseEvent *ev) {
     }
     this->mouseX = NP.x();
     this->mouseY = NP.y();
+    qDebug() << this->timerT->globaltime << this->rx << this->ry;
+
 }
 
 void GLPainter::switchmode() {
@@ -932,22 +954,32 @@ QPixmap GLPainter::genpix(int w, int h, int f, QVector<QString> &mes) {
     pn.setColor(QColor("white"));
     p.setPen(pn);
     QBrush br = p.brush();
+    br.setStyle(Qt::SolidPattern);
     br.setColor(QColor("black"));
     p.setBrush(br);
+    p.drawRect(0, 0, w, h);
     int a = 0;
     int b = 0;
     for (int i = 0; i < mes.size(); i++) {
         a = std::max(a, p.fontMetrics().width(mes[i]));
         b = std::max(b, p.fontMetrics().height());
     }
-    qDebug() << a << b;
+//    qDebug() << a << b;
     int dx = (w - a) / 2;
     int dy = (h - b * mes.size()) / 2;
-    qDebug() << dx << dy;
+//    qDebug() << dx << dy;
 //    dy = 0;
 //    p.drawText(40, 40, "ASDD);
     for (int i = 0; i < mes.size(); i++)
         p.drawText(dx, dy + b * (i), mes[i]);
+    br.setColor(QColor("white"));
+    p.setBrush(br);
+    p.drawRect(w / 2 - 50, 0, 100, 150);
+    p.drawRect(w / 2 - 50, h - 220, 100, 220);
+    br.setColor(QColor("black"));
+    p.setBrush(br);
+    p.drawRect(w / 2 - 5, 0 , 10, 150);
+    p.drawRect(w / 2 - 5, h - 220, 10, 220);
     p.end();
     return *menu;
 }
@@ -972,8 +1004,35 @@ void GLPainter::loadstaticTEX() {
     mes.resize(3);
     mes[0] = "You won!";
     mes[1] = "Thank you for playing Walkers!";
-    mes[2] = "                    buy danpol";
+    mes[2] = "                     by danpol";
     this->PIXwin = this->genpix(1024, 1024, 40, mes);
+
+    mes.clear();
+    std::ifstream inp;
+    inp.open("../Param/results.walk");
+    QVector <QPair <QString, int> > res;
+    for (int i = 0; i < 10; i++) {
+        std::string a;
+        int b;
+        inp >> a >> b;
+        res.push_back(QPair <QString, int> (QString::fromStdString(a), b));
+//        qDebug() << res[i];
+    }
+    int m = 0;
+    for (int i = 0; i < 10; i++)
+        m = std::max(m, res[i].first.length());
+    for (int i = 0; i < 10; i++) {
+        while (res[i].first.length() != m)
+            res[i].first += ' ';
+        mes.push_back(res[i].first + " :: " + QString::number(res[i].second));
+    }
+    inp.close();
+
+    this->PIXresults = this->genpix(1024, 1024, 40, mes);
+    mes.clear();
+    mes.push_back("Walkers");
+    mes.push_back("        by danpol");
+    this->PIXcred = this->genpix(1024, 1024, 50, mes);
 
 }
 
@@ -994,8 +1053,8 @@ void GLPainter::drawinfo() {
       glBegin (GL_QUADS);
         glVertex2f (this->dw + 0, -this->dh + this->height());
         glVertex2f (this->dw + 0,-this->dh +  this->height() - 100);
-        glVertex2f (this->dw + 200, -this->dh + this->height() - 100);
-        glVertex2f (this->dw + 200, -this->dh + this->height());
+        glVertex2f (this->dw + 220, -this->dh + this->height() - 100);
+        glVertex2f (this->dw + 220, -this->dh + this->height());
       glEnd();
       glColor4f(1.0f, 1.0f, 1.0f, 1.0f);      
       renderText(this->dw + 5,this->dh + 25, "Level: " + QString::number(this->levelnomber) + "/" + QString::number(this->maxlevels));
@@ -1047,5 +1106,7 @@ GLfloat GLPainter::dist(GLfloat x, GLfloat y) {
 }
 
 void GLPainter::mainmenu() {;
-    this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXmenu);
+    this->drawQUBE(-50, -100, -50, 100, 0.1f, 100, this->PIXmenu);
+    this->drawQUBE(-50, -100, -50, 100, 100, 0.1f, this->PIXresults);
+    this->drawQUBE(50, 0, 50, -100, -100, 0.1f, this->PIXcred);
 }
