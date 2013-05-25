@@ -511,7 +511,7 @@ bool GLPainter::canGO2(GLfloat x, GLfloat y) {
 }
 
 void GLPainter::finn() {
-    this->keys_pressed.clear();
+//    this->keys_pressed.clear();
     this->nametyped = "";
     this->timerT->TIM->stop();
     this->levelnomber++;
@@ -533,6 +533,9 @@ void GLPainter::finn() {
 }
 
 void GLPainter::searchkeys() {
+    if (!this->jumping)
+        this->vx = this->vy = 0;
+
 //    if (this->menuopened) {
 //        if (this->inside_key('+')) {
 //            this->life++;
@@ -638,7 +641,8 @@ void GLPainter::searchkeys() {
     GLfloat dy = 0, dx = 0;
 
     if (!this->jumping) {
-        if (this->duck = this->inside_key(Qt::Key_Control))
+        this->duck = this->inside_key(Qt::Key_Control);
+        if (this->duck)
             this->z = -.3f;
         else
             this->z = 0;
@@ -656,9 +660,6 @@ void GLPainter::searchkeys() {
         dx /= 5;
         dy /= 5;
     }
-
-    if (!this->jumping)
-        this->vx = this->vy = 0;
 
     if (this->canGO((this->x + dy * sin(ry / 360 * 2 * 3.14159265)), -(this->y ))) {
         this->x += dy * sin(ry / 360 * 2 * 3.14159265);
@@ -720,6 +721,8 @@ void GLPainter::die() {
 
 
 void GLPainter::timeout() {
+    if (!this->jumping)
+        this->vx = this->vy = 0;
     this->ttoch--;
     if (this->ttoch < 0)
         this->ttoch = 30;
@@ -1130,7 +1133,7 @@ void GLPainter::drawinfo() {
       renderText(this->dw + 5,this->dh + 65, "Time: " + QString::number(this->timerT->globaltime / 1000) + "s.");
       }
       else {
-       glColor4f(std::min((GLfloat) this->timetorestart / this->restime + 0.05, 1.0d), 0.0f, 0.0f, 0.8f);
+       glColor4f(std::min((GLfloat) this->timetorestart / this->restime + 0.05f, 1.0f), 0.0f, 0.0f, 0.8f);
           glBegin (GL_QUADS);
             glVertex2f (this->dw + 0,-this->dh + this->height());
             glVertex2f (this->dw + 0,-this->dh + this->height() - 100);
