@@ -21,7 +21,7 @@ GLPainter::GLPainter(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = -1;
+    this->levelnomber = 9;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -533,9 +533,6 @@ void GLPainter::finn() {
 }
 
 void GLPainter::searchkeys() {
-    if (!this->jumping)
-        this->vx = this->vy = 0;
-
 //    if (this->menuopened) {
 //        if (this->inside_key('+')) {
 //            this->life++;
@@ -661,6 +658,9 @@ void GLPainter::searchkeys() {
         dy /= 5;
     }
 
+    if (!this->jumping)
+           this->vx = this->vy = 0;
+
     if (this->canGO((this->x + dy * sin(ry / 360 * 2 * 3.14159265)), -(this->y ))) {
         this->x += dy * sin(ry / 360 * 2 * 3.14159265);
 //        this->vx += dy * sin(ry / 360 * 2 * 3.14159265);
@@ -721,8 +721,6 @@ void GLPainter::die() {
 
 
 void GLPainter::timeout() {
-    if (!this->jumping)
-        this->vx = this->vy = 0;
     this->ttoch--;
     if (this->ttoch < 0)
         this->ttoch = 30;
@@ -979,7 +977,16 @@ void GLPainter::loadlevel() {
         }
         if (ch == 'F') {
             firing p;
-            fscanf(inp, "%f %f %f %f %c %d %d %f %d %f %f %f\n", &p.x, &p.y, &p.z, &p.r, &p.direction, &p.interval, &p.rest, &p.dist, &p.pause, &p.stratchX, &p.stratchY, &p.stratchZ);
+            int x, y, z, r, dist, sx, sy, sz;
+            fscanf(inp, "%d %d %d %d %c %d %d %d %d %d %d %d\n", &x, &y, &z, &r, &p.direction, &p.interval, &p.rest, &dist, &p.pause, &sx, &sy, &sz);
+            p.x =  (GLfloat) x / 100;
+            p.y =  (GLfloat) y / 100;
+            p.z =  (GLfloat) z / 100;
+            p.r = (GLfloat) r / 100;
+            p.dist = (GLfloat) dist / 100;
+            p.stratchX = (GLfloat) sx / 100;
+            p.stratchY = (GLfloat) sy / 100;
+            p.stratchZ = (GLfloat) sz / 100;
             this->Fpanel.push_back(p);
         }
     }

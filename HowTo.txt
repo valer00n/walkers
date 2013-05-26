@@ -25,10 +25,10 @@ or
 '*' == wall
 
 Hpanel:
-    x y show_time_first show_second show_first first
+    x y show_time_first show_second show_first first (int int int int int int)
 Mpanel:
-    x y interval PARAM
+    x y interval PARAM (int int int string))
     (S == 'stay', UDLR <as map drown>)
 Fpanel:
-    x y z r DIR time_for_1_segment cool_down distance first_pause stratch_X stratch_Y stratch_Z
+    x*100 y*100 z*100 r*100 DIR time_for_1_segment cool_down distance*100 first_pause stratch_X*100 stratch_Y*100 stratch_Z*100
 
