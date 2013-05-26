@@ -2,7 +2,14 @@
 #define GLPAINTER_H
 
 #include <QGLWidget>
-#include <GL/glu.h>
+
+#ifdef Q_OS_MAC
+    #include <OpenGL/glu.h>
+#else
+    #include <GL/glu.h>
+#endif
+
+
 #include <QtOpenGL>
 #include <QSet>
 #include <QTimer>

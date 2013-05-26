@@ -21,7 +21,7 @@ GLPainter::GLPainter(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 9;
+    this->levelnomber = -1;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -297,6 +297,7 @@ GLfloat fabs(GLfloat a) {
 }
 
 void GLPainter::keyPressEvent(QKeyEvent *ev) {
+//    qDebug() << "+" << ev->key();
     if (this->levelnomber == this->maxlevels + 2) {
         if (((ev->text() >= "0") && (ev->text() <= "9")) || ((ev->text() >= "a") && (ev->text() <= "z")) || ((ev->text() >= "A") && (ev->text() <= "Z")) || (ev->text() == "_"))
             this->nametyped += ev->text();
@@ -312,6 +313,7 @@ void GLPainter::keyPressEvent(QKeyEvent *ev) {
 }
 
 void GLPainter::keyReleaseEvent(QKeyEvent *ev) {
+//    qDebug() << "-" << ev->key();
     if (this->keys_pressed.find(ev->key()) != this->keys_pressed.end())
         this->keys_pressed.erase(this->keys_pressed.find(ev->key()));
 }
@@ -638,7 +640,7 @@ void GLPainter::searchkeys() {
     GLfloat dy = 0, dx = 0;
 
     if (!this->jumping) {
-        this->duck = this->inside_key(Qt::Key_Control);
+        this->duck = this->inside_key(Qt::Key_Shift);
         if (this->duck)
             this->z = -.3f;
         else
@@ -1067,7 +1069,7 @@ void GLPainter::loadstaticTEX() {
     mes[0] = "WASD   :: move";
     mes[1] = "arrows :: rotate camera";
     mes[2] = "Space  :: jump";
-    mes[3] = "Ctrl   :: duck";
+    mes[3] = "Shift  :: duck";
     mes[4] = "Esc    :: pause";
     mes[5] = "Z      :: fullscreen";
     mes[6] = "Reach finish...";

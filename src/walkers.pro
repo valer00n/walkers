@@ -11,7 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = walkers
 TEMPLATE = app
 
-LIBS += -L/usr/local/lib -lGLU
+LIBS += -L/usr/local/lib
+
+unix: !macx: LIBS += -lGLU
 
 SOURCES += \
     main.cpp \
