@@ -18,11 +18,13 @@ unix: !macx: LIBS += -lGLU
 SOURCES += \
     main.cpp \
     drawgl.cpp \
-    timer.cpp
+    timer.cpp \
+    smdloader.cpp
 
 HEADERS  += \
     drawgl.h \
-    timer.h
+    timer.h \
+    smdloader.h
 
 OTHER_FILES += \
     TODO.txt \

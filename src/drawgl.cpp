@@ -297,6 +297,8 @@ GLfloat fabs(GLfloat a) {
 }
 
 void GLPainter::keyPressEvent(QKeyEvent *ev) {
+    if ((this->FFall) && (this->levelnomber == 0) && (ev->key() == Qt::Key_Escape))
+        this->jumpiterations = 1000;
 //    qDebug() << "+" << ev->key();
     if (this->levelnomber == this->maxlevels + 2) {
         if (((ev->text() >= "0") && (ev->text() <= "9")) || ((ev->text() >= "a") && (ev->text() <= "z")) || ((ev->text() >= "A") && (ev->text() <= "Z")) || (ev->text() == "_"))
@@ -559,7 +561,7 @@ void GLPainter::searchkeys() {
         this->throw_key(Qt::Key_Escape);
     }
     if (this->inside_key(Qt::Key_Return)) {
-        this->throw_key(Qt::Key_Return);
+        this->throw_key(Qt::Key_Return);\
         if (this->levelnomber == 0) {
             this->FFall = true;
             return;
