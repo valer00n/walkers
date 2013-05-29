@@ -116,7 +116,8 @@ private:
         GLfloat sx, sy, vx, vy;
         GLint timetorestart;
         GLint restime;
-        SMDloader *Rmodel, *Smodel, *Jmodel, *Dmodel, *Cmodel;
+        SMDloader *Rmodel, *Smodel, *Jmodel, *Dmodel, *Cmodel,
+        *Rarm, *Sarm, *Jarm, *Darm, *Carm;
 
     /*LEVEL INFO*/
         QVector <QVector <char> > map;
@@ -132,6 +133,7 @@ private:
         bool fullscreen;
 
     /*SYSTEM*/
+        GLfloat CAMERAdist;
         GLint TIME;
         QSet <int> keys_pressed;
         timer *timerT;

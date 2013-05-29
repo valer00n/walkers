@@ -21,6 +21,7 @@ void SMDloader::loadmodel(QString name) {
     inp >> s;
     if (s != "nodes") {
         qDebug() << "nodes not found!";
+        qDebug() << name;
         return;
     }
     inp >> s;
@@ -46,6 +47,7 @@ void SMDloader::loadmodel(QString name) {
     inp >> s;
     if (s != "skeleton") {
         qDebug() << "nodes not found!";
+        qDebug() << name;
         return;
     }
     inp >> s;
@@ -70,6 +72,7 @@ void SMDloader::loadmodel(QString name) {
     inp >> s;
     if (s != "triangles") {
         qDebug() << "Triangles not found!";
+        qDebug() << name;
         return;
     }
     inp >> s;
@@ -134,6 +137,7 @@ void SMDloader::loadanimation(QString name) {
     inp >> s;
     if (s != "nodes") {
         qDebug() << "nodes not found!";
+        qDebug() << name;
         return;
     }
     inp >> s;

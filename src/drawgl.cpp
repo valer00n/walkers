@@ -10,36 +10,68 @@
 GLPainter::GLPainter(QWidget *parent)
     : QGLWidget(parent)
 {
+    this->CAMERAdist = .5;
     this->Rmodel = new SMDloader(this);
-//    this->Rhead = new SMDloader(this);
     this->Rmodel->stay = true;
     this->Rmodel->setpath("../Textures/Player");
-    this->Rmodel->loadmodel("smith.smd");
-    this->Rmodel->loadanimation("run.smd");
+    this->Rmodel->loadmodel("body.smd");
+    this->Rmodel->loadanimation("run2.smd");
 
     this->Smodel = new SMDloader(this);
     this->Smodel->stay = true;
     this->Smodel->setpath("../Textures/Player");
-    this->Smodel->loadmodel("smith.smd");
-    this->Smodel->loadanimation("head.smd");
+    this->Smodel->loadmodel("body.smd");
+    this->Smodel->loadanimation("idle.smd");
 
     this->Jmodel = new SMDloader(this);
     this->Jmodel->stay = true;
     this->Jmodel->setpath("../Textures/Player");
-    this->Jmodel->loadmodel("smith.smd");
+    this->Jmodel->loadmodel("body.smd");
     this->Jmodel->loadanimation("jump.smd");
 
     this->Dmodel = new SMDloader(this);
     this->Dmodel->stay = true;
     this->Dmodel->setpath("../Textures/Player");
-    this->Dmodel->loadmodel("smith.smd");
-    this->Dmodel->loadanimation("forward.smd");
+    this->Dmodel->loadmodel("body.smd");
+    this->Dmodel->loadanimation("die_forwards.smd");
 
     this->Cmodel = new SMDloader(this);
     this->Cmodel->stay = true;
     this->Cmodel->setpath("../Textures/Player");
-    this->Cmodel->loadmodel("smith.smd");
-    this->Cmodel->loadanimation("crouchrun.smd");
+    this->Cmodel->loadmodel("body.smd");
+    this->Cmodel->loadanimation("crawl.smd");
+
+    //-----------------------------------------------
+    this->Rarm = new SMDloader(this);
+    this->Rarm->stay = true;
+    this->Rarm->setpath("../Textures/Player");
+    this->Rarm->loadmodel("arms.smd");
+    this->Rarm->loadanimation("run2.smd");
+
+    this->Sarm = new SMDloader(this);
+    this->Sarm->stay = true;
+    this->Sarm->setpath("../Textures/Player");
+    this->Sarm->loadmodel("arms.smd");
+    this->Sarm->loadanimation("idle.smd");
+
+    this->Jarm = new SMDloader(this);
+    this->Jarm->stay = true;
+    this->Jarm->setpath("../Textures/Player");
+    this->Jarm->loadmodel("arms.smd");
+    this->Jarm->loadanimation("jump.smd");
+
+    this->Darm = new SMDloader(this);
+    this->Darm->stay = true;
+    this->Darm->setpath("../Textures/Player");
+    this->Darm->loadmodel("arms.smd");
+    this->Darm->loadanimation("die_forwards.smd");
+
+    this->Carm = new SMDloader(this);
+    this->Carm->stay = true;
+    this->Carm->setpath("../Textures/Player");
+    this->Carm->loadmodel("arms.smd");
+    this->Carm->loadanimation("crawl.smd");
+    //-----------------------------------------------
 
     this->curs = "";
     this->setFont(QFont("serif", 15, -1, false));
@@ -52,7 +84,7 @@ GLPainter::GLPainter(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = 0;
+    this->levelnomber = -1;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -303,14 +335,14 @@ void GLPainter::paintGL() {
         glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
-//            qDebug() << this->ry;
-//            qDebug() <<  - sin(this->ry * 3.15149265 / 180);
-//            qDebug() <<  + cos(this->ry * 3.15149265 / 180);
-//            qDebug() << "_________________________";
-//            qDebug() << this->ry;
-            GLfloat dist = .5f;
-            if (!canGO(this->x + dist * sin(this->ry * 3.15149265 / 180), -this->y - dist * cos(this->ry * 3.15149265 / 180)))
-                dist = .1;
+            GLfloat dist = this->CAMERAdist;
+            while ((dist <= 1.0f) && canGO(this->x + dist * sin(this->ry * 3.15149265 / 180), -this->y - dist * cos(this->ry * 3.15149265 / 180)))
+                dist += .05f;
+            while ((dist >= .1f) && !canGO(this->x + dist * sin(this->ry * 3.15149265 / 180), -this->y - dist * cos(this->ry * 3.15149265 / 180)))
+                dist -= .05f;
+            this->CAMERAdist = std::min(dist, 1.0f);
+            this->CAMERAdist = std::max(this->CAMERAdist, .1f);
+            dist = this->CAMERAdist;
             gluLookAt(dist * sin(this->ry * 3.15149265 / 180), .1f, dist * cos(this->ry * 3.15149265 / 180),
                       .0f, .1f + this->rx / 300, .0f, 0, 1, 0);
 //            gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
@@ -346,30 +378,34 @@ void GLPainter::drawplayer() {
     if (this->dead) {
 //        qDebug() << (trunc((this->timetorestart / this->restime) * (this->Dmodel->animation.skeleton.size() - 1)));
         GLint nu = (this->Dmodel->animation.skeleton.size() - 1) - trunc(((GLfloat) this->timetorestart / this->restime) * (this->Dmodel->animation.skeleton.size() - 1));
-        qDebug() << nu;
         this->Dmodel->draw(nu);
+        this->Darm->draw(nu);
     }
     else
     if (this->duck) {
         glTranslatef(.0f, .0f, .2f * 125);
-        GLint nu = (this->TIME / 20) % this->Cmodel->animation.skeleton.size();
+        GLint nu = (this->TIME / 30) % this->Cmodel->animation.skeleton.size();
         if (!this->walking)
             nu = 0;
         this->Cmodel->draw(nu);
+        this->Carm->draw(nu);
         glTranslatef(.0f, .0f, -.2f * 125);
     }
     else
     if (this->jumping) {
         GLint nu = trunc(((GLfloat)this->jumpiterations / 37) * (this->Jmodel->animation.skeleton.size() - 1));
         this->Jmodel->draw(nu);
+        this->Jarm->draw(nu);
     }
     else
     if (this->walking) {
         GLint nu = (this->TIME / 20) % this->Rmodel->animation.skeleton.size();
         this->Rmodel->draw(nu);
+        this->Rarm->draw(nu);
     }
     else {
         this->Smodel->draw(0);
+        this->Sarm->draw(0);
     }
             glTranslatef(.0f,.0f, -125 * this->z);
     glRotatef(-180.0f, .0f, .0f, 1.0f);
@@ -646,6 +682,7 @@ void GLPainter::finn() {
 }
 
 void GLPainter::searchkeys() {
+        this->walking = false;
 //    if (this->menuopened) {
 //        if (this->inside_key('+')) {
 //            this->life++;
@@ -731,10 +768,15 @@ void GLPainter::searchkeys() {
     if (this->rx < -90)
         this->rx = -90;
 
-    if (this->inside_key(Qt::Key_Left))
+    if (this->inside_key(Qt::Key_Left)) {
+        this->walking = true;
         this->ry += 5.0f;
-    if (this->inside_key(Qt::Key_Right))
+
+    }
+    if (this->inside_key(Qt::Key_Right)) {
         this->ry -= 5.0f;
+        this->walking = true;
+    }
     if (this->dead)
         return;
 
@@ -755,7 +797,6 @@ void GLPainter::searchkeys() {
         else
             this->z = 0;
     }
-    this->walking = false;
     if (this->inside_key('W') || this->inside_key(1062)) {
         dy -= .05f;
         this->walking = true;
