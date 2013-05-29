@@ -3,6 +3,15 @@
 #include <string>
 #include <QGLWidget>
 
+
+typedef struct {
+    Mat mat;
+} mat;
+
+typedef struct {
+    Vertex vert;
+} vert;
+
 void SMDloader::loadmodel(QString path) {
     std::ifstream inp;
     inp.open(path.toStdString().c_str());
@@ -40,39 +49,23 @@ void SMDloader::loadmodel(QString path) {
         return;
     }
     inp >> s;
-    inp >> s;
     while (s != "end") {
+        inp >> s;
         inp >> s;
         QVector <node> skel;
         QString::fromStdString(s).toInt(&ok);
         while (ok) {
             int a = QString::fromStdString(s).toInt();
-            int b;
             skel.resize(std::max(this->model.nodes.size(), a + 1));
-            inp >> s;
-            b = QString::fromStdString(s).toInt();
-            skel[a].x = b;
-            inp >> s;
-            b = QString::fromStdString(s).toInt();
-            skel[a].y = b;
-            inp >> s;
-            b = QString::fromStdString(s).toInt();
-            skel[a].z = b;
-            inp >> s;
-            b = QString::fromStdString(s).toInt();
-            skel[a].rotx = b;
-            inp >> s;
-            b = QString::fromStdString(s).toInt();
-            skel[a].roty = b;
-            inp >> s;
-            b = QString::fromStdString(s).toInt();
-            skel[a].rotz = b;
-
+            inp >> skel[a].x >> skel[a].y >> skel[a].z >> skel[a].rotx >> skel[a].roty >> skel[a].rotz;
             inp >> s;
             QString::fromStdString(s).toInt(&ok);
         }
+
         this->model.skeleton.push_back(skel);
+
     }
+
 
     inp >> s;
     if (s != "triangles") {
@@ -90,6 +83,45 @@ void SMDloader::loadmodel(QString path) {
     }
 
     inp.close();
+
+    //-----------------------------------------------
+    int sceneindex = 0;
+    QVector <vert> skel(this->model.nodes.size());
+    QVector <mat> absolute(this->model.nodes.size());
+    for (int i = 0; i < this->model.nodes.size(); i++) {
+        Vertex ver;
+        ver[0] = ver[1] = ver[2] = 0;
+        Mat tmp1, tmp2, tmp3;
+        XRot(-this->model.skeleton[sceneindex][i].rotx, tmp1);
+        YRot(-this->model.skeleton[sceneindex][i].roty, tmp2);
+        ZRot(-this->model.skeleton[sceneindex][i].rotz, tmp3);
+        ConcatMatrix(tmp2, tmp1);
+        ConcatMatrix(tmp3, tmp1);
+        tmp1[3][0] = this->model.skeleton[sceneindex][i].x;
+        tmp1[3][1] = this->model.skeleton[sceneindex][i].y;
+        tmp1[3][2] = this->model.skeleton[sceneindex][i].z;
+        if (this->model.nodes[i] != -1)
+            ConcatMatrix(absolute[this->model.nodes[i]].mat, tmp1);
+        else {
+//            tmp1[3][0] = tmp1[3][1] = tmp1[3][2] = 0;
+        }
+        CopyMat(tmp1, absolute[i].mat);
+        ApplyMatrix(skel[i].vert, absolute[i].mat);
+    }
+
+
+
+    for (int i = 0; i < this->model.triangles.size(); i++)
+        for (int j = 0; j < 3; j++) {
+            Vertex v;
+            v[0] = this->model.triangles[i].nodes[j].x;
+            v[1] = this->model.triangles[i].nodes[j].y;
+            v[2] = this->model.triangles[i].nodes[j].z;
+            InvApplyMatrix(v, absolute[this->model.triangles[i].nodes[j].anc].mat);
+            this->model.triangles[i].nodes[j].x = v[0];
+            this->model.triangles[i].nodes[j].y = v[1];
+            this->model.triangles[i].nodes[j].z = v[2];
+        }
 
 }
 
@@ -152,14 +184,6 @@ void SMDloader::loadanimation(QString path) {
    inp.close();
 }
 
-typedef struct {
-    Mat mat;
-} mat;
-
-typedef struct {
-    Vertex vert;
-} vert;
-
 void SMDloader::draw(int sceneindex) {
 //    glBegin(GL_LINES);
 //        glColor3f(.0f, 1.0f, 1.0f);
@@ -172,15 +196,17 @@ void SMDloader::draw(int sceneindex) {
 //        glVertex3f(.0f, .0f, .0f);
 //        glVertex3f(.0f, .0f, 100.0f);
 //    glEnd();
+
+
     QVector <vert> skel(this->model.nodes.size());
     QVector <mat> absolute(this->model.nodes.size());
     for (int i = 0; i < this->animation.nodes.size(); i++) {
         Vertex ver;
         ver[0] = ver[1] = ver[2] = 0;
         Mat tmp1, tmp2, tmp3;
-        XRot(this->animation.skeleton[sceneindex][i].rotx, tmp1);
-        YRot(this->animation.skeleton[sceneindex][i].roty, tmp2);
-        ZRot(this->animation.skeleton[sceneindex][i].rotz, tmp3);
+        XRot(-this->animation.skeleton[sceneindex][i].rotx, tmp1);
+        YRot(-this->animation.skeleton[sceneindex][i].roty, tmp2);
+        ZRot(-this->animation.skeleton[sceneindex][i].rotz, tmp3);
         ConcatMatrix(tmp2, tmp1);
         ConcatMatrix(tmp3, tmp1);
         tmp1[3][0] = this->animation.skeleton[sceneindex][i].x;
@@ -188,13 +214,78 @@ void SMDloader::draw(int sceneindex) {
         tmp1[3][2] = this->animation.skeleton[sceneindex][i].z;
         if (this->animation.nodes[i] != -1)
             ConcatMatrix(absolute[this->animation.nodes[i]].mat, tmp1);
-        else
-            CopyMat(Identity, tmp1);
+        else {
+            tmp1[3][0] = tmp1[3][1] = tmp1[3][2] = 0;
+        }
         CopyMat(tmp1, absolute[i].mat);
         ApplyMatrix(skel[i].vert, absolute[i].mat);
     }
 
     GLuint s;
+//    for (int i = 0; i < this->animation.nodes.size(); i++) {
+//        glPointSize(3.0f);
+//        glColor3f(1.0f, 1.0f, 1.0f);
+//        glBegin(GL_POINTS);
+//            glVertex3f(skel[i].vert[0], skel[i].vert[1], skel[i].vert[2]);
+//        glEnd();
+//        if (this->animation.nodes[i] != -1) {
+//            glColor3f(1.0f, .0f, .0f);
+//            glLineWidth(2.0f);
+//            glBegin(GL_LINES);
+//                glVertex3f(skel[i].vert[0], skel[i].vert[1], skel[i].vert[2]);
+//                glVertex3f(skel[this->animation.nodes[i]].vert[0], skel[this->animation.nodes[i]].vert[1], skel[this->animation.nodes[i]].vert[2]);
+//            glEnd();
+//        }
+//    }
+    glColor3f(1.0f, 1.0f, 1.0f);
+    for (int i = 0; i < this->model.triangles.size(); i++) {
+        s = this->parent->bindTexture(this->model.triangles[i].PIX, GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, s);
+        glBegin(GL_TRIANGLES);
+        for (int j = 0; j < 3; j++) {
+            Vertex v;
+            v[0] = this->model.triangles[i].nodes[j].x;
+            v[1] = this->model.triangles[i].nodes[j].y;
+            v[2] = this->model.triangles[i].nodes[j].z;
+            ApplyMatrix(v, absolute[this->model.triangles[i].nodes[j].anc].mat);
+            glTexCoord2f(this->model.triangles[i].nodes[j].s, this->model.triangles[i].nodes[j].t);
+            glVertex3f(v[0], v[1], v[2]);
+        }
+        glEnd();
+    }
+
+
+}
+
+SMDloader::SMDloader(QGLWidget *par) {
+    this->parent = par;
+}
+
+void SMDloader::draw_main() {
+    int sceneindex = 0;
+    QVector <vert> skel(this->model.nodes.size());
+    QVector <mat> absolute(this->model.nodes.size());
+    for (int i = 0; i < this->model.nodes.size(); i++) {
+        Vertex ver;
+        ver[0] = ver[1] = ver[2] = 0;
+        Mat tmp1, tmp2, tmp3;
+        XRot(-this->model.skeleton[sceneindex][i].rotx, tmp1);
+        YRot(-this->model.skeleton[sceneindex][i].roty, tmp2);
+        ZRot(-this->model.skeleton[sceneindex][i].rotz, tmp3);
+        ConcatMatrix(tmp2, tmp1);
+        ConcatMatrix(tmp3, tmp1);
+        tmp1[3][0] = this->model.skeleton[sceneindex][i].x;
+        tmp1[3][1] = this->model.skeleton[sceneindex][i].y;
+        tmp1[3][2] = this->model.skeleton[sceneindex][i].z;
+        if (this->model.nodes[i] != -1)
+            ConcatMatrix(absolute[this->model.nodes[i]].mat, tmp1);
+        else {
+//            tmp1[3][0] = tmp1[3][1] = tmp1[3][2] = 0;
+        }
+        CopyMat(tmp1, absolute[i].mat);
+        ApplyMatrix(skel[i].vert, absolute[i].mat);
+    }
+
     for (int i = 0; i < this->animation.nodes.size(); i++) {
         glPointSize(3.0f);
         glColor3f(1.0f, 1.0f, 1.0f);
@@ -203,15 +294,29 @@ void SMDloader::draw(int sceneindex) {
         glEnd();
         if (this->animation.nodes[i] != -1) {
             glColor3f(1.0f, .0f, .0f);
-            glLineWidth(3.0f);
+            glLineWidth(2.0f);
             glBegin(GL_LINES);
                 glVertex3f(skel[i].vert[0], skel[i].vert[1], skel[i].vert[2]);
                 glVertex3f(skel[this->animation.nodes[i]].vert[0], skel[this->animation.nodes[i]].vert[1], skel[this->animation.nodes[i]].vert[2]);
             glEnd();
         }
     }
-}
+    GLuint s;
+    glColor3f(1.0f, 1.0f, 1.0f);
+    for (int i = 0; i < this->model.triangles.size(); i++) {
+        s = this->parent->bindTexture(this->model.triangles[i].PIX, GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, s);
+        glBegin(GL_TRIANGLES);
+        for (int j = 0; j < 3; j++) {
+            Vertex v;
+            v[0] = this->model.triangles[i].nodes[j].x;
+            v[1] = this->model.triangles[i].nodes[j].y;
+            v[2] = this->model.triangles[i].nodes[j].z;
+            ApplyMatrix(v, absolute[this->model.triangles[i].nodes[j].anc].mat);
+            glTexCoord2f(this->model.triangles[i].nodes[j].s, this->model.triangles[i].nodes[j].t);
+            glVertex3f(v[0], v[1], v[2]);
+        }
+        glEnd();
+    }
 
-SMDloader::SMDloader(QGLWidget *par) {
-    this->parent = par;
 }

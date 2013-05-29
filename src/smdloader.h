@@ -33,6 +33,7 @@ public:
     void loadmodel(QString path);
     void loadanimation(QString path);
     void draw(int sceneindex);
+    void draw_main();
 };
 
 #endif // SMDLOADER_H
