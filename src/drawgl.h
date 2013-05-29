@@ -2,6 +2,7 @@
 #define GLPAINTER_H
 
 #include <QGLWidget>
+#include <smdloader.h>
 
 #ifdef Q_OS_MAC
     #include <OpenGL/glu.h>
@@ -85,6 +86,7 @@ protected:
         void drawNOTHING(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture);
         void drawmap();
         void drawaxes();
+        void drawplayer();
         void drawSKY();
         void fogg(bool start);
         void drawinfo();
@@ -105,6 +107,7 @@ protected:
 private:
 
     /*PLAYER INFO*/
+        bool walking;
         GLint life;
         bool dead;
         GLfloat x, y, z, ry, rx;
@@ -113,6 +116,7 @@ private:
         GLfloat sx, sy, vx, vy;
         GLint timetorestart;
         GLint restime;
+        SMDloader *Rmodel, *Smodel, *Jmodel, *Dmodel, *Cmodel;
 
     /*LEVEL INFO*/
         QVector <QVector <char> > map;

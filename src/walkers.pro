@@ -19,12 +19,14 @@ SOURCES += \
     main.cpp \
     drawgl.cpp \
     timer.cpp \
-    smdloader.cpp
+    smdloader.cpp \
+    matrix.cpp
 
 HEADERS  += \
     drawgl.h \
     timer.h \
-    smdloader.h
+    smdloader.h \
+    matrix.h
 
 OTHER_FILES += \
     TODO.txt \

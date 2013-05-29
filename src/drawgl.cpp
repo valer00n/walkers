@@ -10,6 +10,37 @@
 GLPainter::GLPainter(QWidget *parent)
     : QGLWidget(parent)
 {
+    this->Rmodel = new SMDloader(this);
+//    this->Rhead = new SMDloader(this);
+    this->Rmodel->stay = true;
+    this->Rmodel->setpath("../Textures/Player");
+    this->Rmodel->loadmodel("smith.smd");
+    this->Rmodel->loadanimation("run.smd");
+
+    this->Smodel = new SMDloader(this);
+    this->Smodel->stay = true;
+    this->Smodel->setpath("../Textures/Player");
+    this->Smodel->loadmodel("smith.smd");
+    this->Smodel->loadanimation("head.smd");
+
+    this->Jmodel = new SMDloader(this);
+    this->Jmodel->stay = true;
+    this->Jmodel->setpath("../Textures/Player");
+    this->Jmodel->loadmodel("smith.smd");
+    this->Jmodel->loadanimation("jump.smd");
+
+    this->Dmodel = new SMDloader(this);
+    this->Dmodel->stay = true;
+    this->Dmodel->setpath("../Textures/Player");
+    this->Dmodel->loadmodel("smith.smd");
+    this->Dmodel->loadanimation("forward.smd");
+
+    this->Cmodel = new SMDloader(this);
+    this->Cmodel->stay = true;
+    this->Cmodel->setpath("../Textures/Player");
+    this->Cmodel->loadmodel("smith.smd");
+    this->Cmodel->loadanimation("crouchrun.smd");
+
     this->curs = "";
     this->setFont(QFont("serif", 15, -1, false));
     this->timerT = new timer;
@@ -21,7 +52,7 @@ GLPainter::GLPainter(QWidget *parent)
     this->rx = 0;
     this->mousedetected = false;
     this->setMouseTracking(true);
-    this->levelnomber = -1;
+    this->levelnomber = 0;
     this->TIME = 0;
     this->fullscreen = false;
     this->setMinimumSize(610, 512);
@@ -250,25 +281,103 @@ void GLPainter::paintGL() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth( 1.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+        gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glRotatef(-this->rx, 1.0f, .0f, .0f);
-    glRotatef(-this->ry, .0f, 1.0f, .0f);
-    glTranslatef(-this->x, -.5f - this->z, -this->y);
+    if ((this->levelnomber > this->maxlevels) || (this->levelnomber == 0)) {
+        glRotatef(-this->rx, 1.0f, .0f, .0f);
+        glRotatef(-this->ry, .0f, 1.0f, .0f);
+    }
+    if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0))
+        glTranslatef(-.5f, -.5f, 1.5f);
+    else
+        glTranslatef(-this->x, -.5f - this->z, -this->y);
     if (this->levelnomber == 0) {
         this->mainmenu();
     }
     else
     if (this->levelnomber <= this->maxlevels) {
+
+        glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
+//            qDebug() << this->ry;
+//            qDebug() <<  - sin(this->ry * 3.15149265 / 180);
+//            qDebug() <<  + cos(this->ry * 3.15149265 / 180);
+//            qDebug() << "_________________________";
+//            qDebug() << this->ry;
+            GLfloat dist = .5f;
+            if (!canGO(this->x + dist * sin(this->ry * 3.15149265 / 180), -this->y - dist * cos(this->ry * 3.15149265 / 180)))
+                dist = .1;
+            gluLookAt(dist * sin(this->ry * 3.15149265 / 180), .1f, dist * cos(this->ry * 3.15149265 / 180),
+                      .0f, .1f + this->rx / 300, .0f, 0, 1, 0);
+//            gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
+        glMatrixMode(GL_MODELVIEW);
+
+        glTranslatef(-this->x + .5f, .0f, -this->y - 1.5f);
         this->drawSKY();
         this->drawmap();
+        this->drawplayer();
         this->drawinfo();
+
+
+
     }
-    else
+    else {
+
         if (this->levelnomber == this->maxlevels + 1)
             this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXwin);
         else
             this->savescore();
+   }
+}
+
+void GLPainter::drawplayer() {
+    glTranslatef(this->x, .39f, this->y);
+                    glRotatef(this->ry, .0f, 1.0f, .0f);
+//        glTranslatef(.0f, .0f, -1.0f);
+    glScalef(0.008f, 0.008f, 0.008f);
+    glRotatef(-90.0f, 1.0f, .0f, .0f);
+    glRotatef(180.0f, .0f, .0f, 1.0f);
+//    qDebug() << this->z;
+    glTranslatef(.0f, .0f ,125 * this->z);
+    if (this->dead) {
+//        qDebug() << (trunc((this->timetorestart / this->restime) * (this->Dmodel->animation.skeleton.size() - 1)));
+        GLint nu = (this->Dmodel->animation.skeleton.size() - 1) - trunc(((GLfloat) this->timetorestart / this->restime) * (this->Dmodel->animation.skeleton.size() - 1));
+        qDebug() << nu;
+        this->Dmodel->draw(nu);
+    }
+    else
+    if (this->duck) {
+        glTranslatef(.0f, .0f, .2f * 125);
+        GLint nu = (this->TIME / 20) % this->Cmodel->animation.skeleton.size();
+        if (!this->walking)
+            nu = 0;
+        this->Cmodel->draw(nu);
+        glTranslatef(.0f, .0f, -.2f * 125);
+    }
+    else
+    if (this->jumping) {
+        GLint nu = trunc(((GLfloat)this->jumpiterations / 37) * (this->Jmodel->animation.skeleton.size() - 1));
+        this->Jmodel->draw(nu);
+    }
+    else
+    if (this->walking) {
+        GLint nu = (this->TIME / 20) % this->Rmodel->animation.skeleton.size();
+        this->Rmodel->draw(nu);
+    }
+    else {
+        this->Smodel->draw(0);
+    }
+            glTranslatef(.0f,.0f, -125 * this->z);
+    glRotatef(-180.0f, .0f, .0f, 1.0f);
+    glRotatef(90.0f, 1.0f, .0f, .0f);
+    glScalef(125.0f, 125.0f, 125.0f);
+//        glTranslatef(.0f, .0f, -1.0f);
+                    glRotatef(-this->ry, .0f, 1.0f, .0f);
+    glTranslatef(-this->x, -.4f, -this->y);
 }
 
 void GLPainter::savescore() {
@@ -601,8 +710,6 @@ void GLPainter::searchkeys() {
 
     if (this->menuopened)
         return;
-    if (this->dead)
-        return;
     if (this->levelnomber > this->maxlevels)
         return;
 
@@ -625,9 +732,9 @@ void GLPainter::searchkeys() {
         this->rx = -90;
 
     if (this->inside_key(Qt::Key_Left))
-        this->ry += 2.0f;
+        this->ry += 5.0f;
     if (this->inside_key(Qt::Key_Right))
-        this->ry -= 2.0f;
+        this->ry -= 5.0f;
     if (this->dead)
         return;
 
@@ -648,20 +755,27 @@ void GLPainter::searchkeys() {
         else
             this->z = 0;
     }
-
-    if (this->inside_key('W') || this->inside_key(1062))
+    this->walking = false;
+    if (this->inside_key('W') || this->inside_key(1062)) {
         dy -= .05f;
-    if (this->inside_key('S') || this->inside_key(1067))
+        this->walking = true;
+    }
+    if (this->inside_key('S') || this->inside_key(1067)) {
         dy += .05f;
-    if (this->inside_key('A') || this->inside_key(1060))
+        this->walking = true;
+    }
+    if (this->inside_key('A') || this->inside_key(1060)) {
         dx -= .05f;
-    if (this->inside_key('D') || this->inside_key(1042))
+        this->walking = true;
+    }
+    if (this->inside_key('D') || this->inside_key(1042)) {
         dx += .05f;
+        this->walking = true;
+    }
     if (this->duck) {
         dx /= 5;
         dy /= 5;
     }
-
     if (!this->jumping)
            this->vx = this->vy = 0;
 
@@ -682,6 +796,9 @@ void GLPainter::searchkeys() {
         this->y -= dx * sin(ry / 360 * 2 * 3.14159265);
 //        this->vy -= dx * sin(ry / 360 * 2 * 3.14159265);
     }
+
+//    if (dx != 0)
+//        this->ry = this->ry - atan(dy / dx);
 
     if (this->jumping)
         return;
@@ -741,7 +858,7 @@ void GLPainter::timeout() {
 //    if (this->levelnomber == 0)
 //        this->freefall();
     if (this->dead) {
-                this->rx = 0;
+//                this->rx = 0;
                 if (!this->menuopened)
                     this->timetorestart -= this->updatetime;
                 if (this->timetorestart <= 0) {
@@ -837,6 +954,7 @@ void GLPainter::jump() {
     if (this->z <= 0) {
         this->z = 0;
         this->jumping = false;
+//        qDebug() << this->jumpiterations;
         if (! isfloor(this->x, this->y)) {
             this->z = -.4f;
             this->die();
@@ -1071,7 +1189,7 @@ void GLPainter::loadstaticTEX() {
     mes[0] = "WASD   :: move";
     mes[1] = "arrows :: rotate camera";
     mes[2] = "Space  :: jump";
-    mes[3] = "Shift  :: duck";
+    mes[3] = "Shift  :: crouch";
     mes[4] = "Esc    :: pause";
     mes[5] = "Z      :: fullscreen";
     mes[6] = "Reach finish...";

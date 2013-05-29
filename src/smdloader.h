@@ -4,7 +4,7 @@
 #include <QVector>
 #include <QtOpenGL>
 #include <QString>
-#include <../Projects/walkers/src/matrix.h>
+#include <matrix.h>
 
 typedef struct{
     GLfloat x, y, z, nx, ny, nz, s, t;
@@ -28,12 +28,15 @@ typedef struct {
 class SMDloader {
 public:
     smdmodel model, animation;
+    QString path;
     QGLWidget *parent;
+    bool stay;
     explicit SMDloader(QGLWidget *);
-    void loadmodel(QString path);
-    void loadanimation(QString path);
+    void loadmodel(QString name);
+    void loadanimation(QString name);
     void draw(int sceneindex);
     void draw_main();
+    void setpath(QString s);
 };
 
 #endif // SMDLOADER_H

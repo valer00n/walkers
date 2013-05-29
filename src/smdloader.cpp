@@ -12,9 +12,9 @@ typedef struct {
     Vertex vert;
 } vert;
 
-void SMDloader::loadmodel(QString path) {
+void SMDloader::loadmodel(QString name) {
     std::ifstream inp;
-    inp.open(path.toStdString().c_str());
+    inp.open(QString(this->path + "/" + name).toStdString().c_str());
     std::string s;
     std::getline(inp, s);
 
@@ -75,7 +75,7 @@ void SMDloader::loadmodel(QString path) {
     inp >> s;
     while (s != "end") {
         triangle ntr;
-        ntr.PIX = QPixmap(QString::fromStdString(s));
+        ntr.PIX = QPixmap(this->path + "/" + QString::fromStdString(s));
         for (int i = 0; i < 3; i++)
             inp >> ntr.nodes[i].anc >> ntr.nodes[i].x >> ntr.nodes[i].y >> ntr.nodes[i].z >> ntr.nodes[i].nx >> ntr.nodes[i].ny >> ntr.nodes[i].nz >> ntr.nodes[i].s >> ntr.nodes[i].t;
         this->model.triangles.push_back(ntr);
@@ -125,9 +125,9 @@ void SMDloader::loadmodel(QString path) {
 
 }
 
-void SMDloader::loadanimation(QString path) {
+void SMDloader::loadanimation(QString name) {
     std::ifstream inp;
-    inp.open(path.toStdString().c_str());
+    inp.open(QString(this->path + "/" + name).toStdString().c_str());
     std::string s;
     std::getline(inp, s);
 
@@ -215,7 +215,8 @@ void SMDloader::draw(int sceneindex) {
         if (this->animation.nodes[i] != -1)
             ConcatMatrix(absolute[this->animation.nodes[i]].mat, tmp1);
         else {
-            tmp1[3][0] = tmp1[3][1] = tmp1[3][2] = 0;
+            if (this->stay)
+               tmp1[3][0] = tmp1[3][1] = tmp1[3][2] = 0;
         }
         CopyMat(tmp1, absolute[i].mat);
         ApplyMatrix(skel[i].vert, absolute[i].mat);
@@ -319,4 +320,8 @@ void SMDloader::draw_main() {
         glEnd();
     }
 
+}
+
+void SMDloader::setpath(QString s) {
+    this->path = s;
 }
