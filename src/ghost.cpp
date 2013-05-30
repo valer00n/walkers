@@ -9,6 +9,14 @@ void Ghost::load(QString path){
     this->clear();
     std::ifstream in;
     in.open(path.toStdString().c_str());
+    if (! in.is_open())
+    {
+        std::ofstream out;
+        out.open(path.toStdString().c_str());
+        out <<  "0";
+        out.close();
+        in.open(path.toStdString().c_str());
+    }
     int n;
     in >> n;
     this->history.resize(n);

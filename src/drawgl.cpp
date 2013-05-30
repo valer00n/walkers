@@ -265,7 +265,7 @@ QPair <GLfloat, GLfloat> getdir(GLint TIME, moving panel) {
 bool GLPainter::loadparam() {
     std::ifstream in;
     in.open("../Param/param.walk");
-    if (in == NULL) {
+    if (! in.is_open()) {
         qDebug() << "param.walk not found!";
         return false;
     }
@@ -757,7 +757,7 @@ void GLPainter::finn() {
     this->timerT->TIM->stop();
     if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels))
         if ((this->current.gethistorylength() < this->best.gethistorylength()) || (this->best.gethistorylength() == 0))
-            this->current.save("../Param/Best/" + QString::number(this->levelnomber));
+            this->current.save("../Param/Best/" + QString::number(this->levelnomber) + ".bst");
     this->levelnomber++;
 //    if (this->levelnomber == this->maxlevels + 1)
 //        this->levelnomber++;
@@ -770,9 +770,10 @@ void GLPainter::finn() {
         this->loadstaticTEX();
     }
     this->levelclear();
-    if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0))
+    if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
         this->loadlevel();
-    this->best.load("../Param/Best/" + QString::number(this->levelnomber));
+        this->best.load("../Param/Best/" + QString::number(this->levelnomber) + ".bst");
+    }
     this->TIME = 0;
     this->restart();
     this->timerT->TIM->start();

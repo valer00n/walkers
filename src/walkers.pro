@@ -48,18 +48,18 @@ OTHER_FILES += \
     ../Levels/13 \
     ../Param/param.walk \
     ../Param/results.walk \
-    ../Param/Best/13 \
-    ../Param/Best/12 \
-    ../Param/Best/11 \
-    ../Param/Best/10 \
-    ../Param/Best/9 \
-    ../Param/Best/8 \
-    ../Param/Best/7 \
-    ../Param/Best/6 \
-    ../Param/Best/5 \
-    ../Param/Best/4 \
-    ../Param/Best/3 \
-    ../Param/Best/2 \
-    ../Param/Best/1
+    ../Param/Best/13.bst \
+    ../Param/Best/12.bst \
+    ../Param/Best/11.bst \
+    ../Param/Best/10.bst \
+    ../Param/Best/9.bst \
+    ../Param/Best/8.bst \
+    ../Param/Best/7.bst \
+    ../Param/Best/6.bst \
+    ../Param/Best/5.bst \
+    ../Param/Best/4.bst \
+    ../Param/Best/3.bst \
+    ../Param/Best/2.bst \
+    ../Param/Best/1.bst
 
 FORMS +=
