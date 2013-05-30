@@ -112,6 +112,7 @@ protected:
 private:
 
     /*PLAYER INFO*/
+        bool firstview;
         int drawindex;
         Ghost current, best;
         bool walking;

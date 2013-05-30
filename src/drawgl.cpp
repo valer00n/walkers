@@ -148,6 +148,7 @@ void GLPainter::loadp2() {
 GLPainter::GLPainter(QWidget *parent)
     : QGLWidget(parent)
 {
+    this->firstview = false;
     this->CAMERAdist = .5;
     this->loadp1();
     this->loadp2();
@@ -420,8 +421,14 @@ void GLPainter::paintGL() {
             this->CAMERAdist = std::min(dist, 1.0f);
             this->CAMERAdist = std::max(this->CAMERAdist, .1f);
             dist = this->CAMERAdist;
+            if (this->firstview) {
+                dist = .0f;
+                gluLookAt(dist * sin(this->ry * 3.15149265 / 180), this->z - .05f, dist * cos(this->ry * 3.15149265 / 180),
+                          (dist - .1f) * sin(this->ry * 3.15149265 / 180), this->z - .05f + this->rx / 300, (dist - .1f) * cos(this->ry * 3.15149265 / 180), 0, 1, 0);
+            }
+            else
             gluLookAt(dist * sin(this->ry * 3.15149265 / 180), .1f, dist * cos(this->ry * 3.15149265 / 180),
-                      .0f, .1f + this->rx / 300, .0f, 0, 1, 0);
+                      (dist - .1f) * sin(this->ry * 3.15149265 / 180), .1f + this->rx / 300, (dist - .1f) * cos(this->ry * 3.15149265 / 180), 0, 1, 0);
 //            gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
         glMatrixMode(GL_MODELVIEW);
 
@@ -432,7 +439,8 @@ void GLPainter::paintGL() {
             this->drawhistory(this->best.getHevent(this->drawindex));
 //            qDebug() << this->current.gethistorylength();
         }
-        this->drawplayer();
+        if (!this->firstview)
+            this->drawplayer();
         this->drawinfo();
 
 
@@ -834,6 +842,12 @@ void GLPainter::searchkeys() {
         this->throw_key(1071);
     }
 
+    if (this->inside_key('C') || this->inside_key(1057)) {
+        this->firstview = !this->firstview;
+        this->throw_key('C');
+        this->throw_key(1057);
+    }
+
     if (this->menuopened)
         return;
     if (this->levelnomber > this->maxlevels)
@@ -973,7 +987,7 @@ void GLPainter::die() {
 
 void GLPainter::timeout() {
 
-    if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels)) {
+    if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels) && (!this->menuopened)) {
         this->current.pushHevent(this->generateevent());
         if (this->drawindex < this->best.gethistorylength() - 1)
             this->drawindex++;
@@ -1056,7 +1070,7 @@ void GLPainter::restart() {
     this->jumping = false;
     this->z = 0;
     this->timerT->TIM->stop();
-//    this->TIME = 0;
+    this->TIME = 0;
     this->dead = false;
     this->x = this->sx + .5f;
     this->y = -this->sy - .5f;
@@ -1320,17 +1334,18 @@ void GLPainter::loadstaticTEX() {
     this->PIXwin = QPixmap("../Textures/win.jpg");
     this->PIXhole = QPixmap("../Textures/hole.png");
     this->PIXfireball = QPixmap("../Textures/fireball.jpg");
-    QVector <QString> mes (10);
+    QVector <QString> mes (11);
     mes[0] = "WASD   :: move";
     mes[1] = "arrows :: rotate camera";
     mes[2] = "Space  :: jump";
     mes[3] = "Shift  :: crouch";
     mes[4] = "Esc    :: pause";
     mes[5] = "Z      :: fullscreen";
-    mes[6] = "Reach finish...";
-    mes[7] = "<Press ENTER to Start>";
-    mes[8] = "         or";
-    mes[9] = "<Press Esc to exit>";
+    mes[6] = "C      :: change view";
+    mes[7] = "Reach finish...";
+    mes[8] = "<Press ENTER to Start>";
+    mes[9] = "         or";
+    mes[10] = "<Press Esc to exit>";
     this->PIXmenu = this->genpix(1024, 1024, 40, mes);
 
     mes.resize(3);
