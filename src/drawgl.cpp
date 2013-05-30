@@ -263,14 +263,17 @@ QPair <GLfloat, GLfloat> getdir(GLint TIME, moving panel) {
 }
 
 bool GLPainter::loadparam() {
-    std::ifstream in;
-    in.open("../Param/param.walk");
-    if (! in.is_open()) {
-        qDebug() << "param.walk not found!";
-        return false;
-    }
-    in >> this->maxlevels >> this->updatetime >>  this->lat;
-    in.close();
+//    std::ifstream in;
+//    in.open("../Results/param.walk");
+//    if (! in.is_open()) {
+//        qDebug() << "param.walk not found!";
+//        return false;
+//    }
+//    in >> this->maxlevels >> this->updatetime >>  this->lat;
+//    in.close();
+    this->maxlevels = 13;
+    this->updatetime = 17;
+    this->lat = 20.0f;
     return true;
 }
 
@@ -757,7 +760,7 @@ void GLPainter::finn() {
     this->timerT->TIM->stop();
     if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels))
         if ((this->current.gethistorylength() < this->best.gethistorylength()) || (this->best.gethistorylength() == 0))
-            this->current.save("../Param/Best/" + QString::number(this->levelnomber) + ".bst");
+            this->current.save("../Results/Best/" + QString::number(this->levelnomber) + ".bst");
     this->levelnomber++;
 //    if (this->levelnomber == this->maxlevels + 1)
 //        this->levelnomber++;
@@ -772,10 +775,10 @@ void GLPainter::finn() {
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
         this->loadlevel();
-        if (! QDir("../Param/Best").exists()) {
-            QDir().mkdir("../Param/Best/");
+        if (! QDir("../Results/Best").exists()) {
+            QDir().mkdir("../Results/Best/");
         }
-        this->best.load("../Param/Best/" + QString::number(this->levelnomber) + ".bst");
+        this->best.load("../Results/Best/" + QString::number(this->levelnomber) + ".bst");
     }
     this->TIME = 0;
     this->restart();
@@ -830,7 +833,7 @@ void GLPainter::searchkeys() {
             while (this->score[i].second >= newscore)
                 i++;
             std::ofstream out;
-            out.open("../Param/results.walk");
+            out.open("../Results/results.walk");
             for (int j = 0; j < i; j++)
                 out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
             out << this->nametyped.toStdString() << " " << newscore << " ";
@@ -1360,7 +1363,7 @@ void GLPainter::loadstaticTEX() {
 
     mes.clear();
     std::ifstream inp;
-    inp.open("../Param/results.walk");
+    inp.open("../Results/results.walk");
     QVector <QPair <QString, int> > res;
     for (int i = 0; i < 10; i++) {
         std::string a;

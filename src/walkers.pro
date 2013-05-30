@@ -46,20 +46,19 @@ OTHER_FILES += \
     ../HowTo.txt \
     ../Levels/12 \
     ../Levels/13 \
-    ../Param/param.walk \
-    ../Param/results.walk \
-    ../Param/Best/13.bst \
-    ../Param/Best/12.bst \
-    ../Param/Best/11.bst \
-    ../Param/Best/10.bst \
-    ../Param/Best/9.bst \
-    ../Param/Best/8.bst \
-    ../Param/Best/7.bst \
-    ../Param/Best/6.bst \
-    ../Param/Best/5.bst \
-    ../Param/Best/4.bst \
-    ../Param/Best/3.bst \
-    ../Param/Best/2.bst \
-    ../Param/Best/1.bst
+    ../Results/results.walk \
+    ../Results/Best/13.bst \
+    ../Results/Best/12.bst \
+    ../Results/Best/11.bst \
+    ../Results/Best/10.bst \
+    ../Results/Best/9.bst \
+    ../Results/Best/8.bst \
+    ../Results/Best/7.bst \
+    ../Results/Best/6.bst \
+    ../Results/Best/5.bst \
+    ../Results/Best/4.bst \
+    ../Results/Best/3.bst \
+    ../Results/Best/2.bst \
+    ../Results/Best/1.bst
 
 FORMS +=
