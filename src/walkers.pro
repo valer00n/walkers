@@ -20,13 +20,15 @@ SOURCES += \
     drawgl.cpp \
     timer.cpp \
     smdloader.cpp \
-    matrix.cpp
+    matrix.cpp \
+    ghost.cpp
 
 HEADERS  += \
     drawgl.h \
     timer.h \
     smdloader.h \
-    matrix.h
+    matrix.h \
+    ghost.h
 
 OTHER_FILES += \
     TODO.txt \
@@ -45,6 +47,19 @@ OTHER_FILES += \
     ../Levels/12 \
     ../Levels/13 \
     ../Param/param.walk \
-    ../Param/results.walk
+    ../Param/results.walk \
+    ../Param/Best/13 \
+    ../Param/Best/12 \
+    ../Param/Best/11 \
+    ../Param/Best/10 \
+    ../Param/Best/9 \
+    ../Param/Best/8 \
+    ../Param/Best/7 \
+    ../Param/Best/6 \
+    ../Param/Best/5 \
+    ../Param/Best/4 \
+    ../Param/Best/3 \
+    ../Param/Best/2 \
+    ../Param/Best/1
 
 FORMS +=

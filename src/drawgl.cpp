@@ -6,73 +6,151 @@
 #include <fstream>
 #include <QPainter>
 #include <string>
+#include <ghost.h>
 
-GLPainter::GLPainter(QWidget *parent)
-    : QGLWidget(parent)
-{
-    this->CAMERAdist = .5;
+void GLPainter::loadp1() {
     this->Rmodel = new SMDloader(this);
-    this->Rmodel->stay = true;
+    this->Rmodel->setstay(true);
     this->Rmodel->setpath("../Textures/Player");
     this->Rmodel->loadmodel("body.smd");
     this->Rmodel->loadanimation("run2.smd");
 
     this->Smodel = new SMDloader(this);
-    this->Smodel->stay = true;
+    this->Smodel->setstay(true);
     this->Smodel->setpath("../Textures/Player");
     this->Smodel->loadmodel("body.smd");
     this->Smodel->loadanimation("idle.smd");
 
     this->Jmodel = new SMDloader(this);
-    this->Jmodel->stay = true;
+    this->Jmodel->setstay(true);
     this->Jmodel->setpath("../Textures/Player");
     this->Jmodel->loadmodel("body.smd");
     this->Jmodel->loadanimation("jump.smd");
 
     this->Dmodel = new SMDloader(this);
-    this->Dmodel->stay = true;
+    this->Dmodel->setstay(true);
     this->Dmodel->setpath("../Textures/Player");
     this->Dmodel->loadmodel("body.smd");
     this->Dmodel->loadanimation("die_forwards.smd");
 
     this->Cmodel = new SMDloader(this);
-    this->Cmodel->stay = true;
+    this->Cmodel->setstay(true);
     this->Cmodel->setpath("../Textures/Player");
     this->Cmodel->loadmodel("body.smd");
     this->Cmodel->loadanimation("crawl.smd");
 
-    //-----------------------------------------------
     this->Rarm = new SMDloader(this);
-    this->Rarm->stay = true;
+    this->Rarm->setstay(true);
     this->Rarm->setpath("../Textures/Player");
     this->Rarm->loadmodel("arms.smd");
     this->Rarm->loadanimation("run2.smd");
 
     this->Sarm = new SMDloader(this);
-    this->Sarm->stay = true;
+    this->Sarm->setstay(true);
     this->Sarm->setpath("../Textures/Player");
     this->Sarm->loadmodel("arms.smd");
     this->Sarm->loadanimation("idle.smd");
 
     this->Jarm = new SMDloader(this);
-    this->Jarm->stay = true;
+    this->Jarm->setstay(true);
     this->Jarm->setpath("../Textures/Player");
     this->Jarm->loadmodel("arms.smd");
     this->Jarm->loadanimation("jump.smd");
 
     this->Darm = new SMDloader(this);
-    this->Darm->stay = true;
+    this->Darm->setstay(true);
     this->Darm->setpath("../Textures/Player");
     this->Darm->loadmodel("arms.smd");
     this->Darm->loadanimation("die_forwards.smd");
 
     this->Carm = new SMDloader(this);
-    this->Carm->stay = true;
+    this->Carm->setstay(true);
     this->Carm->setpath("../Textures/Player");
     this->Carm->loadmodel("arms.smd");
     this->Carm->loadanimation("crawl.smd");
-    //-----------------------------------------------
 
+}
+
+void GLPainter::loadp2() {
+    GLfloat al = 0.5f;
+    this->HistoryRmodel = new SMDloader(this);
+    this->HistoryRmodel->setalpha(al);
+    this->HistoryRmodel->setstay(true);
+    this->HistoryRmodel->setpath("../Textures/Player");
+    this->HistoryRmodel->loadmodel("body.smd");
+    this->HistoryRmodel->loadanimation("run2.smd");
+
+    this->HistorySmodel = new SMDloader(this);
+    this->HistorySmodel->setalpha(al);
+    this->HistorySmodel->setstay(true);
+    this->HistorySmodel->setpath("../Textures/Player");
+    this->HistorySmodel->loadmodel("body.smd");
+    this->HistorySmodel->loadanimation("idle.smd");
+
+    this->HistoryJmodel = new SMDloader(this);
+    this->HistoryJmodel->setalpha(al);
+    this->HistoryJmodel->setstay(true);
+    this->HistoryJmodel->setpath("../Textures/Player");
+    this->HistoryJmodel->loadmodel("body.smd");
+    this->HistoryJmodel->loadanimation("jump.smd");
+
+    this->HistoryDmodel = new SMDloader(this);
+    this->HistoryDmodel->setalpha(al);
+    this->HistoryDmodel->setstay(true);
+    this->HistoryDmodel->setpath("../Textures/Player");
+    this->HistoryDmodel->loadmodel("body.smd");
+    this->HistoryDmodel->loadanimation("die_forwards.smd");
+
+    this->HistoryCmodel = new SMDloader(this);
+    this->HistoryCmodel->setalpha(al);
+    this->HistoryCmodel->setstay(true);
+    this->HistoryCmodel->setpath("../Textures/Player");
+    this->HistoryCmodel->loadmodel("body.smd");
+    this->HistoryCmodel->loadanimation("crawl.smd");
+
+    this->HistoryRarm = new SMDloader(this);
+    this->HistoryRarm->setalpha(al);
+    this->HistoryRarm->setstay(true);
+    this->HistoryRarm->setpath("../Textures/Player");
+    this->HistoryRarm->loadmodel("arms.smd");
+    this->HistoryRarm->loadanimation("run2.smd");
+
+    this->HistorySarm = new SMDloader(this);
+    this->HistorySarm->setalpha(al);
+    this->HistorySarm->setstay(true);
+    this->HistorySarm->setpath("../Textures/Player");
+    this->HistorySarm->loadmodel("arms.smd");
+    this->HistorySarm->loadanimation("idle.smd");
+
+    this->HistoryJarm = new SMDloader(this);
+    this->HistoryJarm->setalpha(al);
+    this->HistoryJarm->setstay(true);
+    this->HistoryJarm->setpath("../Textures/Player");
+    this->HistoryJarm->loadmodel("arms.smd");
+    this->HistoryJarm->loadanimation("jump.smd");
+
+    this->HistoryDarm = new SMDloader(this);
+    this->HistoryDarm->setalpha(al);
+    this->HistoryDarm->setstay(true);
+    this->HistoryDarm->setpath("../Textures/Player");
+    this->HistoryDarm->loadmodel("arms.smd");
+    this->HistoryDarm->loadanimation("die_forwards.smd");
+
+    this->HistoryCarm = new SMDloader(this);
+    this->HistoryCarm->setalpha(al);
+    this->HistoryCarm->setstay(true);
+    this->HistoryCarm->setpath("../Textures/Player");
+    this->HistoryCarm->loadmodel("arms.smd");
+    this->HistoryCarm->loadanimation("crawl.smd");
+
+}
+
+GLPainter::GLPainter(QWidget *parent)
+    : QGLWidget(parent)
+{
+    this->CAMERAdist = .5;
+    this->loadp1();
+    this->loadp2();
     this->curs = "";
     this->setFont(QFont("serif", 15, -1, false));
     this->timerT = new timer;
@@ -123,7 +201,6 @@ void GLPainter::End2D ()
     glMatrixMode(GL_MODELVIEW);
     glDisable(GL_BLEND);
 }
-
 
 bool GLPainter::inside_key(int key) {
     return (this->keys_pressed.find(key) != this->keys_pressed.end());
@@ -351,6 +428,10 @@ void GLPainter::paintGL() {
         glTranslatef(-this->x + .5f, .0f, -this->y - 1.5f);
         this->drawSKY();
         this->drawmap();
+        if ((this->drawindex >= 0) && (this->drawindex < this->best.gethistorylength() - 1)) {
+            this->drawhistory(this->best.getHevent(this->drawindex));
+//            qDebug() << this->current.gethistorylength();
+        }
         this->drawplayer();
         this->drawinfo();
 
@@ -376,15 +457,21 @@ void GLPainter::drawplayer() {
 //    qDebug() << this->z;
     glTranslatef(.0f, .0f ,125 * this->z);
     if (this->dead) {
-//        qDebug() << (trunc((this->timetorestart / this->restime) * (this->Dmodel->animation.skeleton.size() - 1)));
-        GLint nu = (this->Dmodel->animation.skeleton.size() - 1) - trunc(((GLfloat) this->timetorestart / this->restime) * (this->Dmodel->animation.skeleton.size() - 1));
+//        qDebug() << (trunc((this->timetorestart / this->restime) * (this->Dmodel->getanimationlength() - 1)));
+        GLint nu = (this->Dmodel->getanimationlength() - 1) - trunc(((GLfloat) this->timetorestart / this->restime) * (this->Dmodel->getanimationlength() - 1));
         this->Dmodel->draw(nu);
         this->Darm->draw(nu);
     }
     else
+    if (this->jumping) {
+        GLint nu = trunc(((GLfloat)this->jumpiterations / 37) * (this->Jmodel->getanimationlength() - 1));
+        this->Jmodel->draw(nu);
+        this->Jarm->draw(nu);
+    }
+    else
     if (this->duck) {
         glTranslatef(.0f, .0f, .2f * 125);
-        GLint nu = (this->TIME / 30) % this->Cmodel->animation.skeleton.size();
+        GLint nu = (this->TIME / 30) % this->Cmodel->getanimationlength();
         if (!this->walking)
             nu = 0;
         this->Cmodel->draw(nu);
@@ -392,20 +479,15 @@ void GLPainter::drawplayer() {
         glTranslatef(.0f, .0f, -.2f * 125);
     }
     else
-    if (this->jumping) {
-        GLint nu = trunc(((GLfloat)this->jumpiterations / 37) * (this->Jmodel->animation.skeleton.size() - 1));
-        this->Jmodel->draw(nu);
-        this->Jarm->draw(nu);
-    }
-    else
     if (this->walking) {
-        GLint nu = (this->TIME / 20) % this->Rmodel->animation.skeleton.size();
+        GLint nu = (this->TIME / 20) % this->Rmodel->getanimationlength();
         this->Rmodel->draw(nu);
         this->Rarm->draw(nu);
     }
     else {
-        this->Smodel->draw(0);
-        this->Sarm->draw(0);
+        GLint nu = (this->TIME / 100) % this->Smodel->getanimationlength();
+        this->Smodel->draw(nu);
+        this->Sarm->draw(nu);
     }
             glTranslatef(.0f,.0f, -125 * this->z);
     glRotatef(-180.0f, .0f, .0f, 1.0f);
@@ -413,7 +495,7 @@ void GLPainter::drawplayer() {
     glScalef(125.0f, 125.0f, 125.0f);
 //        glTranslatef(.0f, .0f, -1.0f);
                     glRotatef(-this->ry, .0f, 1.0f, .0f);
-    glTranslatef(-this->x, -.4f, -this->y);
+    glTranslatef(-this->x, -.39f, -this->y);
 }
 
 void GLPainter::savescore() {
@@ -597,8 +679,10 @@ void GLPainter::drawmap() {
                     GLfloat PP = ((this->Fpanel[i].r * this->Fpanel[i].r) - FF) * (this->Fpanel[i].stratchZ * this->Fpanel[i].stratchZ);
                     GLfloat P1 = std::sqrt(PP) + this->Fpanel[i].z - .5f;
                     GLfloat P2 =-std::sqrt(PP) + this->Fpanel[i].z - .5f;
-                    if (std::min(this->z + 0.15f, P1) >= std::max(this->z - 0.5f, P2))
+                    if (std::min(this->z + 0.15f, P1) >= std::max(this->z - 0.5f, P2)) {
+                        this->z = -.3f;
                         die();
+                     }
                  }
 
                 gluQuadricTexture(q, GL_TRUE);
@@ -663,6 +747,9 @@ void GLPainter::finn() {
 //    this->keys_pressed.clear();
     this->nametyped = "";
     this->timerT->TIM->stop();
+    if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels))
+        if ((this->current.gethistorylength() < this->best.gethistorylength()) || (this->best.gethistorylength() == 0))
+            this->current.save("../Param/Best/" + QString::number(this->levelnomber));
     this->levelnomber++;
 //    if (this->levelnomber == this->maxlevels + 1)
 //        this->levelnomber++;
@@ -677,6 +764,8 @@ void GLPainter::finn() {
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0))
         this->loadlevel();
+    this->best.load("../Param/Best/" + QString::number(this->levelnomber));
+    this->TIME = 0;
     this->restart();
     this->timerT->TIM->start();
 }
@@ -768,6 +857,8 @@ void GLPainter::searchkeys() {
     if (this->rx < -90)
         this->rx = -90;
 
+    if (this->dead)
+        return;
     if (this->inside_key(Qt::Key_Left)) {
         this->walking = true;
         this->ry += 5.0f;
@@ -777,8 +868,7 @@ void GLPainter::searchkeys() {
         this->ry -= 5.0f;
         this->walking = true;
     }
-    if (this->dead)
-        return;
+
 
 
     //WHILE ALIVE
@@ -881,8 +971,13 @@ void GLPainter::die() {
     this->dead = true;
 }
 
-
 void GLPainter::timeout() {
+
+    if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels)) {
+        this->current.pushHevent(this->generateevent());
+        if (this->drawindex < this->best.gethistorylength() - 1)
+            this->drawindex++;
+    }
     this->ttoch--;
     if (this->ttoch < 0)
         this->ttoch = 30;
@@ -899,7 +994,7 @@ void GLPainter::timeout() {
 //    if (this->levelnomber == 0)
 //        this->freefall();
     if (this->dead) {
-//                this->rx = 0;
+                this->TIME += this->updatetime;
                 if (!this->menuopened)
                     this->timetorestart -= this->updatetime;
                 if (this->timetorestart <= 0) {
@@ -928,8 +1023,6 @@ void GLPainter::timeout() {
     }
 }
 
-
-
 bool isin(int x, int y, int n, int m) {
     return (x >= 0) && (y >= 0) && (x < n) && (y < m);
 }
@@ -945,8 +1038,6 @@ hidden new_hidden(GLfloat pause,GLfloat tvis,GLfloat thid, GLint x, GLint y, boo
     return res;
 }
 
-
-
 void GLPainter::drawSKY() {
     this->fogg(this->dead);
     if (this->stretch_sky)
@@ -957,7 +1048,6 @@ void GLPainter::drawSKY() {
             this->drawQUBE(i, 1.0f, -j - 1, 1, 1, 1, this->PIXsky);
 }
 
-
 void GLPainter::restart() {
     this->FFall = false;
     this->menuopened = false;
@@ -966,7 +1056,7 @@ void GLPainter::restart() {
     this->jumping = false;
     this->z = 0;
     this->timerT->TIM->stop();
-    this->TIME = 0;
+//    this->TIME = 0;
     this->dead = false;
     this->x = this->sx + .5f;
     this->y = -this->sy - .5f;
@@ -1039,6 +1129,7 @@ void GLPainter::freefall() {
 }
 
 void GLPainter::mouseMoveEvent(QMouseEvent *ev) {
+
     if (this->menuopened)
         return;
     if (!this->fullscreen)
@@ -1090,10 +1181,13 @@ void GLPainter::switchmode() {
 }
 
 void GLPainter::levelclear() {
+    this->current.clear();
+    this->best.clear();
     this->sx = this->sy = 0;
     this->Hpanel.clear();
     this->Mpanel.clear();
     this->Fpanel.clear();
+    this->drawindex = -1;
 }
 
 void GLPainter::loadlevel() {
@@ -1301,6 +1395,7 @@ void GLPainter::drawinfo() {
       renderText(this->dw + 5,this->dh + 25, "Level: " + QString::number(this->levelnomber) + "/" + QString::number(this->maxlevels));
       renderText(this->dw + 5,this->dh + 45, "Extra lifes taken: " + QString::number(this->life));
       renderText(this->dw + 5,this->dh + 65, "Time: " + QString::number(this->timerT->globaltime / 1000) + "s.");
+      renderText(this->dw + 5,this->dh + 85, "On this level: " + QString::number(this->TIME / 1000) + "s.");
       }
       else {
        glColor4f(std::min((GLfloat) this->timetorestart / this->restime + 0.05f, 1.0f), 0.0f, 0.0f, 0.8f);
@@ -1350,4 +1445,79 @@ void GLPainter::mainmenu() {;
     this->drawQUBE(-50, -100, -50, 100, 0.1f, 100, this->PIXmenu);
     this->drawQUBE(-50, -100, -50, 100, 100, 0.1f, this->PIXresults);
     this->drawQUBE(50, 0, 50, -100, -100, 0.1f, this->PIXcred);
+}
+
+void GLPainter::drawhistory(Hevent ev) {
+    glTranslatef(ev.x, .39f, ev.y);
+                    glRotatef(ev.ry, .0f, 1.0f, .0f);
+    glScalef(0.008f, 0.008f, 0.008f);
+    glRotatef(-90.0f, 1.0f, .0f, .0f);
+    glRotatef(180.0f, .0f, .0f, 1.0f);
+    glTranslatef(.0f, .0f ,125 * ev.z);
+    if (ev.player == Hdead) {
+        this->HistoryDmodel->draw(ev.sceneindex);
+        this->HistoryDarm->draw(ev.sceneindex);
+    }
+    else
+    if (ev.player == Hjump) {
+        this->HistoryJmodel->draw(ev.sceneindex);
+        this->HistoryJarm->draw(ev.sceneindex);
+    }
+    else
+    if (ev.player == Hcrouch) {
+        glTranslatef(.0f, .0f, .2f * 125);
+        this->HistoryCmodel->draw(ev.sceneindex);
+        this->HistoryCarm->draw(ev.sceneindex);
+        glTranslatef(.0f, .0f, -.2f * 125);
+    }
+    else
+    if (ev.player == Hwalk) {
+        this->HistoryRmodel->draw(ev.sceneindex);
+        this->HistoryRarm->draw(ev.sceneindex);
+    }
+    else {
+        this->HistorySmodel->draw(ev.sceneindex);
+        this->HistorySarm->draw(ev.sceneindex);
+    }
+    glTranslatef(.0f,.0f, -125 * ev.z);
+    glRotatef(-180.0f, .0f, .0f, 1.0f);
+    glRotatef(90.0f, 1.0f, .0f, .0f);
+    glScalef(125.0f, 125.0f, 125.0f);
+    glRotatef(-ev.ry, .0f, 1.0f, .0f);
+    glTranslatef(-ev.x, -.39f, -ev.y);
+}
+
+Hevent GLPainter::generateevent() {
+    Hevent ev;
+    ev.time = this->TIME;
+    ev.x = x;
+    ev.y = y;
+    ev.z = z;
+    ev.ry = ry;
+    if (this->dead) {
+        ev.player = Hdead;
+        ev.sceneindex = (this->Dmodel->getanimationlength() - 1) - trunc(((GLfloat) this->timetorestart / this->restime) * (this->Dmodel->getanimationlength() - 1));
+    }
+    else
+    if (this->jumping) {
+        ev.player = Hjump;
+        ev.sceneindex = trunc(((GLfloat)this->jumpiterations / 37) * (this->Jmodel->getanimationlength() - 1));
+    }
+    else
+    if (this->duck) {
+        ev.player = Hcrouch;
+        ev.sceneindex = (this->TIME / 30) % this->Cmodel->getanimationlength();
+        if (!this->walking)
+            ev.sceneindex = 0;
+    }
+    else
+    if (this->walking) {
+        ev.player = Hwalk;
+        ev.sceneindex = (this->TIME / 20) % this->Rmodel->getanimationlength();
+    }
+    else {
+        ev.player = Hstay;
+        ev.sceneindex = (this->TIME / 100) % this->Smodel->getanimationlength();
+    }
+    return ev;
 }

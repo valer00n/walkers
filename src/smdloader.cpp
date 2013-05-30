@@ -12,6 +12,31 @@ typedef struct {
     Vertex vert;
 } vert;
 
+void SMDloader::setalpha(GLfloat alpha) {
+    this->alpha = alpha;
+}
+
+void SMDloader::setstay(bool stay) {
+    this->stay = stay;
+}
+
+GLint SMDloader::getanimationlength() {
+    return this->animation.skeleton.size();
+}
+
+GLfloat SMDloader::getalpha() {
+    return this->alpha;
+}
+
+
+void SMDloader::setpatent(QGLWidget *parent) {
+    this->parent = parent;
+}
+
+bool SMDloader::getstay() {
+    return this->stay;
+}
+
 void SMDloader::loadmodel(QString name) {
     std::ifstream inp;
     inp.open(QString(this->path + "/" + name).toStdString().c_str());
@@ -188,6 +213,8 @@ void SMDloader::loadanimation(QString name) {
    inp.close();
 }
 
+
+
 void SMDloader::draw(int sceneindex) {
 //    glBegin(GL_LINES);
 //        glColor3f(.0f, 1.0f, 1.0f);
@@ -242,7 +269,8 @@ void SMDloader::draw(int sceneindex) {
 //            glEnd();
 //        }
 //    }
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glEnable(GL_BLEND);
+    glColor4f(1.0f, 1.0f, 1.0f, this->alpha);
     for (int i = 0; i < this->model.triangles.size(); i++) {
         s = this->parent->bindTexture(this->model.triangles[i].PIX, GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, s);
@@ -259,33 +287,35 @@ void SMDloader::draw(int sceneindex) {
         glEnd();
     }
 
+    glDisable(GL_BLEND);
 
 }
 
 SMDloader::SMDloader(QGLWidget *par) {
     this->parent = par;
+    this->alpha = 1.0f;
 }
 
-void SMDloader::draw_main() {
-    int sceneindex = 0;
+void SMDloader::draw_skeleton(int sceneindex) {
     QVector <vert> skel(this->model.nodes.size());
     QVector <mat> absolute(this->model.nodes.size());
-    for (int i = 0; i < this->model.nodes.size(); i++) {
+    for (int i = 0; i < this->animation.nodes.size(); i++) {
         Vertex ver;
         ver[0] = ver[1] = ver[2] = 0;
         Mat tmp1, tmp2, tmp3;
-        XRot(-this->model.skeleton[sceneindex][i].rotx, tmp1);
-        YRot(-this->model.skeleton[sceneindex][i].roty, tmp2);
-        ZRot(-this->model.skeleton[sceneindex][i].rotz, tmp3);
+        XRot(-this->animation.skeleton[sceneindex][i].rotx, tmp1);
+        YRot(-this->animation.skeleton[sceneindex][i].roty, tmp2);
+        ZRot(-this->animation.skeleton[sceneindex][i].rotz, tmp3);
         ConcatMatrix(tmp2, tmp1);
         ConcatMatrix(tmp3, tmp1);
-        tmp1[3][0] = this->model.skeleton[sceneindex][i].x;
-        tmp1[3][1] = this->model.skeleton[sceneindex][i].y;
-        tmp1[3][2] = this->model.skeleton[sceneindex][i].z;
-        if (this->model.nodes[i] != -1)
-            ConcatMatrix(absolute[this->model.nodes[i]].mat, tmp1);
+        tmp1[3][0] = this->animation.skeleton[sceneindex][i].x;
+        tmp1[3][1] = this->animation.skeleton[sceneindex][i].y;
+        tmp1[3][2] = this->animation.skeleton[sceneindex][i].z;
+        if (this->animation.nodes[i] != -1)
+            ConcatMatrix(absolute[this->animation.nodes[i]].mat, tmp1);
         else {
-//            tmp1[3][0] = tmp1[3][1] = tmp1[3][2] = 0;
+            if (this->stay)
+               tmp1[3][0] = tmp1[3][1] = tmp1[3][2] = 0;
         }
         CopyMat(tmp1, absolute[i].mat);
         ApplyMatrix(skel[i].vert, absolute[i].mat);
@@ -306,23 +336,7 @@ void SMDloader::draw_main() {
             glEnd();
         }
     }
-    GLuint s;
-    glColor3f(1.0f, 1.0f, 1.0f);
-    for (int i = 0; i < this->model.triangles.size(); i++) {
-        s = this->parent->bindTexture(this->model.triangles[i].PIX, GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, s);
-        glBegin(GL_TRIANGLES);
-        for (int j = 0; j < 3; j++) {
-            Vertex v;
-            v[0] = this->model.triangles[i].nodes[j].x;
-            v[1] = this->model.triangles[i].nodes[j].y;
-            v[2] = this->model.triangles[i].nodes[j].z;
-            ApplyMatrix(v, absolute[this->model.triangles[i].nodes[j].anc].mat);
-            glTexCoord2f(this->model.triangles[i].nodes[j].s, this->model.triangles[i].nodes[j].t);
-            glVertex3f(v[0], v[1], v[2]);
-        }
-        glEnd();
-    }
+
 
 }
 

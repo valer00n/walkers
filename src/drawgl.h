@@ -15,6 +15,7 @@
 #include <QSet>
 #include <QTimer>
 #include <timer.h>
+#include <ghost.h>
 
 typedef struct {
     GLfloat x, y, z;
@@ -96,6 +97,8 @@ protected:
         void loadlevel();
         void levelclear();
         void loadstaticTEX();
+        void loadp1();
+        void loadp2();
 
     /*HELP*/
         GLfloat getx(GLfloat x);
@@ -103,10 +106,14 @@ protected:
         GLfloat dist(GLfloat x, GLfloat y);
         QPixmap genpix(int w, int h, int f, QVector <QString> &mes);
         void savescore();
+        Hevent generateevent();
+        void drawhistory(Hevent ev);
 
 private:
 
     /*PLAYER INFO*/
+        int drawindex;
+        Ghost current, best;
         bool walking;
         GLint life;
         bool dead;
@@ -116,8 +123,8 @@ private:
         GLfloat sx, sy, vx, vy;
         GLint timetorestart;
         GLint restime;
-        SMDloader *Rmodel, *Smodel, *Jmodel, *Dmodel, *Cmodel,
-        *Rarm, *Sarm, *Jarm, *Darm, *Carm;
+        SMDloader *Rmodel, *Smodel, *Jmodel, *Dmodel, *Cmodel, *Rarm, *Sarm, *Jarm, *Darm, *Carm;
+        SMDloader *HistoryRmodel, *HistorySmodel, *HistoryJmodel, *HistoryDmodel, *HistoryCmodel, *HistoryRarm, *HistorySarm, *HistoryJarm, *HistoryDarm, *HistoryCarm;
 
     /*LEVEL INFO*/
         QVector <QVector <char> > map;
