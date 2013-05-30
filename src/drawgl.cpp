@@ -772,6 +772,9 @@ void GLPainter::finn() {
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
         this->loadlevel();
+        if (! QDir("../Param/Best").exists()) {
+            QDir().mkdir("../Param/Best/");
+        }
         this->best.load("../Param/Best/" + QString::number(this->levelnomber) + ".bst");
     }
     this->TIME = 0;
