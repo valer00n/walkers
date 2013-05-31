@@ -32,33 +32,19 @@ HEADERS  += \
 
 OTHER_FILES += \
     TODO.txt \
-    ../Levels/8 \
-    ../Levels/7 \
-    ../Levels/6 \
-    ../Levels/5 \
-    ../Levels/4 \
-    ../Levels/3 \
-    ../Levels/2 \
-    ../Levels/1 \
-    ../Levels/9 \
-    ../Levels/10 \
-    ../Levels/11 \
-    ../HowTo.txt \
-    ../Levels/12 \
-    ../Levels/13 \
-    ../Results/results.walk \
-    ../Results/Best/13.bst \
-    ../Results/Best/12.bst \
-    ../Results/Best/11.bst \
-    ../Results/Best/10.bst \
-    ../Results/Best/9.bst \
-    ../Results/Best/8.bst \
-    ../Results/Best/7.bst \
-    ../Results/Best/6.bst \
-    ../Results/Best/5.bst \
-    ../Results/Best/4.bst \
-    ../Results/Best/3.bst \
-    ../Results/Best/2.bst \
-    ../Results/Best/1.bst
+    ../Levels/8.lvl \
+    ../Levels/7.lvl \
+    ../Levels/6.lvl \
+    ../Levels/5.lvl \
+    ../Levels/4.lvl \
+    ../Levels/3.lvl \
+    ../Levels/2.lvl \
+    ../Levels/9.lvl \
+    ../Levels/10.lvl \
+    ../Levels/11.lvl \
+    ../Levels/12.lvl \
+    ../Levels/13.lvl \
+    ../Levels/1.lvl
+
 
 FORMS +=

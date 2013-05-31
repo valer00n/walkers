@@ -148,6 +148,28 @@ void GLPainter::loadp2() {
 GLPainter::GLPainter(QWidget *parent)
     : QGLWidget(parent)
 {
+    if (!QDir("../Results").exists())
+        QDir().mkdir("../Results");
+    std::ifstream in;
+    in.open("../Results/results.walk");
+    if (!in.is_open()) {
+        std::ofstream out;
+        out.open("../Results/results.walk");
+        out << "Daniel   6250\n";
+        out << "Rudolf   4274\n";
+        out << "Eric     4032\n";
+        out << "John     3861\n";
+        out << "Steve    3424\n";
+        out << "Frank    3367\n";
+        out << "Ben      3048\n";
+        out << "Mike     2380\n";
+        out << "Alexey   1269\n";
+        out << "Bill     1000\n";
+
+        out.close();
+        in.open("../Results/results.walk");
+    }
+    in.close();
     this->firstview = false;
     this->CAMERAdist = .5;
     this->loadp1();
@@ -438,12 +460,12 @@ void GLPainter::paintGL() {
         glTranslatef(-this->x + .5f, .0f, -this->y - 1.5f);
         this->drawSKY();
         this->drawmap();
+        if (!this->firstview)
+            this->drawplayer();
         if ((this->drawindex >= 0) && (this->drawindex < this->best.gethistorylength() - 1)) {
             this->drawhistory(this->best.getHevent(this->drawindex));
 //            qDebug() << this->current.gethistorylength();
         }
-        if (!this->firstview)
-            this->drawplayer();
         this->drawinfo();
 
 
@@ -760,7 +782,7 @@ void GLPainter::finn() {
     this->timerT->TIM->stop();
     if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels))
         if ((this->current.gethistorylength() < this->best.gethistorylength()) || (this->best.gethistorylength() == 0))
-            this->current.save("../Results/Best/" + QString::number(this->levelnomber) + ".bst");
+            this->current.save("../Results/Best/" + QString::number(this->levelnomber) + ".gst");
     this->levelnomber++;
 //    if (this->levelnomber == this->maxlevels + 1)
 //        this->levelnomber++;
@@ -778,7 +800,7 @@ void GLPainter::finn() {
         if (! QDir("../Results/Best").exists()) {
             QDir().mkdir("../Results/Best/");
         }
-        this->best.load("../Results/Best/" + QString::number(this->levelnomber) + ".bst");
+        this->best.load("../Results/Best/" + QString::number(this->levelnomber) + ".gst");
     }
     this->TIME = 0;
     this->restart();
@@ -927,6 +949,10 @@ void GLPainter::searchkeys() {
     if (this->duck) {
         dx /= 5;
         dy /= 5;
+    }
+    if ((fabs(dx) > 1e-8) && (fabs(dy) > 1e-8)) {
+        dx /= sqrt(2);
+        dy /= sqrt(2);
     }
     if (!this->jumping)
            this->vx = this->vy = 0;
@@ -1213,7 +1239,7 @@ void GLPainter::levelclear() {
 
 void GLPainter::loadlevel() {
     FILE *inp;
-    inp = fopen(QString("../Levels/" + (QString::number(this->levelnomber))).toStdString().c_str(), "r");
+    inp = fopen(QString("../Levels/" + QString::number(this->levelnomber) + ".lvl").toStdString().c_str(), "r");
     if (inp == NULL) {
         qDebug() << "file with map" << this->levelnomber << "not found. Halting!";
         this->close();
@@ -1327,11 +1353,11 @@ QPixmap GLPainter::genpix(int w, int h, int f, QVector<QString> &mes) {
         p.drawText(dx, dy + b * (i), mes[i]);
     br.setColor(QColor("white"));
     p.setBrush(br);
-    p.drawRect(w / 2 - 50, 0, 100, 150);
+    p.drawRect(w / 2 - 50, 0, 100, 140);
     p.drawRect(w / 2 - 50, h - 220, 100, 220);
     br.setColor(QColor("black"));
     p.setBrush(br);
-    p.drawRect(w / 2 - 5, 0 , 10, 150);
+    p.drawRect(w / 2 - 5, 0 , 10, 140);
     p.drawRect(w / 2 - 5, h - 220, 10, 220);
     p.end();
     return *menu;
