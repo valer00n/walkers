@@ -20,6 +20,9 @@ private:
 
 signals:
     void newmes(QString mes);
+    void failedtoconnect();
+    void connectedOK();
+    void disconnected();
 public slots:
     void onconnected();
     void onreadyread();

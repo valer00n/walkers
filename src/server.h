@@ -3,16 +3,25 @@
 
 #include <QTcpServer>
 #include <QObject>
+#include <QVector>
+#include <server_socket.h>
+#include <QDebug>
+#include <QNetworkInterface>
 
-class server : public QTcpServer
+class server : public QObject
 {
     Q_OBJECT
 public:
-    explicit server(QObject *parent = 0);
-    
+    server();
+    QTcpServer *ser;
+    QVector <server_socket *> connections;
+    server_socket newclient(QTcpSocket *sender);
 signals:
     
 public slots:
+    void newconnection();
+    void newmes(QByteArray mes, server_socket *ssender);
+    void disconnected(server_socket *sender);
     
 };
 

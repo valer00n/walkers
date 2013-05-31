@@ -24,7 +24,8 @@ SOURCES += \
     ghost.cpp \
     settings.cpp \
     socket.cpp \
-    server.cpp
+    server.cpp \
+    server_socket.cpp
 
 HEADERS  += \
     drawgl.h \
@@ -34,7 +35,8 @@ HEADERS  += \
     ghost.h \
     settings.h \
     socket.h \
-    server.h
+    server.h \
+    server_socket.h
 
 OTHER_FILES += \
     TODO.txt \
@@ -50,7 +52,8 @@ OTHER_FILES += \
     ../Levels/11.lvl \
     ../Levels/12.lvl \
     ../Levels/13.lvl \
-    ../Levels/1.lvl
+    ../Levels/1.lvl \
+    walkers.pro.user
 
 
 FORMS += \
