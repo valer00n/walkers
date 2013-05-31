@@ -11,7 +11,11 @@ typedef struct {
     float x, y, z, ry;
     Hstatus player;
     int sceneindex;
+    int levelnumber;
 } Hevent;
+
+QByteArray getByte(Hevent ev);
+Hevent getEvent(QByteArray bit);
 
 class Ghost
 {
@@ -24,7 +28,7 @@ public:
     Hevent getHevent(int Heventindex);
     int gethistorylength();
     void pushHevent(Hevent ev);
-    void pushHevent(GLint time, float x, float y, float z, float ry, Hstatus player, int sceneindex);
+    void pushHevent(GLint time, float x, float y, float z, float ry, Hstatus player, int sceneindex, int levelnumber);
     void clear();
 };
 

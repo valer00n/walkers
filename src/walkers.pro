@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl
+QT       += core gui opengl network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -21,14 +21,20 @@ SOURCES += \
     timer.cpp \
     smdloader.cpp \
     matrix.cpp \
-    ghost.cpp
+    ghost.cpp \
+    settings.cpp \
+    socket.cpp \
+    server.cpp
 
 HEADERS  += \
     drawgl.h \
     timer.h \
     smdloader.h \
     matrix.h \
-    ghost.h
+    ghost.h \
+    settings.h \
+    socket.h \
+    server.h
 
 OTHER_FILES += \
     TODO.txt \
@@ -47,4 +53,5 @@ OTHER_FILES += \
     ../Levels/1.lvl
 
 
-FORMS +=
+FORMS += \
+    settings.ui

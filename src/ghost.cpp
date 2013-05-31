@@ -23,7 +23,7 @@ void Ghost::load(QString path){
     for (int i = 0; i < n; i++) {
         Hevent ev;
         int player;
-        in >> ev.time >> ev.x >> ev.y >> ev.z >> ev.ry >> player >> ev.sceneindex;
+        in >> ev.time >> ev.x >> ev.y >> ev.z >> ev.ry >> player >> ev.sceneindex >> ev.levelnumber;
         switch (player) {
             case 0:
                 ev.player = Hstay;
@@ -51,7 +51,7 @@ void Ghost::save(QString path){
     out << this->gethistorylength() << "\n";
     for (int i = 0; i < this->gethistorylength(); i++) {
         Hevent ev = this->getHevent(i);
-        out << ev.time << " " << ev.x << " " << ev.y << " " << ev.z << " " << ev.ry << " " << (int) ev.player << " " << ev.sceneindex << "\n";
+        out << ev.time << " " << ev.x << " " << ev.y << " " << ev.z << " " << ev.ry << " " << (int) ev.player << " " << ev.sceneindex << " " << ev.levelnumber << "\n";
     }
     out.close();
 
@@ -68,7 +68,7 @@ int Ghost::gethistorylength(){
 void Ghost::pushHevent(Hevent ev){
     this->history.push_back(ev);
 }
-void Ghost::pushHevent(int time, float x, float y, float z, float ry, Hstatus player, int sceneindex) {
+void Ghost::pushHevent(int time, float x, float y, float z, float ry, Hstatus player, int sceneindex, int levelnumber) {
     Hevent ev;
     ev.time = time;
     ev.x = x;
@@ -77,9 +77,123 @@ void Ghost::pushHevent(int time, float x, float y, float z, float ry, Hstatus pl
     ev.ry = ry;
     ev.player = player;
     ev.sceneindex = sceneindex;
+    ev.levelnumber = levelnumber;
     this->pushHevent(ev);
 }
 
 void Ghost::clear() {
     this->history.clear();
+}
+
+QByteArray getByte(Hevent ev) {
+    QString res;
+    res = "0 ";
+    res  += QString::number(ev.time);
+    res += " ";
+    res += QString::number(ev.x);
+    res += " ";
+    res += QString::number(ev.y);
+    res += " ";
+    res += QString::number(ev.z);
+    res += " ";
+    res += QString::number(ev.ry);
+    res += " ";
+    res += QString::number((int) ev.player);
+    res += " ";
+    res += QString::number(ev.sceneindex);
+    res += " ";
+    res += QString::number(ev.levelnumber);
+    res += " ";
+    res += "\0";
+    return res.toLocal8Bit();
+}
+
+Hevent getEvent(QByteArray bit) {
+    Hevent res;
+    QString inp = QString::fromLocal8Bit(bit);
+    QString p;
+    int i = 2;
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    res.time = p.toInt();
+    i++;
+    p = "";
+
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    res.x = p.toDouble();
+    i++;
+    p = "";
+
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    res.y = p.toDouble();
+    i++;
+    p = "";
+
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    res.z = p.toDouble();
+    i++;
+    p = "";
+
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    res.ry = p.toDouble();
+    i++;
+    p = "";
+
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    int player = p.toInt();
+    i++;
+    p = "";
+
+    switch (player) {
+        case 0:
+            res.player = Hstay;
+        break;
+        case 1:
+            res.player = Hwalk;
+        break;
+        case 2:
+            res.player = Hjump;
+        break;
+        case 3:
+            res.player = Hcrouch;
+        break;
+        case 4:
+            res.player = Hdead;
+        break;
+    }
+
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    res.sceneindex = p.toInt();
+    i++;
+    p = "";
+
+    while (inp[i] != ' ') {
+        i++;
+        p += inp[i];
+    }
+    res.levelnumber = p.toInt();
+    i++;
+    p = "";
+
+    return res;
 }

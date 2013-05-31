@@ -145,9 +145,12 @@ void GLPainter::loadp2() {
 
 }
 
-GLPainter::GLPainter(QWidget *parent)
-    : QGLWidget(parent)
+GLPainter::GLPainter(bool multiplayer, QMainWindow *parent)
 {
+    this->lat = 20.0f;
+    this->multiplayer = multiplayer;
+    this->parent = parent;
+    this->lat = lat;
     if (!QDir("../Results").exists())
         QDir().mkdir("../Results");
     std::ifstream in;
@@ -201,7 +204,7 @@ GLPainter::GLPainter(QWidget *parent)
 
 GLPainter::~GLPainter()
 {
-
+    this->parent->close();
 }
 
 void GLPainter::Begin2D ()
@@ -285,17 +288,23 @@ QPair <GLfloat, GLfloat> getdir(GLint TIME, moving panel) {
 }
 
 bool GLPainter::loadparam() {
-//    std::ifstream in;
-//    in.open("../Results/param.walk");
-//    if (! in.is_open()) {
-//        qDebug() << "param.walk not found!";
-//        return false;
-//    }
-//    in >> this->maxlevels >> this->updatetime >>  this->lat;
-//    in.close();
-    this->maxlevels = 13;
+    std::ifstream in;
+    in.open("../Levels/param.walk");
+    if (! in.is_open()) {
+        std::ofstream out;
+        out.open("../Levels/param.walk");
+        int n = 1;
+        while (QFile("../Levels/" + QString::number(n) + ".lvl").exists())
+            n++;          
+        n--;
+        out << n;
+        out.close();
+        in.open("../Levels/param.walk");
+    }
+    in >> this->maxlevels;
+    in.close();
     this->updatetime = 17;
-    this->lat = 20.0f;
+//    this->lat = 20.0f;
     return true;
 }
 
@@ -821,7 +830,7 @@ void GLPainter::searchkeys() {
 //        }
 //    }
     if (this->inside_key(Qt::Key_Escape)) {
-        if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
+        if ((!this->multiplayer) && (this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
             this->menuopened = !this->menuopened;
             this->element = 0;
         }
@@ -832,39 +841,40 @@ void GLPainter::searchkeys() {
             this->finn();
         this->throw_key(Qt::Key_Escape);
     }
-    if (this->inside_key(Qt::Key_Return)) {
-        this->throw_key(Qt::Key_Return);\
-        if (this->levelnomber == 0) {
-            this->FFall = true;
-            return;
-        }
-        if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
-            if (this->menuopened) {
-                this->levelnomber = -1;
-                finn();
-//                 this->close();
-            }
-        }
-        if ((this->levelnomber == this->maxlevels + 2) && (this->nametyped != "")) {
-            int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
-            if (newscore <= this->score[9].second) {
-                this->finn();
+    if (!this->multiplayer)
+        if (this->inside_key(Qt::Key_Return)) {
+            this->throw_key(Qt::Key_Return);
+            if (this->levelnomber == 0) {
+                this->FFall = true;
                 return;
             }
-            int i = 0;
-            while (this->score[i].second >= newscore)
-                i++;
-            std::ofstream out;
-            out.open("../Results/results.walk");
-            for (int j = 0; j < i; j++)
-                out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
-            out << this->nametyped.toStdString() << " " << newscore << " ";
-            for (int j = i; j < 9; j++)
-                out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
-            out.close();
-            this->finn();
+            if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
+                if (this->menuopened) {
+                    this->levelnomber = -1;
+                    finn();
+    //                 this->close();
+                }
+            }
+            if ((this->levelnomber == this->maxlevels + 2) && (this->nametyped != "")) {
+                int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
+                if (newscore <= this->score[9].second) {
+                    this->finn();
+                    return;
+                }
+                int i = 0;
+                while (this->score[i].second >= newscore)
+                    i++;
+                std::ofstream out;
+                out.open("../Results/results.walk");
+                for (int j = 0; j < i; j++)
+                    out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
+                out << this->nametyped.toStdString() << " " << newscore << " ";
+                for (int j = i; j < 9; j++)
+                    out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
+                out.close();
+                this->finn();
+            }
         }
-    }
     if ((this->inside_key('Z')) || (this->inside_key(1071))){
         this->switchmode();
         this->throw_key('Z');
@@ -1376,9 +1386,13 @@ void GLPainter::loadstaticTEX() {
     mes[5] = "Z      :: fullscreen";
     mes[6] = "C      :: change view";
     mes[7] = "Reach finish...";
-    mes[8] = "<Press ENTER to Start>";
-    mes[9] = "         or";
-    mes[10] = "<Press Esc to exit>";
+    if (!this->multiplayer) {
+        mes[8] = "<Press ENTER to Start>";
+        mes[9] = "         or";
+        mes[10] = "<Press Esc to exit>";
+    }
+    else
+        mes[9] = "Waiting for other players...";
     this->PIXmenu = this->genpix(1024, 1024, 40, mes);
 
     mes.resize(3);
@@ -1567,5 +1581,6 @@ Hevent GLPainter::generateevent() {
         ev.player = Hstay;
         ev.sceneindex = (this->TIME / 100) % this->Smodel->getanimationlength();
     }
+    ev.levelnumber = this->levelnomber;
     return ev;
 }

@@ -10,12 +10,13 @@
     #include <GL/glu.h>
 #endif
 
-
 #include <QtOpenGL>
 #include <QSet>
 #include <QTimer>
 #include <timer.h>
 #include <ghost.h>
+#include <socket.h>
+#include <server.h>
 
 typedef struct {
     GLfloat x, y, z;
@@ -45,11 +46,16 @@ class GLPainter : public QGLWidget
     Q_OBJECT
 
 public:
-    GLPainter(QWidget *parent = 0);
+    bool multiplayer;
+    QString login;
+
+public:
+    GLPainter(bool multiplayer, QMainWindow *);
     ~GLPainter();
 
-protected:
-
+public:
+    socket *sok;
+    server *serv;
     /*HELP*/
         void loadLists();
     /*GL CONTROL*/
@@ -110,7 +116,7 @@ protected:
         void drawhistory(Hevent ev);
 
 private:
-
+        QMainWindow *parent;
     /*PLAYER INFO*/
         bool firstview;
         int drawindex;
