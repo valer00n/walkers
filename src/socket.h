@@ -10,7 +10,7 @@ class socket: public QObject
     Q_OBJECT
 public:
     socket();
-    void wirtemessage(QByteArray bit);
+    void writemessage(QByteArray bit);
 public:
     QTcpSocket *soc;
     QString ip, login;

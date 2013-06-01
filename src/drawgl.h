@@ -167,6 +167,7 @@ private:
     /*TEXTURES*/
         QPixmap PIXsky, PIXwall, PIXfloor, PIXexit, PIXdanger, PIXhidden, PIXmoving, PIXhole, PIXfireball;
         QPixmap PIXmenu, PIXwin, PIXresults, PIXcred;
+        QPixmap PIXmultires;
         bool stretch_sky;
 
 

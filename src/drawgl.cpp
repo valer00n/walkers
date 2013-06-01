@@ -29,6 +29,51 @@ void GLPainter::newmes(QString mes) {
             this->players.push_back(QPair <QString, Hevent> (sender, ev));
         }
     }
+    if (mes[0] == 'f') {
+        QVector <QString> me(0);
+        QVector <QString> names(0);
+        QVector <int> resu(0);
+        QString s;
+        int i = 2;
+        int cnt;
+        while (mes[i] != ' ') {
+            s += mes[i];
+            i++;
+        }
+        cnt = s.toInt();
+        for (int j = 0; j < cnt; j++) {
+            int res;
+            QString name = "";
+            s = "";
+            i++;
+            while (mes[i] != ' ') {
+                s += mes[i];
+                i++;
+            }
+            res = s.toInt();
+            i++;
+            i++;
+            s = "";
+            while (mes[i] != '\"') {
+                s += mes[i];
+                i++;
+            }
+            name = s;
+            i++;
+            resu.push_back(res);
+            names.push_back(name);
+        }
+        int mm = 0;
+        for (int i = 0; i < names.size(); i++)
+            mm = std::max(mm, names[i].length());
+        for (int i = 0; i < names.size(); i++)
+            while (names[i].length() != mm)
+                names[i] += " ";
+        for (int i = 0; i < names.size(); i++)
+            me.push_back(names[i] + " :: " + QString::number(resu[i]));
+        me.push_back("<Press Esc. to exit>");
+        this->PIXmultires = this->genpix(1024, 1024, 40, me);
+    }
 }
 
 
@@ -465,7 +510,6 @@ void GLPainter::resizeGL(int w, int h) {
 }
 
 void GLPainter::paintGL() {
-    this->fogg(false);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth( 1.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -474,6 +518,7 @@ void GLPainter::paintGL() {
         gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    this->fogg(false);
     if ((this->levelnomber > this->maxlevels) || (this->levelnomber == 0)) {
         glRotatef(-this->rx, 1.0f, .0f, .0f);
         glRotatef(-this->ry, .0f, 1.0f, .0f);
@@ -531,13 +576,15 @@ void GLPainter::paintGL() {
 
 
     }
-    else {
-
+    else
         if (this->levelnomber == this->maxlevels + 1)
             this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXwin);
-        else
-            this->savescore();
-   }
+        else if (!this->multiplayer)
+                 this->savescore();
+             else {
+                 this->drawNOTHING(-50, -100, -50, 100, 0, 100, this->PIXmultires);
+//            asd
+        }
 }
 
 void GLPainter::drawplayer() {
@@ -617,10 +664,12 @@ GLfloat fabs(GLfloat a) {
 }
 
 void GLPainter::keyPressEvent(QKeyEvent *ev) {
-    if ((this->FFall) && (this->levelnomber == 0) && (ev->key() == Qt::Key_Escape))
+    if ((!this->multiplayer) && (this->FFall) && (this->levelnomber == 0) && (ev->key() == Qt::Key_Escape))
         this->jumpiterations = 1000;
 //    qDebug() << "+" << ev->key();
-    if (this->levelnomber == this->maxlevels + 2) {
+    if ((this->multiplayer) && (this->levelnomber == this->maxlevels + 2) && (ev->key() == Qt::Key_Escape))
+        this->parent->close();
+    if ((!this->multiplayer) && (this->levelnomber == this->maxlevels + 2)) {
         if (((ev->text() >= "0") && (ev->text() <= "9")) || ((ev->text() >= "a") && (ev->text() <= "z")) || ((ev->text() >= "A") && (ev->text() <= "Z")) || (ev->text() == "_"))
             this->nametyped += ev->text();
         else
@@ -838,6 +887,15 @@ bool GLPainter::canGO2(GLfloat x, GLfloat y) {
 
 void GLPainter::finn() {
 //    this->keys_pressed.clear();
+    if (this->multiplayer && (this->levelnomber == this->maxlevels)) {
+        this->levelnomber = this->maxlevels + 2;
+        this->sok->writemessage(QString("e " + this->sok->login + " " + getByte(this->generateevent()) + "~").toLocal8Bit());
+        this->levelclear();
+        int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
+        this->sok->writemessage(QString("f " + QString::number(newscore) + "~").toLocal8Bit());
+        this->restart();
+        return;
+    }
     this->nametyped = "";
     this->timerT->TIM->stop();
     if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels))
@@ -881,32 +939,40 @@ void GLPainter::searchkeys() {
 //        }
 //    }
     if (this->inside_key(Qt::Key_Escape)) {
-        if ((!this->multiplayer) && (this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
+        if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
             this->menuopened = !this->menuopened;
             this->element = 0;
         }
         else
-            if ((!this->FFall) && (this->levelnomber == 0))
+            if ((!this->FFall) && (this->levelnomber == 0)) {
                 this->close();
-        if (this->levelnomber == this->maxlevels + 2)
-            this->finn();
+                return;
+            }
+        if (this->levelnomber == this->maxlevels + 2) {
+            if (!this->multiplayer)
+                this->finn();
+            else
+                this->close();
+        }
         this->throw_key(Qt::Key_Escape);
     }
-    if (!this->multiplayer)
         if (this->inside_key(Qt::Key_Return)) {
             this->throw_key(Qt::Key_Return);
-            if (this->levelnomber == 0) {
+            if ((!this->multiplayer) && (this->levelnomber == 0)) {
                 this->FFall = true;
                 return;
             }
             if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
                 if (this->menuopened) {
-                    this->levelnomber = -1;
-                    finn();
-    //                 this->close();
+                    if (!this->multiplayer) {
+                        this->levelnomber = -1;
+                        finn();
+                    }
+                    else
+                        this->close();
                 }
             }
-            if ((this->levelnomber == this->maxlevels + 2) && (this->nametyped != "")) {
+            if ((!this->multiplayer) && (this->levelnomber == this->maxlevels + 2) && (this->nametyped != "")) {
                 int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
                 if (newscore <= this->score[9].second) {
                     this->finn();
@@ -1081,12 +1147,12 @@ void GLPainter::die() {
 
 void GLPainter::timeout() {
 
-    if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels) && (!this->menuopened)) {
+    if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels) && (!this->menuopened || this->multiplayer)) {
         this->current.pushHevent(this->generateevent());
         if (this->multiplayer) {
             Hevent ev = this->generateevent();
             ev.time = this->timerT->globaltime;
-            this->sok->wirtemessage(QString("e " + this->sok->login + " " + getByte(ev) + "~").toLocal8Bit());
+            this->sok->writemessage(QString("e " + this->sok->login + " " + getByte(ev) + "~").toLocal8Bit());
         }
         if (this->drawindex < this->best.gethistorylength() - 1)
             this->drawindex++;
@@ -1108,7 +1174,7 @@ void GLPainter::timeout() {
 //        this->freefall();
     if (this->dead) {
                 this->TIME += this->updatetime;
-                if (!this->menuopened)
+                if (!this->menuopened || this->multiplayer)
                     this->timetorestart -= this->updatetime;
                 if (this->timetorestart <= 0) {
                     this->life++;
@@ -1116,7 +1182,7 @@ void GLPainter::timeout() {
                 }
         }
     else {
-        if (!this->menuopened) {
+        if (!this->menuopened || this->multiplayer) {
             this->TIME += this->updatetime;
             if (this->levelnomber <= this->maxlevels)
             this->timerT->globaltime += this->updatetime;

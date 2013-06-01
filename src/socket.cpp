@@ -13,7 +13,7 @@ socket::socket()
     QObject::connect(this->soc, SIGNAL(readyRead()), this, SLOT(onreadyread()));
 }
 void socket::onconnected() {
-    this->wirtemessage(QString("l " + this->login).toLocal8Bit());
+    this->writemessage(QString("l " + this->login + "~").toLocal8Bit());
 }
 
 void socket::ondisconnected() {
@@ -58,6 +58,6 @@ void socket::timeout() {
     }
 }
 
-void socket::wirtemessage(QByteArray bit) {
+void socket::writemessage(QByteArray bit) {
     this->soc->write(bit);
 }
