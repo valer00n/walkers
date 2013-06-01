@@ -11,15 +11,9 @@ socket::socket()
     QObject::connect(this->soc, SIGNAL(connected()), this, SLOT(onconnected()));
     QObject::connect(this->soc, SIGNAL(disconnected()), this, SLOT(ondisconnected()));
     QObject::connect(this->soc, SIGNAL(readyRead()), this, SLOT(onreadyread()));
-    this->ip = "127.0.0.1";
-    this->port = 7777;
-    this->startconnection();
 }
 void socket::onconnected() {
-    qsrand(time(0));
-    this->wirtemessage(QString("l " + QString::number(qrand() % 10)).toLocal8Bit());
-    this->connected = true;
-    emit this->connectedOK();
+    this->wirtemessage(QString("l " + this->login).toLocal8Bit());
 }
 
 void socket::ondisconnected() {
@@ -29,13 +23,25 @@ void socket::ondisconnected() {
 
 void socket::onreadyread() {
     while (this->soc->bytesAvailable() != 0) {
-    QByteArray bit;
-    QByteArray p = this->soc->read(1);
-    while (p[0] != '~') {
-        bit.append(p[0]);
-        p = this->soc->read(1);
-    }
-    emit this->newmes(QString::fromLocal8Bit(bit));
+        QByteArray bit;
+        QByteArray p = this->soc->read(1);
+        while (p[0] != '~') {
+            bit.append(p[0]);
+            p = this->soc->read(1);
+        }
+        if (bit[0] == 'Y') {
+            this->connected = true;
+            emit this->connectedOK();
+        }
+        else if (bit[0] == 'N') {
+            this->connected = false;
+            emit this->failedtoconnect();
+        }
+        else if (bit[0] == 's') {
+            emit  this->startgame();
+        }
+        else
+            emit this->newmes(QString::fromLocal8Bit(bit));
     }
 }
 

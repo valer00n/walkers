@@ -8,6 +8,30 @@
 #include <string>
 #include <ghost.h>
 
+void GLPainter::newmes(QString mes) {
+    if (mes[0] == 'e') {
+        int i = 2;
+        QString sender = "";
+        while (mes[i] != ' ') {
+            sender += mes[i];
+            i++;
+        }
+        i++;
+        Hevent ev = getEvent(mes.right(mes.length() - i));
+//        qDebug() << ev.time;
+        bool found = false;
+        for (int i = 0; i < this->players.size(); i++)
+            if (this->players[i].first == sender) {
+                found = true;
+                this->players[i].second = ev;
+            }
+        if (!found) {
+            this->players.push_back(QPair <QString, Hevent> (sender, ev));
+        }
+    }
+}
+
+
 void GLPainter::loadp1() {
     this->Rmodel = new SMDloader(this);
     this->Rmodel->setstay(true);
@@ -199,7 +223,27 @@ GLPainter::GLPainter(bool multiplayer, QMainWindow *parent)
     this->loadstaticTEX();
     this->FFall = false;
     this->life = 0;
+    if (this->multiplayer) {
+        this->sok = new socket();
+        QObject::connect(this->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
+        QObject::connect(this->sok, SIGNAL(connectedOK()), this, SLOT(connectedOK()));
+        QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
+        QObject::connect(this->sok, SIGNAL(newmes(QString)), this, SLOT(newmes(QString)));
+    }
     finn();
+}
+
+void GLPainter::startgame() {
+    this->FFall = true;
+}
+
+void GLPainter::connectedOK() {
+    this->parent->hide();
+    this->show();
+}
+
+void GLPainter::failedtoconnect() {
+    this->close();
 }
 
 GLPainter::~GLPainter()
@@ -461,7 +505,7 @@ void GLPainter::paintGL() {
                           (dist - .1f) * sin(this->ry * 3.15149265 / 180), this->z - .05f + this->rx / 300, (dist - .1f) * cos(this->ry * 3.15149265 / 180), 0, 1, 0);
             }
             else
-            gluLookAt(dist * sin(this->ry * 3.15149265 / 180), .1f, dist * cos(this->ry * 3.15149265 / 180),
+                gluLookAt(dist * sin(this->ry * 3.15149265 / 180), .1f, dist * cos(this->ry * 3.15149265 / 180),
                       (dist - .1f) * sin(this->ry * 3.15149265 / 180), .1f + this->rx / 300, (dist - .1f) * cos(this->ry * 3.15149265 / 180), 0, 1, 0);
 //            gluPerspective(45.0f, 16.0 / 9, 0.01f, 200.0f );
         glMatrixMode(GL_MODELVIEW);
@@ -471,9 +515,16 @@ void GLPainter::paintGL() {
         this->drawmap();
         if (!this->firstview)
             this->drawplayer();
-        if ((this->drawindex >= 0) && (this->drawindex < this->best.gethistorylength() - 1)) {
-            this->drawhistory(this->best.getHevent(this->drawindex));
-//            qDebug() << this->current.gethistorylength();
+        if (!this->multiplayer){
+            if ((this->drawindex >= 0) && (this->drawindex < this->best.gethistorylength() - 1))
+                this->drawhistory(this->best.getHevent(this->drawindex));
+        }
+        else
+        {
+            for (int i = 0; i < this->players.size(); i++) {
+                if (this->players[i].second.levelnumber == this->levelnomber)
+                    this->drawhistory(this->players[i].second);
+            }
         }
         this->drawinfo();
 
@@ -1032,6 +1083,11 @@ void GLPainter::timeout() {
 
     if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels) && (!this->menuopened)) {
         this->current.pushHevent(this->generateevent());
+        if (this->multiplayer) {
+            Hevent ev = this->generateevent();
+            ev.time = this->timerT->globaltime;
+            this->sok->wirtemessage(QString("e " + this->sok->login + " " + getByte(ev) + "~").toLocal8Bit());
+        }
         if (this->drawindex < this->best.gethistorylength() - 1)
             this->drawindex++;
     }

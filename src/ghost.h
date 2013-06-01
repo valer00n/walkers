@@ -6,6 +6,7 @@
 #include <fstream>
 
 enum Hstatus {Hstay, Hwalk, Hjump, Hcrouch, Hdead};
+
 typedef struct {
     GLint time;
     float x, y, z, ry;
@@ -14,8 +15,8 @@ typedef struct {
     int levelnumber;
 } Hevent;
 
-QByteArray getByte(Hevent ev);
-Hevent getEvent(QByteArray bit);
+QString getByte(Hevent ev);
+Hevent getEvent(QString bit);
 
 class Ghost
 {

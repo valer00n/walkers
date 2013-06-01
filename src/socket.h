@@ -11,9 +11,9 @@ class socket: public QObject
 public:
     socket();
     void wirtemessage(QByteArray bit);
-private:
+public:
     QTcpSocket *soc;
-    QString ip;
+    QString ip, login;
     int port;
     QTimer *TIM;
     bool connected;
@@ -23,6 +23,7 @@ signals:
     void failedtoconnect();
     void connectedOK();
     void disconnected();
+    void startgame();
 public slots:
     void onconnected();
     void onreadyread();

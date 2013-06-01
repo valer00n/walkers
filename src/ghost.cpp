@@ -5,6 +5,26 @@ Ghost::Ghost()
     this->history.clear();
 }
 
+bool operator < (Hevent a, Hevent b) {
+    if (a.time != b.time)
+        return (a.time < b.time);
+    if (a.x != b.x)
+        return (a.x < b.x);
+    if (a.y != b.y)
+        return (a.y < b.y);
+    if (a.z != b.z)
+        return (a.z < b.z);
+    if (a.ry != b.ry)
+        return (a.ry < b.ry);
+    if (a.sceneindex != b.sceneindex)
+        return (a.sceneindex < b.sceneindex);
+    if (a.player != b.player)
+        return (a.player < b.player);
+    if (a.levelnumber != b.levelnumber)
+        return (a.levelnumber < b.levelnumber);
+    return true;
+}
+
 void Ghost::load(QString path){
     this->clear();
     std::ifstream in;
@@ -85,9 +105,9 @@ void Ghost::clear() {
     this->history.clear();
 }
 
-QByteArray getByte(Hevent ev) {
+QString getByte(Hevent ev) {
     QString res;
-    res = "0 ";
+    res = "";
     res  += QString::number(ev.time);
     res += " ";
     res += QString::number(ev.x);
@@ -104,58 +124,57 @@ QByteArray getByte(Hevent ev) {
     res += " ";
     res += QString::number(ev.levelnumber);
     res += " ";
-    res += "\0";
-    return res.toLocal8Bit();
+    return res;
 }
 
-Hevent getEvent(QByteArray bit) {
+Hevent getEvent(QString inp) {
     Hevent res;
-    QString inp = QString::fromLocal8Bit(bit);
     QString p;
-    int i = 2;
+    p = "";
+    int i = 0;
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     res.time = p.toInt();
     i++;
     p = "";
 
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     res.x = p.toDouble();
     i++;
     p = "";
 
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     res.y = p.toDouble();
     i++;
     p = "";
 
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     res.z = p.toDouble();
     i++;
     p = "";
 
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     res.ry = p.toDouble();
     i++;
     p = "";
 
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     int player = p.toInt();
     i++;
@@ -180,16 +199,16 @@ Hevent getEvent(QByteArray bit) {
     }
 
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     res.sceneindex = p.toInt();
     i++;
     p = "";
 
     while (inp[i] != ' ') {
-        i++;
         p += inp[i];
+        i++;
     }
     res.levelnumber = p.toInt();
     i++;

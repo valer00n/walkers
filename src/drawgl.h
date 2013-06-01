@@ -48,14 +48,13 @@ class GLPainter : public QGLWidget
 public:
     bool multiplayer;
     QString login;
-
+    QVector <QPair<QString, Hevent> > players;
 public:
     GLPainter(bool multiplayer, QMainWindow *);
     ~GLPainter();
 
 public:
     socket *sok;
-    server *serv;
     /*HELP*/
         void loadLists();
     /*GL CONTROL*/
@@ -173,6 +172,10 @@ private:
 
 private slots:
     void timeout();
+    void failedtoconnect();
+    void connectedOK();
+    void startgame();
+    void newmes(QString);
 
 };
 

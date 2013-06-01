@@ -33,9 +33,17 @@ void Settings::startMultiPlayer() {
         w->setWindowTitle("Walkers");
         if (!this->ui->fullscreenM->checkState())
             w->switchmode();
-        w->multiplayer = true;
-        w->show();
-        this->hide();
+        w->sok->ip = this->ui->IP->text();
+        w->sok->port = this->ui->port->text().toInt();
+        w->sok->login = this->ui->login->text();
+        w->sok->startconnection();
+        QObject::connect(w->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
+//        w->show();
+//        this->hide();
+}
+
+void Settings::failedtoconnect() {
+    this->disable(true);
 }
 
 void Settings::startServer() {
@@ -48,4 +56,11 @@ void Settings::disable(bool wh) {
     this->ui->single->setEnabled(wh);
     this->ui->multi->setEnabled(wh);
     this->ui->server->setEnabled(wh);
+    this->ui->IP->setReadOnly(!wh);
+    this->ui->port->setReadOnly(!wh);
+    this->ui->login->setReadOnly(!wh);
+    this->ui->playerN->setEnabled(wh);
+    this->ui->fullscreenM->setEnabled(wh);
+    this->ui->fullscreenS->setEnabled(wh);
+
 }

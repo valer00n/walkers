@@ -39,7 +39,7 @@ void server::newlogin(QByteArray mes, server_socket *sender) {
                     QObject::disconnect(this->pending[i], SIGNAL(newmes(QByteArray, server_socket *)), this, SLOT(newlogin(QByteArray,server_socket*)));
                     QObject::connect(this->connections[this->connections.size() - 1], SIGNAL(newmes(QByteArray, server_socket *)), this, SLOT(newmes(QByteArray, server_socket*)));
                     QObject::connect(this->connections[this->connections.size() - 1], SIGNAL(disconnected(server_socket *)), this, SLOT(disconnected(server_socket*)));
-                    this->pending[i]->soc->write(QString("1~").toLocal8Bit());
+                    this->pending[i]->soc->write(QString("Y~").toLocal8Bit());
                     for (int j = 0; j < this->pending.size() - 1; j++)
                         this->pending[j] = this->pending[j + 1];
                     this->pending.resize(this->pending.size() - 1);
@@ -51,7 +51,7 @@ void server::newlogin(QByteArray mes, server_socket *sender) {
                     }
                 }
                 else
-                    this->pending[i]->soc->write(QString("0~").toLocal8Bit());
+                    this->pending[i]->soc->write(QString("N~").toLocal8Bit());
                 break;
             }
     }

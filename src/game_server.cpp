@@ -38,9 +38,9 @@ void Game_server::newnumber(int nn) {
 
 void Game_server::chplayer(QString s, bool con) {
     if (con)
-        this->ui->listWidget->addItem(s + " connected [" + QString::number(this->allcon) + "/" + QString::number(this->players) + "] online");
+        this->ui->listWidget->addItem(s + " connected [" + QString::number(this->allcon) + "/" + QString::number(this->players) + " online]");
     else
-        this->ui->listWidget->addItem(s + " disconnected [" + QString::number(this->allcon) + "/" + QString::number(this->players) + "]");
+        this->ui->listWidget->addItem(s + " disconnected [" + QString::number(this->allcon) + "/" + QString::number(this->players) + " online]");
 }
 
 void Game_server::gamestarted() {

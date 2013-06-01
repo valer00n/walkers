@@ -28,6 +28,7 @@ public slots:
     void startSinglePlayer();
     void startServer();
     void startMultiPlayer();
+    void failedtoconnect();
 };
 
 #endif // SETTINGS_H
