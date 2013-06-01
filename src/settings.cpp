@@ -39,7 +39,9 @@ void Settings::startMultiPlayer() {
 }
 
 void Settings::startServer() {
-
+    this->s = new Game_server(this->ui->playerN->value(), this);
+    this->s->show();
+    this->hide();
 }
 
 void Settings::disable(bool wh) {

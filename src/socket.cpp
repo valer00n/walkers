@@ -17,7 +17,7 @@ socket::socket()
 }
 void socket::onconnected() {
     qsrand(time(0));
-    this->wirtemessage((QByteArray) (QString::number(qrand() % 123).toLocal8Bit()));
+    this->wirtemessage(QString("l " + QString::number(qrand() % 10)).toLocal8Bit());
     this->connected = true;
     emit this->connectedOK();
 }
@@ -28,9 +28,15 @@ void socket::ondisconnected() {
 }
 
 void socket::onreadyread() {
+    while (this->soc->bytesAvailable() != 0) {
     QByteArray bit;
-    bit = this->soc->read(256);
+    QByteArray p = this->soc->read(1);
+    while (p[0] != '~') {
+        bit.append(p[0]);
+        p = this->soc->read(1);
+    }
     emit this->newmes(QString::fromLocal8Bit(bit));
+    }
 }
 
 void socket::startconnection() {

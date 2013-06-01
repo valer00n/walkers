@@ -7,7 +7,13 @@ server_socket::server_socket(QTcpSocket *sender) {
 }
 
 void server_socket::onreadyread() {
-    emit this->newmes(this->soc->read(256), this);
+    QByteArray ar;
+    QByteArray p = this->soc->read(1);
+    while (p[0] != '\0') {
+        ar.append(p[0]);
+        p = this->soc->read(1);
+    }
+    emit this->newmes(ar, this);
 }
 
 void server_socket::ondisconnected() {

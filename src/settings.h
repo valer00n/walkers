@@ -3,6 +3,7 @@
 
 #include <drawgl.h>
 #include <QMainWindow>
+#include <game_server.h>
 
 namespace Ui {
 class Settings;
@@ -20,6 +21,7 @@ public:
 private:
     Ui::Settings *ui;
     GLPainter *w;
+    Game_server *s;
 
 
 public slots:

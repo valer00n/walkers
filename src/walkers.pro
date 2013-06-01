@@ -25,7 +25,8 @@ SOURCES += \
     settings.cpp \
     socket.cpp \
     server.cpp \
-    server_socket.cpp
+    server_socket.cpp \
+    game_server.cpp
 
 HEADERS  += \
     drawgl.h \
@@ -36,7 +37,8 @@ HEADERS  += \
     settings.h \
     socket.h \
     server.h \
-    server_socket.h
+    server_socket.h \
+    game_server.h
 
 OTHER_FILES += \
     TODO.txt \
@@ -57,4 +59,5 @@ OTHER_FILES += \
 
 
 FORMS += \
-    settings.ui
+    settings.ui \
+    game_server.ui
