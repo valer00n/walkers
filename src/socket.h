@@ -5,11 +5,11 @@
 #include <QTimer>
 #include <QObject>
 
-class socket: public QObject
+class Hsocket: public QObject
 {
     Q_OBJECT
 public:
-    socket();
+    Hsocket();
     void writemessage(QByteArray bit);
 public:
     QTcpSocket *soc;

@@ -47,14 +47,14 @@ class GLPainter : public QGLWidget
 
 public:
     bool multiplayer;
-    QString login;
     QVector <QPair<QString, Hevent> > players;
+    QString mess[4];
 public:
     GLPainter(bool multiplayer, QMainWindow *);
     ~GLPainter();
 
 public:
-    socket *sok;
+    Hsocket *sok;
     /*HELP*/
         void loadLists();
     /*GL CONTROL*/

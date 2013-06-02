@@ -80,6 +80,10 @@ void server::newmes(QByteArray mes, server_socket *sender) {
             for (int i = 0; i < this->connections.size(); i++)
                 if (this->connections[i] != sender)
                     this->connections[i]->soc->write(mes);
+        } else if (s[0] == 'm') {
+            mes = QString(QString::fromLocal8Bit(mes) + "~").toLocal8Bit();
+            for (int i = 0; i < this->connections.size(); i++)
+                this->connections[i]->soc->write(mes);
         }
 }
 
@@ -89,11 +93,14 @@ void server::disconnected(server_socket *sender) {
         i++;
     emit this->newnumber(this->connections.size() - 1);
     emit this->chplayer(this->names[i], false);
-    for (int j = i; j < this->connections.size() - 1; j++) {
-        this->connections[j] = this->connections[j + 1];
-        this->names[j] = this->names[j + 1];
-        this->finished[j] = this->finished[j + 1];
-    }
-    this->connections.resize(this->connections.size() - 1);
-    this->names.resize(this->names.size() - 1);
+    this->results.push_back(QPair <int, QString> (-1, this->names[i]));
+    this->finished[i] = true;
+    std::sort(results.begin(), results.end());
+    QString res = "f " + QString::number(this->results.size()) + " ";
+    for (int i = results.size() - 1; i >= 0; i--)
+        res += QString::number(this->results[i].first) + " \"" + this->results[i].second+ "\"";
+    res += "~";
+    for (int i = 0; i < this->connections.size(); i++)
+        if (this->finished[i])
+            this->connections[i]->soc->write(res.toLocal8Bit());
 }

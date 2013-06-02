@@ -1,6 +1,6 @@
 #include "socket.h"
 
-socket::socket()
+Hsocket::Hsocket()
 {
     this->connected = false;
     this->soc = new QTcpSocket;
@@ -12,16 +12,16 @@ socket::socket()
     QObject::connect(this->soc, SIGNAL(disconnected()), this, SLOT(ondisconnected()));
     QObject::connect(this->soc, SIGNAL(readyRead()), this, SLOT(onreadyread()));
 }
-void socket::onconnected() {
+void Hsocket::onconnected() {
     this->writemessage(QString("l " + this->login + "~").toLocal8Bit());
 }
 
-void socket::ondisconnected() {
+void Hsocket::ondisconnected() {
     this->connected = false;
     emit this->disconnected();
 }
 
-void socket::onreadyread() {
+void Hsocket::onreadyread() {
     while (this->soc->bytesAvailable() != 0) {
         QByteArray bit;
         QByteArray p = this->soc->read(1);
@@ -45,19 +45,19 @@ void socket::onreadyread() {
     }
 }
 
-void socket::startconnection() {
+void Hsocket::startconnection() {
     this->TIM->start();
     this->soc->connectToHost(this->ip, this->port);
     this->soc->waitForConnected(4000);
 }
 
-void socket::timeout() {
+void Hsocket::timeout() {
     this->TIM->stop();
     if (!this->connected) {
         emit this->failedtoconnect();
     }
 }
 
-void socket::writemessage(QByteArray bit) {
+void Hsocket::writemessage(QByteArray bit) {
     this->soc->write(bit);
 }

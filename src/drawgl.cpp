@@ -74,6 +74,12 @@ void GLPainter::newmes(QString mes) {
         me.push_back("<Press Esc. to exit>");
         this->PIXmultires = this->genpix(1024, 1024, 40, me);
     }
+    if (mes[0] == 'm') {
+        this->mess[3] = this->mess[2];
+        this->mess[2] = this->mess[1];
+        this->mess[1] = this->mess[0];
+        this->mess[0] = mes.right(mes.length() - 2);
+    }
 }
 
 
@@ -216,6 +222,7 @@ void GLPainter::loadp2() {
 
 GLPainter::GLPainter(bool multiplayer, QMainWindow *parent)
 {
+    this->mess[0] = this->mess[1] = this->mess[2] = this->mess[3] = "";
     this->lat = 20.0f;
     this->multiplayer = multiplayer;
     this->parent = parent;
@@ -269,7 +276,7 @@ GLPainter::GLPainter(bool multiplayer, QMainWindow *parent)
     this->FFall = false;
     this->life = 0;
     if (this->multiplayer) {
-        this->sok = new socket();
+        this->sok = new Hsocket();
         QObject::connect(this->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
         QObject::connect(this->sok, SIGNAL(connectedOK()), this, SLOT(connectedOK()));
         QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
@@ -888,6 +895,7 @@ bool GLPainter::canGO2(GLfloat x, GLfloat y) {
 void GLPainter::finn() {
 //    this->keys_pressed.clear();
     if (this->multiplayer && (this->levelnomber == this->maxlevels)) {
+        this->sok->writemessage(QString("m " + this->sok->login + " finished game").toLocal8Bit());
         this->levelnomber = this->maxlevels + 2;
         this->sok->writemessage(QString("e " + this->sok->login + " " + getByte(this->generateevent()) + "~").toLocal8Bit());
         this->levelclear();
@@ -914,6 +922,8 @@ void GLPainter::finn() {
     }
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
+        if (this->levelnomber != 1)
+            this->sok->writemessage(QString("m " + this->sok->login + " on level " + QString::number(this->levelnomber)).toLocal8Bit());
         this->loadlevel();
         if (! QDir("../Results/Best").exists()) {
             QDir().mkdir("../Results/Best/");
@@ -1142,6 +1152,7 @@ void GLPainter::searchkeys() {
 }
 
 void GLPainter::die() {
+    this->sok->writemessage(QString("m " + this->sok->login + " died").toLocal8Bit());
     this->dead = true;
 }
 
@@ -1608,6 +1619,23 @@ void GLPainter::drawinfo() {
         renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 60, "Press Enter to exit    ");
         renderText(this->dw + (this->width() - this->dw * 2) / 2 - 125 + 15, this->dh + (this->height() - this->dh * 2) / 2 - 50 + 80, "Press Esc. to continue");
     }
+
+    if (this->multiplayer) {
+     glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
+        glBegin (GL_QUADS);
+          glVertex2f (this->width() - this->dw - 300,-this->dh + this->height());
+          glVertex2f (this->width() - this->dw - 300,-this->dh + this->height() - 100);
+          glVertex2f (this->width() - this->dw + 0,-this->dh + this->height() - 100);
+          glVertex2f (this->width() - this->dw + 0,-this->dh + this->height());
+        glEnd();
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        this->setFont(QFont("serif", 15, -1, false));
+        renderText(this->width() - this->dw - 300, this->dh + 25, this->mess[0]);
+        renderText(this->width() - this->dw - 300, this->dh + 45, this->mess[1]);
+        renderText(this->width() - this->dw - 300, this->dh + 65, this->mess[2]);
+        renderText(this->width() - this->dw - 300, this->dh + 85, this->mess[3]);
+    }
+
     this->End2D();
 
 
