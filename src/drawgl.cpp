@@ -895,7 +895,7 @@ bool GLPainter::canGO2(GLfloat x, GLfloat y) {
 void GLPainter::finn() {
 //    this->keys_pressed.clear();
     if (this->multiplayer && (this->levelnomber == this->maxlevels)) {
-        this->sok->writemessage(QString("m " + this->sok->login + " finished game").toLocal8Bit());
+        this->sok->writemessage(QString("m " + this->sok->login + " finished game~").toLocal8Bit());
         this->levelnomber = this->maxlevels + 2;
         this->sok->writemessage(QString("e " + this->sok->login + " " + getByte(this->generateevent()) + "~").toLocal8Bit());
         this->levelclear();
@@ -923,7 +923,7 @@ void GLPainter::finn() {
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
         if ((this->levelnomber != 1) && (this->multiplayer))
-            this->sok->writemessage(QString("m " + this->sok->login + " is on level " + QString::number(this->levelnomber)).toLocal8Bit());
+            this->sok->writemessage(QString("m " + this->sok->login + " is on level " + QString::number(this->levelnomber) + "~").toLocal8Bit());
         this->loadlevel();
         if (! QDir("../Results/Best").exists()) {
             QDir().mkdir("../Results/Best/");
@@ -1153,7 +1153,7 @@ void GLPainter::searchkeys() {
 
 void GLPainter::die() {
     if (this->multiplayer)
-        this->sok->writemessage(QString("m " + this->sok->login + " died").toLocal8Bit());
+        this->sok->writemessage(QString("m " + this->sok->login + " died~").toLocal8Bit());
     this->dead = true;
 }
 
