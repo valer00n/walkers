@@ -177,6 +177,7 @@ private slots:
     void connectedOK();
     void startgame();
     void newmes(QString);
+    void disconnected();
 
 };
 

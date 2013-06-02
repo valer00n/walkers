@@ -23,8 +23,9 @@ void Settings::startSinglePlayer() {
         if (!this->ui->fullscreenS->checkState())
             w->switchmode();
         w->multiplayer = false;
-        w->show();
         this->hide();
+        w->show();
+
 }
 
 void Settings::startMultiPlayer() {

@@ -2,6 +2,7 @@
 
 server::server()
 {
+    this->online = 0;
     this->started = false;
     this->ser = new QTcpServer();
     QObject::connect(this->ser, SIGNAL(newConnection()), this, SLOT(newconnection()));
@@ -31,8 +32,6 @@ void server::newlogin(QByteArray mes, server_socket *sender) {
                 if (r) {
                     if (this->started)
                         return;
-                    emit this->newnumber(this->connections.size() + 1);
-                    emit this->chplayer(s.right(s.length() - 2), true);
                     this->names.push_back(s.right(s.length() - 2));
                     this->connections.push_back(this->pending[i]);
                     this->finished.push_back(false);
@@ -40,6 +39,9 @@ void server::newlogin(QByteArray mes, server_socket *sender) {
                     QObject::connect(this->connections[this->connections.size() - 1], SIGNAL(newmes(QByteArray, server_socket *)), this, SLOT(newmes(QByteArray, server_socket*)));
                     QObject::connect(this->connections[this->connections.size() - 1], SIGNAL(disconnected(server_socket *)), this, SLOT(disconnected(server_socket*)));
                     this->pending[i]->soc->write(QString("Y~").toLocal8Bit());
+                    this->online++;
+                    emit this->newnumber(this->online);
+                    emit this->chplayer(s.right(s.length() - 2), true);
                     for (int j = 0; j < this->pending.size() - 1; j++)
                         this->pending[j] = this->pending[j + 1];
                     this->pending.resize(this->pending.size() - 1);
@@ -60,16 +62,18 @@ void server::newlogin(QByteArray mes, server_socket *sender) {
 void server::newmes(QByteArray mes, server_socket *sender) {
     QString s = QString::fromLocal8Bit(mes);
     if (s[0] == 'f') {
+//        qDebug() << QString::fromLocal8Bit(mes);
         for (int i = 0; i < this->connections.size(); i++)
             if (this->connections[i] == sender) {
                 this->results.push_back(QPair <int, QString> (s.right(s.length() - 2).toInt(), this->names[i]));
                 this->finished[i] = true;
             }
         std::sort(results.begin(), results.end());
-        QString res = "f " + QString::number(this->results.size()) + " ";
+        QString res = "f " + QString::number(this->results.size());
         for (int i = results.size() - 1; i >= 0; i--)
-            res += QString::number(this->results[i].first) + " \"" + this->results[i].second+ "\"";
+            res += " " + QString::number(this->results[i].first) + " \"" + this->results[i].second+ "\"";
         res += "~";
+//        qDebug() << res;
         for (int i = 0; i < this->connections.size(); i++)
             if (this->finished[i])
                 this->connections[i]->soc->write(res.toLocal8Bit());
@@ -91,16 +95,20 @@ void server::disconnected(server_socket *sender) {
     int i = 0;
     while (this->connections[i] != sender)
         i++;
-    emit this->newnumber(this->connections.size() - 1);
+    this->online--;
+    emit this->newnumber(this->online);
     emit this->chplayer(this->names[i], false);
-    this->results.push_back(QPair <int, QString> (-1, this->names[i]));
-    this->finished[i] = true;
-    std::sort(results.begin(), results.end());
-    QString res = "f " + QString::number(this->results.size()) + " ";
-    for (int i = results.size() - 1; i >= 0; i--)
-        res += QString::number(this->results[i].first) + " \"" + this->results[i].second+ "\"";
-    res += "~";
-    for (int i = 0; i < this->connections.size(); i++)
-        if (this->finished[i])
-            this->connections[i]->soc->write(res.toLocal8Bit());
+    if (!this->finished[i]) {
+        this->results.push_back(QPair <int, QString> (-1, this->names[i]));
+        this->finished[i] = true;
+        std::sort(results.begin(), results.end());
+        QString res = "f " + QString::number(this->results.size());
+        for (int i = results.size() - 1; i >= 0; i--)
+            res += " " + QString::number(this->results[i].first) + " \"" + this->results[i].second+ "\"";
+        res += "~";
+        qDebug() << res;
+        for (int i = 0; i < this->connections.size(); i++)
+            if (this->finished[i])
+                this->connections[i]->soc->write(res.toLocal8Bit());
+        }
 }

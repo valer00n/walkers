@@ -14,6 +14,7 @@ class server : public QObject
     Q_OBJECT
 public:
     server();
+    int online;
     QTcpServer *ser;
     QVector <server_socket *> pending;
     QVector <server_socket *> connections;

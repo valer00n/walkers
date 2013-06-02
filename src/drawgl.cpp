@@ -281,8 +281,16 @@ GLPainter::GLPainter(bool multiplayer, QMainWindow *parent)
         QObject::connect(this->sok, SIGNAL(connectedOK()), this, SLOT(connectedOK()));
         QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
         QObject::connect(this->sok, SIGNAL(newmes(QString)), this, SLOT(newmes(QString)));
+        QObject::connect(this->sok, SIGNAL(disconnected()), this, SLOT(disconnected()));
     }
     finn();
+}
+
+void GLPainter::disconnected() {
+    this->mess[3] = "";
+    this->mess[2] = "";
+    this->mess[1] = "";
+    this->mess[0] = "Lost connection to server ='(";
 }
 
 void GLPainter::startgame() {
@@ -1152,7 +1160,7 @@ void GLPainter::searchkeys() {
 }
 
 void GLPainter::die() {
-    if (this->multiplayer)
+    if ((this->multiplayer) && (!this->dead))
         this->sok->writemessage(QString("m " + this->sok->login + " died~").toLocal8Bit());
     this->dead = true;
 }
