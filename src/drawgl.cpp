@@ -922,8 +922,8 @@ void GLPainter::finn() {
     }
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
-        if (this->levelnomber != 1)
-            this->sok->writemessage(QString("m " + this->sok->login + " on level " + QString::number(this->levelnomber)).toLocal8Bit());
+        if ((this->levelnomber != 1) && (this->multiplayer))
+            this->sok->writemessage(QString("m " + this->sok->login + " is on level " + QString::number(this->levelnomber)).toLocal8Bit());
         this->loadlevel();
         if (! QDir("../Results/Best").exists()) {
             QDir().mkdir("../Results/Best/");
@@ -1152,7 +1152,8 @@ void GLPainter::searchkeys() {
 }
 
 void GLPainter::die() {
-    this->sok->writemessage(QString("m " + this->sok->login + " died").toLocal8Bit());
+    if (this->multiplayer)
+        this->sok->writemessage(QString("m " + this->sok->login + " died").toLocal8Bit());
     this->dead = true;
 }
 
