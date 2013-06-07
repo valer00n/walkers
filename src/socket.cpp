@@ -2,6 +2,11 @@
 
 Hsocket::Hsocket()
 {
+
+}
+
+
+void Hsocket::run() {
     this->connected = false;
     this->soc = new QTcpSocket;
     this->TIM = new QTimer;
@@ -11,7 +16,10 @@ Hsocket::Hsocket()
     QObject::connect(this->soc, SIGNAL(connected()), this, SLOT(onconnected()));
     QObject::connect(this->soc, SIGNAL(disconnected()), this, SLOT(ondisconnected()));
     QObject::connect(this->soc, SIGNAL(readyRead()), this, SLOT(onreadyread()));
+    emit startedSocket();
+    this->exec();
 }
+
 void Hsocket::onconnected() {
     this->writemessage(QString("l " + this->login + "~").toLocal8Bit());
 }
@@ -48,7 +56,7 @@ void Hsocket::onreadyread() {
 void Hsocket::startconnection() {
     this->TIM->start();
     this->soc->connectToHost(this->ip, this->port);
-    this->soc->waitForConnected(4000);
+//    this->soc->waitForConnected(4000);
 }
 
 void Hsocket::timeout() {

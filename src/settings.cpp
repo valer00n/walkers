@@ -31,16 +31,22 @@ void Settings::startSinglePlayer() {
 void Settings::startMultiPlayer() {
         this->disable(false);
         w = new GLPainter(true, this);
-        w->setWindowTitle("Walkers");
-        if (!this->ui->fullscreenM->checkState())
-            w->switchmode();
-        w->sok->ip = this->ui->IP->text();
-        w->sok->port = this->ui->port->text().toInt();
-        w->sok->login = this->ui->login->text();
-        w->sok->startconnection();
-        QObject::connect(w->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
+        QObject::connect(w, SIGNAL(SocketCr()), this, SLOT(socketCreated()));
+        w->startmultiplayer();
+
 //        w->show();
 //        this->hide();
+}
+
+void Settings::socketCreated() {
+    w->setWindowTitle("Walkers");
+    if (!this->ui->fullscreenM->checkState())
+        w->switchmode();
+    w->sok->ip = this->ui->IP->text();
+    w->sok->port = this->ui->port->text().toInt();
+    w->sok->login = this->ui->login->text();
+    w->sok->startconnection();
+    QObject::connect(w->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
 }
 
 void Settings::failedtoconnect() {

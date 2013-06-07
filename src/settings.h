@@ -29,6 +29,7 @@ public slots:
     void startServer();
     void startMultiPlayer();
     void failedtoconnect();
+    void socketCreated();
 };
 
 #endif // SETTINGS_H

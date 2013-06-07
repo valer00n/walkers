@@ -56,6 +56,7 @@ public:
 public:
     Hsocket *sok;
     /*HELP*/
+        void startmultiplayer();
         void loadLists();
     /*GL CONTROL*/
         void initializeGL();
@@ -178,6 +179,10 @@ private slots:
     void startgame();
     void newmes(QString);
     void disconnected();
+    void SocketStarted();
+
+signals:
+    void SocketCr();
 
 };
 

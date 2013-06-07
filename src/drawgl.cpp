@@ -256,10 +256,11 @@ GLPainter::GLPainter(bool multiplayer, QMainWindow *parent)
     this->curs = "";
     this->setFont(QFont("serif", 15, -1, false));
     this->timerT = new timer;
-    this->timerT->start();
+//    this->timerT->start();
     this->timerT->TIM = new QTimer;
+    this->timerT->TIM->stop();
     QObject::connect(this->timerT->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
-    this->timerT->TIM->start();
+//    this->timerT->TIM->start();
     this->jumping = false;
     this->rx = 0;
     this->mousedetected = false;
@@ -275,14 +276,24 @@ GLPainter::GLPainter(bool multiplayer, QMainWindow *parent)
     this->loadstaticTEX();
     this->FFall = false;
     this->life = 0;
+    if (!this->multiplayer)
+      finn();
+}
+
+void GLPainter::startmultiplayer() {
     if (this->multiplayer) {
         this->sok = new Hsocket();
-        QObject::connect(this->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
-        QObject::connect(this->sok, SIGNAL(connectedOK()), this, SLOT(connectedOK()));
-        QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
-        QObject::connect(this->sok, SIGNAL(newmes(QString)), this, SLOT(newmes(QString)));
-        QObject::connect(this->sok, SIGNAL(disconnected()), this, SLOT(disconnected()));
+        QObject::connect(this->sok, SIGNAL(startedSocket()), this, SLOT(SocketStarted()));
+        this->sok->start();
     }
+}
+
+void GLPainter::SocketStarted() {
+    QObject::connect(this->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
+    QObject::connect(this->sok, SIGNAL(connectedOK()), this, SLOT(connectedOK()));
+    QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
+    QObject::connect(this->sok, SIGNAL(newmes(QString)), this, SLOT(newmes(QString)));
+    emit this->SocketCr();
     finn();
 }
 
