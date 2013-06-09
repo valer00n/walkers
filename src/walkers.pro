@@ -17,6 +17,7 @@ unix: !macx: LIBS += -lGLU
 
 SOURCES += \
     main.cpp \
+    calcgl.cpp \
     drawgl.cpp \
     timer.cpp \
     smdloader.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
     game_server.cpp
 
 HEADERS  += \
+    calcgl.h \
     drawgl.h \
     timer.h \
     smdloader.h \

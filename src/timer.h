@@ -1,14 +1,13 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <QThread>
 #include <QTimer>
 
-class timer : public QThread
+class timer: QObject
 {
     Q_OBJECT
 public:
-    explicit timer(QObject *parent = 0);
+    explicit timer();
     QTimer *TIM;
     int globaltime;
 };

@@ -1,7 +1,6 @@
 #include "timer.h"
 
-timer::timer(QObject *parent) :
-    QThread(parent)
+timer::timer()
 {
     this->globaltime = 0;
 }

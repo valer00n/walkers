@@ -4,6 +4,7 @@
 #include <drawgl.h>
 #include <QMainWindow>
 #include <game_server.h>
+#include <calcgl.h>
 
 namespace Ui {
 class Settings;
@@ -30,6 +31,9 @@ public slots:
     void startMultiPlayer();
     void failedtoconnect();
     void socketCreated();
+
+signals:
+    void scon();
 };
 
 #endif // SETTINGS_H

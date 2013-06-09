@@ -6,16 +6,17 @@ Hsocket::Hsocket()
 }
 
 
-void Hsocket::run() {
-    this->connected = false;
-    this->soc = new QTcpSocket;
-    this->TIM = new QTimer;
-    this->TIM->setInterval(4000);
-    this->TIM->stop();
-    QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
-    QObject::connect(this->soc, SIGNAL(connected()), this, SLOT(onconnected()));
-    QObject::connect(this->soc, SIGNAL(disconnected()), this, SLOT(ondisconnected()));
-    QObject::connect(this->soc, SIGNAL(readyRead()), this, SLOT(onreadyread()));
+void HsocketTH::run() {
+    this->socketTH = new Hsocket();
+    this->socketTH->soc = new QTcpSocket;
+    this->socketTH->connected = false;
+    this->socketTH->TIM = new QTimer;
+    this->socketTH->TIM->setInterval(4000);
+    this->socketTH->TIM->stop();
+    QObject::connect(this->socketTH->TIM, SIGNAL(timeout()), this->socketTH, SLOT(timeout()));
+    QObject::connect(this->socketTH->soc, SIGNAL(connected()), this->socketTH, SLOT(onconnected()));
+    QObject::connect(this->socketTH->soc, SIGNAL(disconnected()), this->socketTH, SLOT(ondisconnected()));
+    QObject::connect(this->socketTH->soc, SIGNAL(readyRead()), this->socketTH, SLOT(onreadyread()));
     emit startedSocket();
     this->exec();
 }
@@ -56,7 +57,7 @@ void Hsocket::onreadyread() {
 void Hsocket::startconnection() {
     this->TIM->start();
     this->soc->connectToHost(this->ip, this->port);
-//    this->soc->waitForConnected(4000);
+    this->soc->waitForConnected(4000);
 }
 
 void Hsocket::timeout() {

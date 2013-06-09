@@ -6,11 +6,10 @@
 #include <QObject>
 #include <QThread>
 
-class Hsocket: public QThread
+class Hsocket: public QObject
 {
     Q_OBJECT
 public:
-    void run();
     Hsocket();
     void writemessage(QByteArray bit);
 public:
@@ -26,7 +25,6 @@ signals:
     void connectedOK();
     void disconnected();
     void startgame();
-    void startedSocket();
 public slots:
     void onconnected();
     void onreadyread();
@@ -34,6 +32,16 @@ public slots:
     void startconnection();
     void timeout();
     
+};
+
+class HsocketTH: public QThread
+{
+    Q_OBJECT
+public:
+    Hsocket *socketTH;
+    void run();
+signals:
+    void startedSocket();
 };
 
 #endif // SOCKET_H

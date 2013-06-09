@@ -22,7 +22,7 @@ void Settings::startSinglePlayer() {
         w->setWindowTitle("Walkers");
         if (!this->ui->fullscreenS->checkState())
             w->switchmode();
-        w->multiplayer = false;
+        w->curcalc->multiplayer = false;
         this->hide();
         w->show();
 
@@ -31,8 +31,8 @@ void Settings::startSinglePlayer() {
 void Settings::startMultiPlayer() {
         this->disable(false);
         w = new GLPainter(true, this);
-        QObject::connect(w, SIGNAL(SocketCr()), this, SLOT(socketCreated()));
-        w->startmultiplayer();
+        QObject::connect(w->curcalc, SIGNAL(SocketCr()), this, SLOT(socketCreated()));
+        w->curcalc->startmultiplayer();
 
 //        w->show();
 //        this->hide();
@@ -42,15 +42,19 @@ void Settings::socketCreated() {
     w->setWindowTitle("Walkers");
     if (!this->ui->fullscreenM->checkState())
         w->switchmode();
-    w->sok->ip = this->ui->IP->text();
-    w->sok->port = this->ui->port->text().toInt();
-    w->sok->login = this->ui->login->text();
-    w->sok->startconnection();
-    QObject::connect(w->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
+    w->curcalc->sok->ip = this->ui->IP->text();
+    w->curcalc->sok->port = this->ui->port->text().toInt();
+    w->curcalc->sok->login = this->ui->login->text();
+    QObject::connect(w->curcalc->sok, SIGNAL(failedtoconnect()), this, SLOT(failedtoconnect()));
+    QObject::connect(this, SIGNAL(scon()), w->curcalc->sok, SLOT(startconnection()));
+    emit this->scon();
+//    w->curcalc->sok->startconnection();
 }
+
 
 void Settings::failedtoconnect() {
     this->disable(true);
+//    w->deleteLater();
 }
 
 void Settings::startServer() {
