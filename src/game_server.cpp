@@ -18,7 +18,7 @@ Game_server::Game_server(int players, QMainWindow *parent) :
         this->parent->close();
     }
     this->ui->listWidget->addItem("Started server");
-    this->ui->listWidget->addItem("Number of players:" + QString::number(this->players));
+    this->ui->listWidget->addItem("Number of players: " + QString::number(this->players));
     QList<QHostAddress> addr = QNetworkInterface::allAddresses();
     for (QList<QHostAddress>::iterator i = addr.begin(); i < addr.end(); i++ )
         if (! ((*i).protocol())) // if IPv4

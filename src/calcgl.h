@@ -41,7 +41,7 @@ typedef struct {
     int x, y;
 } moving;
 
-class GLCalc : public QGLWidget
+class GLCalc : public QObject
 {
     Q_OBJECT
 
@@ -163,6 +163,7 @@ signals:
     void SocketCr();
     void switchmode();
     void sclose();
+    void showW();
 
 };
 

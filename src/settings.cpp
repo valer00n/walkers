@@ -33,9 +33,6 @@ void Settings::startMultiPlayer() {
         w = new GLPainter(true, this);
         QObject::connect(w->curcalc, SIGNAL(SocketCr()), this, SLOT(socketCreated()));
         w->curcalc->startmultiplayer();
-
-//        w->show();
-//        this->hide();
 }
 
 void Settings::socketCreated() {

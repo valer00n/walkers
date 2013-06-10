@@ -117,7 +117,8 @@ GLCalc::GLCalc(bool multiplayer, QMainWindow *parent)
     this->timerT = new timer;
     this->timerT->TIM = new QTimer;
     this->timerT->TIM->stop();
-    QObject::connect(this->timerT->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
+    this->timerT->TIM->setInterval(17);
+
 //    this->timerT->TIM->start();
     this->jumping = false;
     this->rx = 0;
@@ -132,8 +133,10 @@ GLCalc::GLCalc(bool multiplayer, QMainWindow *parent)
     this->loadstaticTEX();
     this->FFall = false;
     this->life = 0;
-    if (!this->multiplayer)
+    if (!this->multiplayer) {
+      QObject::connect(this->timerT->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
       finn();
+    }
 }
 
 void GLCalc::startmultiplayer() {
@@ -151,7 +154,6 @@ void GLCalc::SocketStarted() {
     QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
     QObject::connect(this->sok, SIGNAL(newmes(QString)), this, SLOT(newmes(QString)));
     emit this->SocketCr();
-    finn();
 }
 
 void GLCalc::disconnected() {
@@ -167,7 +169,9 @@ void GLCalc::startgame() {
 
 void GLCalc::connectedOK() {
     this->parent->hide();
-    this->show();
+    emit this->showW();
+    QObject::connect(this->timerT->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
+    finn();
 }
 
 void GLCalc::failedtoconnect() {
@@ -938,14 +942,6 @@ void GLCalc::loadstaticTEX() {
     mes.push_back("        by danpol");
     this->PIXcred = this->genpix(1024, 1024, 50, mes);
 
-}
-
-GLfloat GLCalc::getx(GLfloat x) {
-    return (2 * x) / this->width();
-}
-
-GLfloat GLCalc::gety(GLfloat y) {
-    return (2 * y) / this->height();
 }
 
 GLfloat GLCalc::dist(GLfloat x, GLfloat y) {

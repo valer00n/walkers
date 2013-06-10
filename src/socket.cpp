@@ -43,6 +43,7 @@ void Hsocket::onreadyread() {
             emit this->connectedOK();
         }
         else if (bit[0] == 'N') {
+            this->soc->disconnectFromHost();
             this->connected = false;
             emit this->failedtoconnect();
         }

@@ -30,7 +30,7 @@ public:
     /*GL CONTROL*/
     SMDloader *Rmodel, *Smodel, *Jmodel, *Dmodel, *Cmodel, *Rarm, *Sarm, *Jarm, *Darm, *Carm;
     SMDloader *HistoryRmodel, *HistorySmodel, *HistoryJmodel, *HistoryDmodel, *HistoryCmodel, *HistoryRarm, *HistorySarm, *HistoryJarm, *HistoryDarm, *HistoryCarm;
-        timer *timerT;
+        QTimer *TIM;
         void initializeGL();
         void resizeGL(int w, int h);
         void paintGL();
@@ -54,7 +54,6 @@ public:
         GLfloat getx(GLfloat x);
         GLfloat gety(GLfloat y);
         void drawhistory(Hevent ev);
-
 public slots:
         void switchmode();
 };

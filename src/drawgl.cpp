@@ -8,22 +8,23 @@
 #include <string>
 #include <ghost.h>
 
+
 GLPainter::GLPainter(bool multiplayer, QMainWindow *par) {
         this->setMinimumSize(610, 512);
         this->setFont(QFont("serif", 15, -1, false));
         this->setMouseTracking(true);
     this->curcalc = new GLCalc(multiplayer, par);
+    QObject::connect(this->curcalc, SIGNAL(showW()), this, SLOT(show()));
     this->curcalc->fullscreen = false;
     this->switchmode();
     QObject::connect(this->curcalc, SIGNAL(sclose()), this, SLOT(close()));
     this->loadp1();
     this->loadp2();
     QObject::connect(this->curcalc, SIGNAL(switchmode()), this, SLOT(switchmode()));
-    this->curcalc->timerT = new timer;
-    this->curcalc->timerT->TIM = new QTimer;
-    this->curcalc->timerT->TIM->setInterval(17);
-    QObject::connect(this->curcalc->timerT->TIM, SIGNAL(timeout()), this, SLOT(update()));
-    this->curcalc->timerT->TIM->start();
+    this->TIM = new QTimer;
+    this->TIM->setInterval(17);
+    QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(update()));
+    this->TIM->start();
 }
 
 void GLPainter::loadp1() {
@@ -623,16 +624,7 @@ void GLPainter::drawmap() {
 
 
             glTranslatef(.0f, .0f, p);
-            GLfloat dx = 0, dy = 0;
             while (p + f * dl < this->curcalc->Fpanel[i].dist) {
-                if (d == 'L')
-                    dy = - p - dl * f;
-                if (d == 'R')
-                    dy = p + dl * f;
-                if (d == 'D')
-                    dx = p + dl * f;
-                if (d == 'U')
-                    dx = - p - dl * f;
                 gluQuadricTexture(q, GL_TRUE);
                 glScalef(this->curcalc->Fpanel[i].stratchX, this->curcalc->Fpanel[i].stratchZ, this->curcalc->Fpanel[i].stratchY);
                 gluSphere(q, this->curcalc->Fpanel[i].r, 20, 20);
