@@ -8,12 +8,14 @@
 #include <string>
 #include <ghost.h>
 
+GLPainter::GLPainter() {
 
-GLPainter::GLPainter(bool multiplayer, QMainWindow *par) {
-        this->setMinimumSize(610, 512);
-        this->setFont(QFont("serif", 15, -1, false));
-        this->setMouseTracking(true);
-    this->curcalc = new GLCalc(multiplayer, par);
+}
+
+void GLPainter::thstarted() {
+    this->curcalc = this->pp->p;
+    QObject::connect(this, SIGNAL(ins_key(int)), this->curcalc, SLOT(ins_key(int)));
+    QObject::connect(this, SIGNAL(del_key(int)), this->curcalc, SLOT(del_key(int)));
     QObject::connect(this->curcalc, SIGNAL(showW()), this, SLOT(show()));
     this->curcalc->fullscreen = false;
     this->switchmode();
@@ -22,9 +24,21 @@ GLPainter::GLPainter(bool multiplayer, QMainWindow *par) {
     this->loadp2();
     QObject::connect(this->curcalc, SIGNAL(switchmode()), this, SLOT(switchmode()));
     this->TIM = new QTimer;
-    this->TIM->setInterval(17);
+    this->TIM->setInterval(0);
     QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(update()));
     this->TIM->start();
+    emit this->createdTH();
+}
+
+void GLPainter::startit(bool multiplayer, QMainWindow *par) {
+    this->setMinimumSize(610, 512);
+    this->setFont(QFont("serif", 15, -1, false));
+    this->setMouseTracking(true);
+    this->pp = new GLCalcTH;
+    this->pp->mult = multiplayer;
+    this->pp->par = par;
+    QObject::connect(this->pp, SIGNAL(started()), this, SLOT(thstarted()));
+    this->pp->start();
 }
 
 void GLPainter::loadp1() {
@@ -449,9 +463,9 @@ void GLPainter::drawplayer() {
     }
     else
     if (this->curcalc->walking) {
-        GLint nu = (this->curcalc->TIME / 20) % this->curcalc->Rmodel->getanimationlength();
-        this->curcalc->Rmodel->draw(nu);
-        this->curcalc->Rarm->draw(nu);
+        GLint nu = (this->curcalc->TIME / 20) % this->Rmodel->getanimationlength();
+        this->Rmodel->draw(nu);
+        this->Rarm->draw(nu);
     }
     else {
         GLint nu = (this->curcalc->TIME / 100) % this->Smodel->getanimationlength();
@@ -494,17 +508,16 @@ void GLPainter::keyPressEvent(QKeyEvent *ev) {
         if (ev->key() == Qt::Key_Backspace)
             this->curcalc->nametyped = this->curcalc->nametyped.left(this->curcalc->nametyped.length() - 1);
         else
-            this->curcalc->keys_pressed.insert(ev->key());
+            emit this->ins_key(ev->key());
         this->curcalc->nametyped = this->curcalc->nametyped.left(10);
     }
     else
-        this->curcalc->keys_pressed.insert(ev->key());
+       emit this->ins_key(ev->key());
 }
 
 void GLPainter::keyReleaseEvent(QKeyEvent *ev) {
 //    qDebug() << "-" << ev->key();
-    if (this->curcalc->keys_pressed.find(ev->key()) != this->curcalc->keys_pressed.end())
-        this->curcalc->keys_pressed.erase(this->curcalc->keys_pressed.find(ev->key()));
+    emit this->del_key(ev->key());
 }
 
 void GLPainter::drawQUBE(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture) {

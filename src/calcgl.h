@@ -165,6 +165,22 @@ signals:
     void sclose();
     void showW();
 
+public slots:
+    void ins_key(int ev);
+    void del_key(int ev);
+
+};
+
+class GLCalcTH: public QThread
+{
+    Q_OBJECT
+public:
+    bool mult;
+    QMainWindow *par;
+    GLCalc *p;
+    void run();
+signals:
+    void started();
 };
 
 #endif // GLCalc_H

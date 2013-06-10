@@ -23,10 +23,11 @@ class GLPainter : public QGLWidget
 {
     Q_OBJECT
 public:
+    explicit GLPainter();
     void loadLists();
     void savescore();
-    GLPainter(bool multiplayer, QMainWindow *);
     GLCalc *curcalc;
+    GLCalcTH *pp;
     /*GL CONTROL*/
     SMDloader *Rmodel, *Smodel, *Jmodel, *Dmodel, *Cmodel, *Rarm, *Sarm, *Jarm, *Darm, *Carm;
     SMDloader *HistoryRmodel, *HistorySmodel, *HistoryJmodel, *HistoryDmodel, *HistoryCmodel, *HistoryRarm, *HistorySarm, *HistoryJarm, *HistoryDarm, *HistoryCarm;
@@ -56,6 +57,14 @@ public:
         void drawhistory(Hevent ev);
 public slots:
         void switchmode();
+        void thstarted();
+        void startit(bool multiplayer, QMainWindow *par);
+
+signals:
+        void ins_key(int key);
+        void del_key(int key);
+        void createdTH();
 };
+
 
 #endif // GLPainter_H

@@ -8,6 +8,22 @@
 #include <string>
 #include <ghost.h>
 
+void GLCalcTH::run() {
+    this->p = new GLCalc(this->mult, this->par);
+    emit this->started();
+    this->exec();
+//    qDebug() << "run";
+}
+
+void GLCalc::ins_key(int ev) {
+     this->keys_pressed.insert(ev);
+}
+
+void GLCalc::del_key(int ev) {
+    if (this->keys_pressed.find(ev) != this->keys_pressed.end())
+        this->keys_pressed.erase(this->keys_pressed.find(ev));
+}
+
 void GLCalc::newmes(QString mes) {
     if (mes[0] == 'e') {
         int i = 2;

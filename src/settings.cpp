@@ -16,23 +16,33 @@ Settings::~Settings()
     delete ui;
 }
 
+void Settings::p1() {
+    w->setWindowTitle("Walkers");
+    if (!this->ui->fullscreenS->checkState())
+        w->switchmode();
+    w->curcalc->multiplayer = false;
+    this->hide();
+    w->show();
+}
+
+void Settings::p2() {
+    QObject::connect(w->curcalc, SIGNAL(SocketCr()), this, SLOT(socketCreated()));
+    w->curcalc->startmultiplayer();
+}
+
 void Settings::startSinglePlayer() {
-        this->disable(false);
-        w = new GLPainter(false, this);
-        w->setWindowTitle("Walkers");
-        if (!this->ui->fullscreenS->checkState())
-            w->switchmode();
-        w->curcalc->multiplayer = false;
-        this->hide();
-        w->show();
+    this->disable(false);
+    w = new GLPainter();
+    QObject::connect(w, SIGNAL(createdTH()), this, SLOT(p1()));
+    w->startit(false, this);
 
 }
 
 void Settings::startMultiPlayer() {
-        this->disable(false);
-        w = new GLPainter(true, this);
-        QObject::connect(w->curcalc, SIGNAL(SocketCr()), this, SLOT(socketCreated()));
-        w->curcalc->startmultiplayer();
+    this->disable(false);
+    w = new GLPainter();
+    QObject::connect(w, SIGNAL(createdTH()), this, SLOT(p2()));
+    w->startit(true, this);
 }
 
 void Settings::socketCreated() {
