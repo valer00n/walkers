@@ -270,7 +270,7 @@ void SMDloader::draw(int sceneindex) {
 //        }
 //    }
     glEnable(GL_BLEND);
-    glColor4f(1.0f, 1.0f, 1.0f, this->alpha);
+    glColor4f(this->R, this->G, this->B, this->alpha);
     for (int i = 0; i < this->model.triangles.size(); i++) {
         s = this->parent->bindTexture(this->model.triangles[i].PIX, GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, s);
@@ -291,9 +291,16 @@ void SMDloader::draw(int sceneindex) {
 
 }
 
+void SMDloader::setRGB(GLfloat R, GLfloat G, GLfloat B) {
+    this->R = R;
+    this->G = G;
+    this->B = B;
+}
+
 SMDloader::SMDloader(QGLWidget *par) {
     this->parent = par;
     this->alpha = 1.0f;
+    this->R = this->G = this->B = 1.0f;
 }
 
 void SMDloader::draw_skeleton(int sceneindex) {

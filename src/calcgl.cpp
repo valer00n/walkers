@@ -571,6 +571,7 @@ void GLCalc::die() {
 }
 
 void GLCalc::timeout() {
+//    qDebug() << "(";
     if (this->levelnomber == this->maxlevels + 2) {
         int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
         if (newscore <= this->score[9].second) {
@@ -667,6 +668,7 @@ void GLCalc::timeout() {
     if (this->z < -100.0f) {
         finn();
     }
+//    qDebug() << ")";
 }
 
 bool isin(int x, int y, int n, int m) {

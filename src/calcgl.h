@@ -57,6 +57,7 @@ public:
     Hsocket *sok;
     HsocketTH *tmp;
     /*HELP*/
+
         void startmultiplayer();
     /*GL CONTROL*/
         void jump();

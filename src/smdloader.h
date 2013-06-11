@@ -31,9 +31,10 @@ private:
     QVector <GLuint> compiled;
     QString path;
     QGLWidget *parent;
-    GLfloat alpha;
+    GLfloat alpha, R, G, B;
     bool stay;
 public:
+    void setRGB(GLfloat R, GLfloat G, GLfloat B);
     void setpatent(QGLWidget *parent);
     GLint getanimationlength();
     void setstay(bool stay);

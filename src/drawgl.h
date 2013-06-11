@@ -18,11 +18,13 @@
 #include <socket.h>
 #include <server.h>
 #include <calcgl.h>
+#include <time.h>
 
 class GLPainter : public QGLWidget
 {
     Q_OBJECT
 public:
+    Hevent last;
     explicit GLPainter();
     void loadLists();
     void savescore();
@@ -44,7 +46,7 @@ public:
         void drawNOTHING(GLfloat x, GLfloat y, GLfloat z, GLfloat a, GLfloat b, GLfloat c, QPixmap &texture);
         void drawmap();
         void drawaxes();
-        void drawplayer();
+        void drawplayer(Hevent ev);
         void drawSKY();
         void fogg(bool start);
         void drawinfo();
@@ -55,6 +57,7 @@ public:
         GLfloat getx(GLfloat x);
         GLfloat gety(GLfloat y);
         void drawhistory(Hevent ev);
+        Hevent generateevent();
 public slots:
         void switchmode();
         void thstarted();
