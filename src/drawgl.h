@@ -25,6 +25,7 @@ class GLPainter : public QGLWidget
     Q_OBJECT
 public:
     Hevent last;
+    int drawindex;
     explicit GLPainter();
     void loadLists();
     void savescore();

@@ -363,6 +363,7 @@ void GLPainter::paintGL() {
         this->last = this->curcalc->current.getHevent(this->curcalc->current.gethistorylength() - 1);
     if ((this->curcalc->levelnomber < 1) || (this->curcalc->levelnomber > this->curcalc->maxlevels))
         this->last.ry = 0;
+    this->drawindex = this->curcalc->drawindex;
 //    qDebug() << "<";
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth( 1.0f );
@@ -380,7 +381,7 @@ void GLPainter::paintGL() {
     if ((this->curcalc->levelnomber <= this->curcalc->maxlevels) && (this->curcalc->levelnomber != 0))
         glTranslatef(-.5f, -.5f, 1.5f);
     else
-        glTranslatef(-this->last.x, -.5f - this->last.z, -this->last.y);
+        glTranslatef(-this->curcalc->x, -.5f - this->curcalc->z, -this->curcalc->y);
     if (this->curcalc->levelnomber == 0) {
         this->mainmenu();
     }
@@ -408,8 +409,8 @@ void GLPainter::paintGL() {
         if ((!this->curcalc->firstview) && (this->curcalc->current.gethistorylength() != 0))
             this->drawplayer(this->last);
         if (!this->curcalc->multiplayer){
-            if ((this->curcalc->drawindex >= 0) && (this->curcalc->drawindex < this->curcalc->best.gethistorylength() - 1))
-                this->drawhistory(this->curcalc->best.getHevent(this->curcalc->drawindex));
+            if ((this->drawindex >= 0) && (this->drawindex < this->curcalc->best.gethistorylength() - 1))
+                this->drawhistory(this->curcalc->best.getHevent(this->drawindex));
         }
         else
         {
