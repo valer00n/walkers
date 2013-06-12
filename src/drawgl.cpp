@@ -24,6 +24,8 @@ void GLPainter::thstarted() {
     QObject::connect(this->curcalc, SIGNAL(switchmode()), this, SLOT(switchmode()));
     this->TIM = new QTimer;
     this->TIM->setInterval(1);
+    QObject::connect(this->curcalc, SIGNAL(startTTT()), this->TIM, SLOT(start()));
+    QObject::connect(this->curcalc, SIGNAL(stopTTT()), this->TIM, SLOT(stop()));
     QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(update()));
     this->TIM->start();
     emit this->createdTH();

@@ -318,6 +318,7 @@ void GLCalc::finn() {
     }
     this->nametyped = "";
     this->timerT->TIM->stop();
+    emit this->stopTTT();
     if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels))
         if ((this->current.gethistorylength() < this->best.gethistorylength()) || (this->best.gethistorylength() == 0))
             this->current.save("../Results/Best/" + QString::number(this->levelnomber) + ".gst");
@@ -345,6 +346,7 @@ void GLCalc::finn() {
     this->TIME = 0;
     this->restart();
     this->timerT->TIM->start();
+    emit this->startTTT();
 }
 
 void GLCalc::searchkeys() {
@@ -694,6 +696,7 @@ void GLCalc::restart() {
     this->jumping = false;
     this->z = 0;
     this->timerT->TIM->stop();
+    emit this->stopTTT();
     this->TIME = 0;
     this->dead = false;
     this->x = this->sx + .5f;
@@ -707,6 +710,7 @@ void GLCalc::restart() {
         this->rx = -90;
     this->timerT->TIM->setInterval(this->updatetime);
     this->timerT->TIM->start();
+    emit this->startTTT();
 }
 
 void GLCalc::jump() {

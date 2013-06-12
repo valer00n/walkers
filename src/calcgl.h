@@ -165,6 +165,8 @@ signals:
     void switchmode();
     void sclose();
     void showW();
+    void startTTT();
+    void stopTTT();
 
 public slots:
     void ins_key(int ev);
