@@ -58,7 +58,6 @@ public:
         GLfloat getx(GLfloat x);
         GLfloat gety(GLfloat y);
         void drawhistory(Hevent ev);
-        Hevent generateevent();
 public slots:
         void switchmode();
         void thstarted();

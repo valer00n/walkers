@@ -396,8 +396,9 @@ void GLPainter::paintGL() {
             GLfloat dist = this->curcalc->CAMERAdist;
             if (this->curcalc->firstview) {
                 dist = .0f;
-                gluLookAt(dist * sin(this->last.ry * 3.15149265 / 180), this->last.z - .05f, dist * cos(this->last.ry * 3.15149265 / 180),
-                          (dist - .1f) * sin(this->last.ry * 3.15149265 / 180), this->curcalc->z - .05f + this->curcalc->rx / 300, (dist - .1f) * cos(this->last.ry * 3.15149265 / 180), 0, 1, 0);
+                glRotatef(-this->curcalc->rx, 1.0f, .0f, .0f);
+                glTranslatef(.0f, -this->last.z , .0f);
+                glRotatef(-this->last.ry, .0f, 1.0f, .0f);
             }
             else
                 gluLookAt(dist * sin(this->last.ry * 3.15149265 / 180), .1f, dist * cos(this->last.ry * 3.15149265 / 180),
@@ -574,7 +575,7 @@ void GLPainter::drawmap() {
                 this->drawNOTHING(i, .0f, -j - 1, 1, 1, 1, this->curcalc->PIXhidden);
            }
     for (int i = 0; i < this->curcalc->Mpanel.size(); i++) {
-        QPair <GLfloat, GLfloat> res = getposs(this->curcalc->TIME, this->curcalc->Mpanel[i]);
+        QPair <GLfloat, GLfloat> res = getposs(this->last.time, this->curcalc->Mpanel[i]);
        this->drawNOTHING(res.first + .01f, .0f, -res.second - 1 - .01f , 1.0f, 1, 1.0f, this->curcalc->PIXmoving);
     }
     GLUquadricObj *q;
@@ -868,40 +869,4 @@ void GLPainter::drawhistory(Hevent ev) {
     glScalef(125.0f, 125.0f, 125.0f);
     glRotatef(-ev.ry, .0f, 1.0f, .0f);
     glTranslatef(-ev.x, -.39f, -ev.y);
-}
-
-Hevent GLPainter::generateevent() {
-    Hevent ev;
-    ev.time = this->curcalc->TIME;
-    ev.x = this->curcalc->x;
-    ev.y = this->curcalc->y;
-    ev.z = this->curcalc->z;
-    ev.ry = this->curcalc->ry;
-    if (this->curcalc->dead) {
-        ev.player = Hdead;
-        ev.sceneindex = (this->curcalc->Dmodel->getanimationlength() - 1) - trunc(((GLfloat) this->curcalc->timetorestart / this->curcalc->restime) * (this->curcalc->Dmodel->getanimationlength() - 1));
-    }
-    else
-    if (this->curcalc->jumping) {
-        ev.player = Hjump;
-        ev.sceneindex = trunc(((GLfloat)this->curcalc->jumpiterations / 37) * (this->curcalc->Jmodel->getanimationlength() - 1));
-    }
-    else
-    if (this->curcalc->duck) {
-        ev.player = Hcrouch;
-        ev.sceneindex = (this->curcalc->TIME / 30) % this->curcalc->Cmodel->getanimationlength();
-        if (!this->curcalc->walking)
-            ev.sceneindex = 0;
-    }
-    else
-    if (this->curcalc->walking) {
-        ev.player = Hwalk;
-        ev.sceneindex = (this->curcalc->TIME / 20) % this->curcalc->Rmodel->getanimationlength();
-    }
-    else {
-        ev.player = Hstay;
-        ev.sceneindex = (this->curcalc->TIME / 100) % this->curcalc->Smodel->getanimationlength();
-    }
-    ev.levelnumber = this->curcalc->levelnomber;
-    return ev;
 }
