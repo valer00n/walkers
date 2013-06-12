@@ -112,17 +112,16 @@ GLCalc::GLCalc(bool multiplayer, QMainWindow *parent)
     if (!in.is_open()) {
         std::ofstream out;
         out.open("../Results/results.walk");
-        out << "Daniel   6250\n";
-        out << "Rudolf   4274\n";
-        out << "Eric     4032\n";
-        out << "John     3861\n";
-        out << "Steve    3424\n";
-        out << "Frank    3367\n";
-        out << "Ben      3048\n";
-        out << "Mike     2380\n";
-        out << "Alexey   1269\n";
-        out << "Bill     1000\n";
-
+        out << "Daniel\"6250\"";
+        out << "Rudolf\"4274\"";
+        out << "Eric\"4032\"";
+        out << "John\"3861\"";
+        out << "Steve\"3424\"";
+        out << "Frank\"3367\"";
+        out << "Ben\"3048\"";
+        out << "Mike\"2380\"";
+        out << "Alexey\"1269\"";
+        out << "Bill\"1000\"";
         out.close();
         in.open("../Results/results.walk");
     }
@@ -406,13 +405,18 @@ void GLCalc::searchkeys() {
                 int i = 0;
                 while (this->score[i].second >= newscore)
                     i++;
-                std::ofstream out;
-                out.open("../Results/results.walk");
-                for (int j = 0; j < i; j++)
-                    out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
-                out << this->nametyped.toStdString() << " " << newscore << " ";
-                for (int j = i; j < 9; j++)
-                    out << this->score[j].first.toStdString() << " " << this->score[j].second << " ";
+                QFile out("../Results/results.walk");
+                out.open(QIODevice::WriteOnly);
+                for (int j = 0; j < i; j++) {
+                    out.write(QString(this->score[j].first + "\"").toLocal8Bit());
+                    out.write(QString(QString::number(this->score[j].second) + "\"").toLocal8Bit());
+                }
+                out.write(QString(this->nametyped + "\"").toLocal8Bit());
+                out.write(QString(QString::number(newscore) + "\"").toLocal8Bit());
+                for (int j = i; j < 9; j++) {
+                    out.write(QString(this->score[j].first + "\"").toLocal8Bit());
+                    out.write(QString(QString::number(this->score[j].second) + "\"").toLocal8Bit());
+                }
                 out.close();
                 this->finn();
             }
@@ -935,14 +939,26 @@ void GLCalc::loadstaticTEX() {
     this->PIXwin = this->genpix(1024, 1024, 40, mes);
 
     mes.clear();
-    std::ifstream inp;
-    inp.open("../Results/results.walk");
+    QFile inp("../Results/results.walk");
+    inp.open(QIODevice::ReadOnly);
     QVector <QPair <QString, int> > res;
     for (int i = 0; i < 10; i++) {
-        std::string a;
-        int b;
-        inp >> a >> b;
-        res.push_back(QPair <QString, int> (QString::fromStdString(a), b));
+        QByteArray p, w;
+        w.resize(0);
+        p = inp.read(1);
+        while (p[0] != '\"') {
+            w.append(p);
+            p = inp.read(1);
+        }
+        QString a = QString::fromLocal8Bit(w);
+        w.resize(0);
+        p = inp.read(1);
+        while (p[0] != '\"') {
+            w.append(p);
+            p = inp.read(1);
+        }
+        int b = QString::fromLocal8Bit(w).toInt();
+        res.push_back(QPair <QString, int> (a, b));
 //        qDebug() << res[i];
     }
     int m = 0;

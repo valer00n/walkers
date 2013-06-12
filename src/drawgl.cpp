@@ -500,11 +500,11 @@ void GLPainter::keyPressEvent(QKeyEvent *ev) {
     if ((this->curcalc->multiplayer) && (this->curcalc->levelnomber == this->curcalc->maxlevels + 2) && (ev->key() == Qt::Key_Escape))
         this->curcalc->parent->close();
     if ((!this->curcalc->multiplayer) && (this->curcalc->levelnomber == this->curcalc->maxlevels + 2)) {
-        if (((ev->text() >= "0") && (ev->text() <= "9")) || ((ev->text() >= "a") && (ev->text() <= "z")) || ((ev->text() >= "A") && (ev->text() <= "Z")) || (ev->text() == "_"))
-            this->curcalc->nametyped += ev->text();
-        else
         if (ev->key() == Qt::Key_Backspace)
             this->curcalc->nametyped = this->curcalc->nametyped.left(this->curcalc->nametyped.length() - 1);
+        else
+            if ((ev->text() != "\"") && (ev->key() != Qt::Key_Escape) && (ev->key() != Qt::Key_Return))
+            this->curcalc->nametyped += ev->text();
         else
             emit this->ins_key(ev->key());
         this->curcalc->nametyped = this->curcalc->nametyped.left(10);
