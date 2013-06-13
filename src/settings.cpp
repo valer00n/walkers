@@ -92,7 +92,6 @@ void Settings::disable(bool wh) {
     this->ui->fullscreenM->setEnabled(wh);
     this->ui->fullscreenS->setEnabled(wh);
     this->ui->comboBox->setEditable(wh);
-
 }
 
 void Settings::chL(int lang) {

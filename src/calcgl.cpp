@@ -169,6 +169,7 @@ void GLCalc::SocketStarted() {
     QObject::connect(this->sok, SIGNAL(connectedOK()), this, SLOT(connectedOK()));
     QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
     QObject::connect(this->sok, SIGNAL(newmes(QString)), this, SLOT(newmes(QString)));
+    QObject::connect(this->sok, SIGNAL(disconnected()), this, SLOT(disconnected()));
     emit this->SocketCr();
 }
 

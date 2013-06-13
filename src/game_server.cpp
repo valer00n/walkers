@@ -27,6 +27,8 @@ Game_server::Game_server(int players, QMainWindow *parent) :
 
 Game_server::~Game_server()
 {
+    for (int i = 0; i < this->serv->connections.size(); i++)
+        this->serv->connections[i]->soc->disconnectFromHost();
     this->parent->close();
     delete ui;
 }
