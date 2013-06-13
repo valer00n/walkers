@@ -100,6 +100,7 @@ void GLCalc::newmes(QString mes) {
 
 GLCalc::GLCalc(bool multiplayer, QMainWindow *parent)
 {
+    this->secure = true;
     this->mess[0] = this->mess[1] = this->mess[2] = this->mess[3] = "";
     this->lat = 20.0f;
     this->multiplayer = multiplayer;
@@ -306,6 +307,7 @@ bool GLCalc::canGO2(GLfloat x, GLfloat y) {
 }
 
 void GLCalc::finn() {
+    this->secure = false;
 //    this->keys_pressed.clear();
     if (this->multiplayer && (this->levelnomber == this->maxlevels)) {
         this->sok->writemessage(QString("m " + this->sok->login + " finished game~").toLocal8Bit());
@@ -349,6 +351,7 @@ void GLCalc::finn() {
     this->restart();
     this->timerT->TIM->start();
     emit this->startTTT();
+    this->secure = true;
 }
 
 void GLCalc::searchkeys() {

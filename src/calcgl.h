@@ -97,6 +97,7 @@ public:
         SMDloader *HistoryRmodel, *HistorySmodel, *HistoryJmodel, *HistoryDmodel, *HistoryCmodel, *HistoryRarm, *HistorySarm, *HistoryJarm, *HistoryDarm, *HistoryCarm;
 
 public:
+        bool secure;
         int onthislevel;
         QMainWindow *parent;
     /*PLAYER INFO*/

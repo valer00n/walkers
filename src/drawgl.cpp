@@ -24,8 +24,8 @@ void GLPainter::thstarted() {
     QObject::connect(this->curcalc, SIGNAL(switchmode()), this, SLOT(switchmode()));
     this->TIM = new QTimer;
     this->TIM->setInterval(1);
-    QObject::connect(this->curcalc, SIGNAL(startTTT()), this->TIM, SLOT(start()));
-    QObject::connect(this->curcalc, SIGNAL(stopTTT()), this->TIM, SLOT(stop()));
+    QObject::connect(this->curcalc, SIGNAL(startTTT()), this->TIM, SLOT(start()), Qt::DirectConnection);
+    QObject::connect(this->curcalc, SIGNAL(stopTTT()), this->TIM, SLOT(stop()), Qt::DirectConnection);
     QObject::connect(this->TIM, SIGNAL(timeout()), this, SLOT(update()));
     this->TIM->start();
     emit this->createdTH();
@@ -361,6 +361,8 @@ void GLPainter::resizeGL(int w, int h) {
 }
 
 void GLPainter::paintGL() {
+    if (!this->curcalc->secure)
+        return;
     if (this->curcalc->current.gethistorylength() != 0)
         this->last = this->curcalc->current.getHevent(this->curcalc->current.gethistorylength() - 1);
     if ((this->curcalc->levelnomber < 1) || (this->curcalc->levelnomber > this->curcalc->maxlevels))
