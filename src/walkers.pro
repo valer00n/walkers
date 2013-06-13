@@ -63,3 +63,6 @@ OTHER_FILES += \
 FORMS += \
     settings.ui \
     game_server.ui
+
+TRANSLATIONS = ../Textures/walkers_ru.ts \
+               ../Textures/walkers_en.ts

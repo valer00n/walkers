@@ -89,7 +89,7 @@ public:
         GLfloat getx(GLfloat x);
         GLfloat gety(GLfloat y);
         GLfloat dist(GLfloat x, GLfloat y);
-        QPixmap genpix(int w, int h, int f, QVector <QString> &mes);
+        QPixmap genpix(int w, int h, int f, QVector <QString> &mes, bool center = true);
         void savescore();
         Hevent generateevent();
 
@@ -97,6 +97,7 @@ public:
         SMDloader *HistoryRmodel, *HistorySmodel, *HistoryJmodel, *HistoryDmodel, *HistoryCmodel, *HistoryRarm, *HistorySarm, *HistoryJarm, *HistoryDarm, *HistoryCarm;
 
 public:
+        int onthislevel;
         QMainWindow *parent;
     /*PLAYER INFO*/
         bool firstview;

@@ -140,6 +140,7 @@ GLCalc::GLCalc(bool multiplayer, QMainWindow *parent)
     this->mousedetected = false;
     this->levelnomber = -1;
     this->TIME = 0;
+    this->onthislevel = 0;
     this->fullscreen = true;
     this->restime = 1500;
     this->menuopened = false;
@@ -175,7 +176,7 @@ void GLCalc::disconnected() {
     this->mess[3] = "";
     this->mess[2] = "";
     this->mess[1] = "";
-    this->mess[0] = "Lost connection to server ='(";
+    this->mess[0] = tr("Lost connection to server ='(");
 }
 
 void GLCalc::startgame() {
@@ -343,6 +344,7 @@ void GLCalc::finn() {
         this->best.load("../Results/Best/" + QString::number(this->levelnomber) + ".gst");
     }
     this->TIME = 0;
+    this->onthislevel = 0;
     this->restart();
     this->timerT->TIM->start();
     emit this->startTTT();
@@ -641,6 +643,7 @@ void GLCalc::timeout() {
 //        this->freefall();
     if (this->dead) {
                 this->TIME += this->updatetime;
+                this->onthislevel += this->updatetime;
                 if (!this->menuopened || this->multiplayer)
                     this->timetorestart -= this->updatetime;
                 if (this->timetorestart <= 0) {
@@ -651,6 +654,7 @@ void GLCalc::timeout() {
     else {
         if (!this->menuopened || this->multiplayer) {
             this->TIME += this->updatetime;
+            this->onthislevel += this->updatetime;
             if (this->levelnomber <= this->maxlevels)
             this->timerT->globaltime += this->updatetime;
         }
@@ -871,7 +875,7 @@ void GLCalc::loadlevel() {
     fclose(inp);
 }
 
-QPixmap GLCalc::genpix(int w, int h, int f, QVector<QString> &mes) {
+QPixmap GLCalc::genpix(int w, int h, int f, QVector<QString> &mes, bool center) {
     QPixmap *menu = new QPixmap(w, h);
     QPainter p(menu);
     p.setFont(QFont("Liberation Mono", f, -1, false));
@@ -893,6 +897,8 @@ QPixmap GLCalc::genpix(int w, int h, int f, QVector<QString> &mes) {
 //    qDebug() << a << b;
     int dx = (w - a) / 2;
     int dy = (h - b * mes.size()) / 2;
+    if (!center)
+        dx = 5;
 //    qDebug() << dx << dy;
 //    dy = 0;
 //    p.drawText(40, 40, "ASDD);
@@ -915,28 +921,28 @@ void GLCalc::loadstaticTEX() {
     this->PIXhole = QPixmap("../Textures/hole.png");
     this->PIXfireball = QPixmap("../Textures/fireball.jpg");
     QVector <QString> mes (11);
-    mes[0] = "WASD   :: move";
-    mes[1] = "arrows :: rotate camera";
-    mes[2] = "Space  :: jump";
-    mes[3] = "Shift  :: crouch";
-    mes[4] = "Esc    :: pause";
-    mes[5] = "Z      :: fullscreen";
-    mes[6] = "C      :: change view";
-    mes[7] = "Reach finish...";
+    mes[0] = tr("WASD   :: move");
+    mes[1] = tr("arrows :: rotate camera");
+    mes[2] = tr("Space  :: jump");
+    mes[3] = tr("Shift  :: crouch");
+    mes[4] = tr("Esc    :: pause");
+    mes[5] = tr("Z      :: fullscreen");
+    mes[6] = tr("C      :: change view");
+    mes[7] = tr("Reach finish...");
     if (!this->multiplayer) {
-        mes[8] = "<Press ENTER to Start>";
-        mes[9] = "         or";
-        mes[10] = "<Press Esc to exit>";
+        mes[8] = tr("<Press ENTER to Start>");
+        mes[9] = tr("         or");
+        mes[10] = tr("<Press Esc to exit>");
     }
     else
-        mes[9] = "Waiting for other players...";
+        mes[9] = tr("Waiting for other players...");
     this->PIXmenu = this->genpix(1024, 1024, 40, mes);
 
     mes.resize(3);
-    mes[0] = "You won!";
-    mes[1] = "Thank you for playing Walkers!";
-    mes[2] = "                     by danpol";
-    this->PIXwin = this->genpix(1024, 1024, 40, mes);
+    mes[0] = tr("You won!");
+    mes[1] = tr("Thank you for playing Walkers!");
+    mes[2] = "                      by danpol";
+    this->PIXwin = this->genpix(1024, 1024, 40, mes, false);
 
     mes.clear();
     QFile inp("../Results/results.walk");

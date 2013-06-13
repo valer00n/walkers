@@ -485,10 +485,10 @@ void GLPainter::savescore() {
     int i = 0;
     while (this->curcalc->score[i].second >= newscore)
         i++;
-    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 30, "New record! Your place: " + QString::number(i + 1));
-    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 60, "Enter your name: " + this->curcalc->nametyped + this->curcalc->curs);
-    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 90, "<Press Enter to save>");
-    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 110, "<Press Esc to exit>");
+    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 30, tr("New record! Your place: ") + QString::number(i + 1));
+    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 60, tr("Enter your name: ") + this->curcalc->nametyped + this->curcalc->curs);
+    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 90, tr("<Press Enter to save>"));
+    renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 110, tr("<Press Esc to exit>"));
 
 
 }
@@ -763,10 +763,10 @@ void GLPainter::drawinfo() {
         glVertex2f (this->curcalc->dw + 220, -this->curcalc->dh + this->height());
       glEnd();
       glColor4f(1.0f, 1.0f, 1.0f, 1.0f);      
-      renderText(this->curcalc->dw + 5,this->curcalc->dh + 25, "Level: " + QString::number(this->curcalc->levelnomber) + "/" + QString::number(this->curcalc->maxlevels));
-      renderText(this->curcalc->dw + 5,this->curcalc->dh + 45, "Extra lifes taken: " + QString::number(this->curcalc->life));
-      renderText(this->curcalc->dw + 5,this->curcalc->dh + 65, "Time: " + QString::number(this->curcalc->timerT->globaltime / 1000) + "s.");
-      renderText(this->curcalc->dw + 5,this->curcalc->dh + 85, "On this level: " + QString::number(this->curcalc->TIME / 1000) + "s.");
+      renderText(this->curcalc->dw + 5,this->curcalc->dh + 25, tr("Level: ") + QString::number(this->curcalc->levelnomber) + "/" + QString::number(this->curcalc->maxlevels));
+      renderText(this->curcalc->dw + 5,this->curcalc->dh + 45, tr("Extra lifes taken: ") + QString::number(this->curcalc->life));
+      renderText(this->curcalc->dw + 5,this->curcalc->dh + 65, tr("Time: ") + QString::number(this->curcalc->timerT->globaltime / 1000) + tr("s."));
+      renderText(this->curcalc->dw + 5,this->curcalc->dh + 85, tr("On this level: ") + QString::number(this->curcalc->onthislevel / 1000) + tr("s."));
       }
       else {
        glColor4f(std::min((GLfloat) this->curcalc->timetorestart / this->curcalc->restime + 0.05f, 1.0f), 0.0f, 0.0f, 0.8f);
@@ -778,8 +778,8 @@ void GLPainter::drawinfo() {
           glEnd();
           glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
           this->setFont(QFont("serif", 15, -1, false));
-          renderText(this->curcalc->dw + 20, this->curcalc->dh + 40, "You are dead...");
-          renderText(this->curcalc->dw + 20, this->curcalc->dh + 60, "Time to restart: " + QString::number((GLfloat)this->curcalc->timetorestart / 1000));
+          renderText(this->curcalc->dw + 20, this->curcalc->dh + 40, tr("You are dead..."));
+          renderText(this->curcalc->dw + 20, this->curcalc->dh + 60, tr("Time to restart: ") + QString::number((GLfloat)this->curcalc->timetorestart / 1000));
       }
     if (this->curcalc->menuopened) {
         glColor4f(.0f, .0f, .0f, .8f);
@@ -791,9 +791,9 @@ void GLPainter::drawinfo() {
         glEnd();
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         this->setFont(QFont("serif", 15, -1, false));
-        renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 30, "PAUSE");
-        renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 60, "Press Enter to exit    ");
-        renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 80, "Press Esc. to continue");
+        renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 30, tr("PAUSE"));
+        renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 60, tr("Press Enter to exit    "));
+        renderText(this->curcalc->dw + (this->width() - this->curcalc->dw * 2) / 2 - 125 + 15, this->curcalc->dh + (this->height() - this->curcalc->dh * 2) / 2 - 50 + 80, tr("Press Esc. to continue"));
     }
 
     if (this->curcalc->multiplayer) {

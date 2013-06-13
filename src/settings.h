@@ -15,7 +15,7 @@ class Settings : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Settings(QWidget *parent = 0);
+    explicit Settings(QApplication *parent = 0);
     ~Settings();
     void disable(bool wh);
 
@@ -23,6 +23,8 @@ private:
     Ui::Settings *ui;
     GLPainter *w;
     Game_server *s;
+    QApplication *a;
+    QTranslator *trans;
 
 
 public slots:
@@ -33,6 +35,7 @@ public slots:
     void socketCreated();
     void p1();
     void p2();
+    void chL(int);
 
 signals:
     void scon();
