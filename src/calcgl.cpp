@@ -307,6 +307,9 @@ bool GLCalc::canGO2(GLfloat x, GLfloat y) {
 }
 
 void GLCalc::finn() {
+    this->timerT->TIM->stop();
+//    emit this->stopTTT();
+    this->CAMERAdist = 0;
     this->secure = false;
 //    this->keys_pressed.clear();
     if (this->multiplayer && (this->levelnomber == this->maxlevels)) {
@@ -317,11 +320,11 @@ void GLCalc::finn() {
         int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
         this->sok->writemessage(QString("f " + QString::number(newscore) + "~").toLocal8Bit());
         this->restart();
+//        emit this->startTTT();
+        this->secure = true;
         return;
     }
     this->nametyped = "";
-    this->timerT->TIM->stop();
-    emit this->stopTTT();
     if ((this->levelnomber > 0) && (this->levelnomber <= this->maxlevels))
         if ((this->current.gethistorylength() < this->best.gethistorylength()) || (this->best.gethistorylength() == 0))
             this->current.save("../Results/Best/" + QString::number(this->levelnomber) + ".gst");
@@ -350,7 +353,7 @@ void GLCalc::finn() {
     this->onthislevel = 0;
     this->restart();
     this->timerT->TIM->start();
-    emit this->startTTT();
+//    emit this->startTTT();
     this->secure = true;
 }
 
@@ -583,6 +586,7 @@ void GLCalc::die() {
 }
 
 void GLCalc::timeout() {
+//    qDebug() << "!" << this->timerT->globaltime;
 //    qDebug() << "(";
     if (this->levelnomber == this->maxlevels + 2) {
         int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
@@ -708,7 +712,6 @@ void GLCalc::restart() {
     this->jumping = false;
     this->z = 0;
     this->timerT->TIM->stop();
-    emit this->stopTTT();
     this->TIME = 0;
     this->dead = false;
     this->x = this->sx + .5f;
@@ -722,7 +725,6 @@ void GLCalc::restart() {
         this->rx = -90;
     this->timerT->TIM->setInterval(this->updatetime);
     this->timerT->TIM->start();
-    emit this->startTTT();
 }
 
 void GLCalc::jump() {

@@ -361,6 +361,7 @@ void GLPainter::resizeGL(int w, int h) {
 }
 
 void GLPainter::paintGL() {
+//    qDebug() << this->curcalc->timerT->globaltime;
     if (!this->curcalc->secure)
         return;
     if (this->curcalc->current.gethistorylength() != 0)
@@ -410,6 +411,8 @@ void GLPainter::paintGL() {
 
         glTranslatef(-this->last.x + .5f, .0f, -this->last.y - 1.5f);
         this->drawSKY();
+        if (!this->curcalc->secure)
+            return;
         this->drawmap();
         if ((!this->curcalc->firstview) && (this->curcalc->current.gethistorylength() != 0))
             this->drawplayer(this->last);
