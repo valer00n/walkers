@@ -4,77 +4,82 @@
 <context>
     <name>GLCalc</name>
     <message>
-        <location filename="../src/calcgl.cpp" line="180"/>
+        <location filename="../src/calcgl.cpp" line="90"/>
+        <source>&lt;Press Esc. to exit&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/calcgl.cpp" line="181"/>
         <source>Lost connection to server =&apos;(</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="925"/>
+        <location filename="../src/calcgl.cpp" line="936"/>
         <source>WASD   :: move</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="926"/>
+        <location filename="../src/calcgl.cpp" line="937"/>
         <source>arrows :: rotate camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="927"/>
+        <location filename="../src/calcgl.cpp" line="938"/>
         <source>Space  :: jump</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="928"/>
+        <location filename="../src/calcgl.cpp" line="939"/>
         <source>Shift  :: crouch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="929"/>
+        <location filename="../src/calcgl.cpp" line="940"/>
         <source>Esc    :: pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="930"/>
+        <location filename="../src/calcgl.cpp" line="941"/>
         <source>Z      :: fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="931"/>
+        <location filename="../src/calcgl.cpp" line="942"/>
         <source>C      :: change view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="932"/>
+        <location filename="../src/calcgl.cpp" line="943"/>
         <source>Reach finish...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="934"/>
+        <location filename="../src/calcgl.cpp" line="945"/>
         <source>&lt;Press ENTER to Start&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="935"/>
+        <location filename="../src/calcgl.cpp" line="946"/>
         <source>         or</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="936"/>
+        <location filename="../src/calcgl.cpp" line="947"/>
         <source>&lt;Press Esc to exit&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="939"/>
+        <location filename="../src/calcgl.cpp" line="950"/>
         <source>Waiting for other players...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="943"/>
+        <location filename="../src/calcgl.cpp" line="954"/>
         <source>You won!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/calcgl.cpp" line="944"/>
+        <location filename="../src/calcgl.cpp" line="955"/>
         <source>Thank you for playing Walkers!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -82,73 +87,73 @@
 <context>
     <name>GLPainter</name>
     <message>
-        <location filename="../src/drawgl.cpp" line="488"/>
+        <location filename="../src/drawgl.cpp" line="493"/>
         <source>New record! Your place: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="489"/>
+        <location filename="../src/drawgl.cpp" line="494"/>
         <source>Enter your name: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="490"/>
+        <location filename="../src/drawgl.cpp" line="495"/>
         <source>&lt;Press Enter to save&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="491"/>
+        <location filename="../src/drawgl.cpp" line="496"/>
         <source>&lt;Press Esc to exit&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="766"/>
+        <location filename="../src/drawgl.cpp" line="771"/>
         <source>Level: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="767"/>
+        <location filename="../src/drawgl.cpp" line="772"/>
         <source>Extra lifes taken: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="768"/>
+        <location filename="../src/drawgl.cpp" line="773"/>
         <source>Time: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="768"/>
-        <location filename="../src/drawgl.cpp" line="769"/>
+        <location filename="../src/drawgl.cpp" line="773"/>
+        <location filename="../src/drawgl.cpp" line="774"/>
         <source>s.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="769"/>
+        <location filename="../src/drawgl.cpp" line="774"/>
         <source>On this level: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="781"/>
+        <location filename="../src/drawgl.cpp" line="786"/>
         <source>You are dead...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="782"/>
+        <location filename="../src/drawgl.cpp" line="787"/>
         <source>Time to restart: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="794"/>
+        <location filename="../src/drawgl.cpp" line="799"/>
         <source>PAUSE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="795"/>
+        <location filename="../src/drawgl.cpp" line="800"/>
         <source>Press Enter to exit    </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/drawgl.cpp" line="796"/>
+        <location filename="../src/drawgl.cpp" line="801"/>
         <source>Press Esc. to continue</source>
         <translation type="unfinished"></translation>
     </message>
@@ -179,81 +184,76 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="53"/>
-        <source>Deutsch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settings.ui" line="74"/>
-        <location filename="../src/settings.ui" line="177"/>
+        <location filename="../src/settings.ui" line="69"/>
+        <location filename="../src/settings.ui" line="172"/>
         <location filename="../src/settings.cpp" line="17"/>
         <location filename="../src/settings.cpp" line="18"/>
-        <location filename="../src/settings.cpp" line="118"/>
-        <location filename="../src/settings.cpp" line="119"/>
+        <location filename="../src/settings.cpp" line="114"/>
+        <location filename="../src/settings.cpp" line="115"/>
         <source>fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="87"/>
+        <location filename="../src/settings.ui" line="82"/>
         <location filename="../src/settings.cpp" line="16"/>
-        <location filename="../src/settings.cpp" line="117"/>
+        <location filename="../src/settings.cpp" line="113"/>
         <source>Start singleplayer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="120"/>
+        <location filename="../src/settings.ui" line="115"/>
         <location filename="../src/settings.cpp" line="10"/>
-        <location filename="../src/settings.cpp" line="111"/>
+        <location filename="../src/settings.cpp" line="107"/>
         <source>Start server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="127"/>
+        <location filename="../src/settings.ui" line="122"/>
         <location filename="../src/settings.cpp" line="11"/>
-        <location filename="../src/settings.cpp" line="112"/>
+        <location filename="../src/settings.cpp" line="108"/>
         <source>Players:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="147"/>
+        <location filename="../src/settings.ui" line="142"/>
         <location filename="../src/settings.cpp" line="15"/>
-        <location filename="../src/settings.cpp" line="116"/>
+        <location filename="../src/settings.cpp" line="112"/>
         <source>Start multiplayer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="154"/>
+        <location filename="../src/settings.ui" line="149"/>
         <location filename="../src/settings.cpp" line="14"/>
-        <location filename="../src/settings.cpp" line="115"/>
+        <location filename="../src/settings.cpp" line="111"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="161"/>
+        <location filename="../src/settings.ui" line="156"/>
         <source>localhost</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="187"/>
+        <location filename="../src/settings.ui" line="182"/>
         <source>7777</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="194"/>
+        <location filename="../src/settings.ui" line="189"/>
         <location filename="../src/settings.cpp" line="13"/>
-        <location filename="../src/settings.cpp" line="114"/>
+        <location filename="../src/settings.cpp" line="110"/>
         <source>IP adress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="201"/>
+        <location filename="../src/settings.ui" line="196"/>
         <location filename="../src/settings.cpp" line="12"/>
-        <location filename="../src/settings.cpp" line="113"/>
+        <location filename="../src/settings.cpp" line="109"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settings.ui" line="208"/>
+        <location filename="../src/settings.ui" line="203"/>
         <source>noname</source>
         <translation type="unfinished"></translation>
     </message>

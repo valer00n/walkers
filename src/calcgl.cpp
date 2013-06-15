@@ -87,7 +87,7 @@ void GLCalc::newmes(QString mes) {
                 names[i] += " ";
         for (int i = 0; i < names.size(); i++)
             me.push_back(names[i] + " :: " + QString::number(resu[i]));
-        me.push_back("<Press Esc. to exit>");
+        me.push_back(tr("<Press Esc. to exit>"));
         this->PIXmultires = this->genpix(1024, 1024, 40, me);
     }
     if (mes[0] == 'm') {
@@ -795,13 +795,17 @@ void GLCalc::levelclear() {
 }
 
 void GLCalc::loadlevel() {
+    int n, m;
     FILE *inp;
     inp = fopen(QString("../Levels/" + QString::number(this->levelnomber) + ".lvl").toStdString().c_str(), "r");
     if (inp == NULL) {
         qDebug() << "file with map" << this->levelnomber << "not found. Halting!";
         emit this->sclose();
     }
-    fscanf(inp, "%d %d\n", &this->n, &this->m);
+    this->n = 0;
+    this->m = 0;
+    fscanf(inp, "%d %d\n", &n, &m);
+
     this->map.resize(n);
     for (int i = 0; i < n; i++)
         this->map[i].resize(m);
@@ -878,6 +882,8 @@ void GLCalc::loadlevel() {
         if (s1 == "moving")
             this->PIXmoving = QPixmap("../Textures/" + QString(s));
     }
+    this->n = n;
+    this->m = m;
     fclose(inp);
 }
 
