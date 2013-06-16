@@ -11,7 +11,6 @@ class Hsocket: public QObject
     Q_OBJECT
 public:
     Hsocket();
-    void writemessage(QByteArray bit);
 public:
     QTcpSocket *soc;
     QString ip, login;
@@ -31,6 +30,7 @@ public slots:
     void ondisconnected();
     void startconnection();
     void timeout();
+    void writemessage(QByteArray bit);
     
 };
 

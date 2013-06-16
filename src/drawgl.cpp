@@ -38,7 +38,7 @@ void GLPainter::startit(bool multiplayer, QMainWindow *par) {
     this->pp = new GLCalcTH;
     this->pp->mult = multiplayer;
     this->pp->par = par;
-    QObject::connect(this->pp, SIGNAL(started()), this, SLOT(thstarted()));
+    QObject::connect(this->pp, SIGNAL(startedD()), this, SLOT(thstarted()));
     this->pp->start();
 }
 
@@ -361,11 +361,17 @@ void GLPainter::resizeGL(int w, int h) {
 }
 
 void GLPainter::paintGL() {
+//    qDebug() << "(";
 //    qDebug() << this->curcalc->timerT->globaltime;
     if (!this->curcalc->secure)
         return;
-    if (this->curcalc->current.gethistorylength() != 0)
+    if (this->curcalc->current.gethistorylength() > 0)
         this->last = this->curcalc->current.getHevent(this->curcalc->current.gethistorylength() - 1);
+    else {
+        this->last.levelnumber = -1;
+        this->last.player = Hstay;
+        this->last.ry = this->last.sceneindex = this->last.time = this->last.x = this->last.y = this->last.z = 0;
+    }
     if ((this->curcalc->levelnomber < 1) || (this->curcalc->levelnomber > this->curcalc->maxlevels))
         this->last.ry = 0;
     this->drawindex = this->curcalc->drawindex;
@@ -414,6 +420,7 @@ void GLPainter::paintGL() {
         if (!this->curcalc->secure)
             return;
         this->drawmap();
+//        qDebug() << this->curcalc->current.gethistorylength();
         if ((!this->curcalc->firstview) && (this->curcalc->current.gethistorylength() != 0))
             this->drawplayer(this->last);
         if (!this->curcalc->multiplayer){
@@ -442,11 +449,12 @@ void GLPainter::paintGL() {
 //            asd
         }
 //    qDebug() << ">";
+//    qDebug() << ")";
 }
 
 void GLPainter::drawplayer(Hevent ev) {
     glTranslatef(ev.x, .39f, ev.y);
-                    glRotatef(ev.ry, .0f, 1.0f, .0f);
+    glRotatef(ev.ry, .0f, 1.0f, .0f);
     glScalef(0.008f, 0.008f, 0.008f);
     glRotatef(-90.0f, 1.0f, .0f, .0f);
     glRotatef(180.0f, .0f, .0f, 1.0f);
@@ -551,6 +559,7 @@ bool getstate(int TIME, hidden panel) {
 }
 
 void GLPainter::drawmap() {
+//    qDebug() << "[";
     for (int i = 0; i < this->curcalc->Hpanel.size(); i++)
         if (getstate(this->last.time, this->curcalc->Hpanel[i]))
             this->curcalc->map[this->curcalc->Hpanel[i].x][this->curcalc->Hpanel[i].y] = 'H';
@@ -658,6 +667,7 @@ void GLPainter::drawmap() {
             glTranslatef(-this->curcalc->Fpanel[i].x, -this->curcalc->Fpanel[i].z, this->curcalc->Fpanel[i].y);
     }
     gluDeleteQuadric(q);
+//    qDebug() << "]";
 }
 
 void GLPainter::drawaxes() {

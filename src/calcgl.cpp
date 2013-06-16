@@ -10,7 +10,7 @@
 
 void GLCalcTH::run() {
     this->p = new GLCalc(this->mult, this->par);
-    emit this->started();
+    emit this->startedD();
     this->exec();
 //    qDebug() << "run";
 }
@@ -25,6 +25,7 @@ void GLCalc::del_key(int ev) {
 }
 
 void GLCalc::newmes(QString mes) {
+//    qDebug() << mes;
     if (mes[0] == 'e') {
         int i = 2;
         QString sender = "";
@@ -171,6 +172,7 @@ void GLCalc::SocketStarted() {
     QObject::connect(this->sok, SIGNAL(startgame()), this, SLOT(startgame()));
     QObject::connect(this->sok, SIGNAL(newmes(QString)), this, SLOT(newmes(QString)));
     QObject::connect(this->sok, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    QObject::connect(this, SIGNAL(writemessage(QByteArray)), this->sok, SLOT(writemessage(QByteArray)));
     emit this->SocketCr();
 }
 
@@ -186,7 +188,9 @@ void GLCalc::startgame() {
 }
 
 void GLCalc::connectedOK() {
-    this->parent->hide();
+//    this->parent->hide();
+    QObject::connect(this, SIGNAL(hideTH()), this->parent, SLOT(hide()));
+    emit this->hideTH();
     emit this->showW();
     QObject::connect(this->timerT->TIM, SIGNAL(timeout()), this, SLOT(timeout()));
     finn();
@@ -307,18 +311,19 @@ bool GLCalc::canGO2(GLfloat x, GLfloat y) {
 }
 
 void GLCalc::finn() {
+//    qDebug() << "Finn";
     this->timerT->TIM->stop();
 //    emit this->stopTTT();
     this->CAMERAdist = 0;
     this->secure = false;
 //    this->keys_pressed.clear();
     if (this->multiplayer && (this->levelnomber == this->maxlevels)) {
-        this->sok->writemessage(QString("m " + this->sok->login + " finished game~").toLocal8Bit());
+        emit this->writemessage(QString("m " + this->sok->login + " finished game~").toLocal8Bit());
         this->levelnomber = this->maxlevels + 2;
-        this->sok->writemessage(QString("e " + this->sok->login + " " + getByte(this->generateevent()) + "~").toLocal8Bit());
+        emit this->writemessage(QString("e " + this->sok->login + " " + getByte(this->generateevent()) + "~").toLocal8Bit());
         this->levelclear();
         int newscore = 1000000 / (this->timerT->globaltime / 1000 + 10 * this->life + 1);
-        this->sok->writemessage(QString("f " + QString::number(newscore) + "~").toLocal8Bit());
+        emit this->writemessage(QString("f " + QString::number(newscore) + "~").toLocal8Bit());
         this->restart();
 //        emit this->startTTT();
         this->secure = true;
@@ -342,7 +347,7 @@ void GLCalc::finn() {
     this->levelclear();
     if ((this->levelnomber <= this->maxlevels) && (this->levelnomber != 0)) {
         if ((this->levelnomber != 1) && (this->multiplayer))
-            this->sok->writemessage(QString("m " + this->sok->login + " is on level " + QString::number(this->levelnomber) + "~").toLocal8Bit());
+            emit this->writemessage(QString("m " + this->sok->login + " is on level " + QString::number(this->levelnomber) + "~").toLocal8Bit());
         this->loadlevel();
         if (! QDir("../Results/Best").exists()) {
             QDir().mkdir("../Results/Best/");
@@ -581,7 +586,7 @@ void GLCalc::searchkeys() {
 
 void GLCalc::die() {
     if ((this->multiplayer) && (!this->dead))
-        this->sok->writemessage(QString("m " + this->sok->login + " died~").toLocal8Bit());
+        emit this->writemessage(QString("m " + this->sok->login + " died~").toLocal8Bit());
     this->dead = true;
 }
 
@@ -629,7 +634,7 @@ void GLCalc::timeout() {
         if (this->multiplayer) {
             Hevent ev = this->generateevent();
             ev.time = this->timerT->globaltime;
-            this->sok->writemessage(QString("e " + this->sok->login + " " + getByte(ev) + "~").toLocal8Bit());
+            emit this->writemessage(QString("e " + this->sok->login + " " + getByte(ev) + "~").toLocal8Bit());
         }
         if (this->drawindex < this->best.gethistorylength() - 1)
             this->drawindex++;
@@ -795,6 +800,7 @@ void GLCalc::levelclear() {
 }
 
 void GLCalc::loadlevel() {
+//    qDebug() << "{";
     int n, m;
     FILE *inp;
     inp = fopen(QString("../Levels/" + QString::number(this->levelnomber) + ".lvl").toStdString().c_str(), "r");
@@ -885,6 +891,7 @@ void GLCalc::loadlevel() {
     this->n = n;
     this->m = m;
     fclose(inp);
+//    qDebug() << "}";
 }
 
 QPixmap GLCalc::genpix(int w, int h, int f, QVector<QString> &mes, bool center) {
@@ -918,12 +925,12 @@ QPixmap GLCalc::genpix(int w, int h, int f, QVector<QString> &mes, bool center) 
         p.drawText(dx, dy + b * (i), mes[i]);
     br.setColor(QColor("white"));
     p.setBrush(br);
-    p.drawRect(w / 2 - 50, 0, 100, 140);
-    p.drawRect(w / 2 - 50, h - 220, 100, 220);
+    p.drawRect(w / 2 - 50, 0, 100, 120);
+    p.drawRect(w / 2 - 50, h - 200, 100, 200);
     br.setColor(QColor("black"));
     p.setBrush(br);
-    p.drawRect(w / 2 - 5, 0 , 10, 140);
-    p.drawRect(w / 2 - 5, h - 220, 10, 220);
+    p.drawRect(w / 2 - 5, 0 , 10, 120);
+    p.drawRect(w / 2 - 5, h - 200, 10, 200);
     p.end();
     return *menu;
 }
@@ -1005,6 +1012,7 @@ GLfloat GLCalc::dist(GLfloat x, GLfloat y) {
 }
 
 Hevent GLCalc::generateevent() {
+//    qDebug() << "GE";
     Hevent ev;
     ev.time = this->TIME;
     ev.x = x;
@@ -1037,5 +1045,7 @@ Hevent GLCalc::generateevent() {
         ev.sceneindex = (this->TIME / 100) % this->Smodel->getanimationlength();
     }
     ev.levelnumber = this->levelnomber;
+//    qDebug() << "/GE";
+//    qDebug() << this->current.gethistorylength() << ev.player << ev.sceneindex;
     return ev;
 }

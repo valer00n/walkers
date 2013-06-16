@@ -28,11 +28,11 @@ Settings::~Settings()
 }
 
 void Settings::p1() {
+    this->hide();
     w->setWindowTitle("Walkers");
     if (!this->ui->fullscreenS->checkState())
         w->switchmode();
     w->curcalc->multiplayer = false;
-    this->hide();
     w->show();
 }
 

@@ -78,9 +78,16 @@ void Ghost::save(QString path){
 }
 
 Hevent Ghost::getHevent(int Heventindex){
-    if (Heventindex >= this->history.size())
+    if ((Heventindex >= this->history.size()) || (Heventindex < 0)) {
         qDebug() << "Invalid Hevent number";
-    return this->history[Heventindex];
+        Hevent ev;
+        ev.levelnumber = -1;
+        ev.player = Hstay;
+        ev.ry = ev.sceneindex = ev.time = ev.x = ev.y = ev.z = 0;
+        return ev;
+    }
+    else
+        return this->history[Heventindex];
 }
 int Ghost::gethistorylength(){
     return this->history.size();
@@ -103,6 +110,8 @@ void Ghost::pushHevent(int time, float x, float y, float z, float ry, Hstatus pl
 
 void Ghost::clear() {
     this->history.clear();
+    if (this->history.size() != 0)
+        qDebug() << "Something strange in Ghost::clear()";
 }
 
 QString getByte(Hevent ev) {

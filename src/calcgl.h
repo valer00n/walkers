@@ -169,6 +169,8 @@ signals:
     void showW();
     void startTTT();
     void stopTTT();
+    void hideTH();
+    void writemessage(QByteArray bit);
 
 public slots:
     void ins_key(int ev);
@@ -185,7 +187,7 @@ public:
     GLCalc *p;
     void run();
 signals:
-    void started();
+    void startedD();
 };
 
 #endif // GLCalc_H
